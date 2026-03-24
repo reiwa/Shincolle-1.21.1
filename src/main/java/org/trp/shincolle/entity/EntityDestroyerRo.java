@@ -1,0 +1,107 @@
+package org.trp.shincolle.entity;
+
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.init.ModItems;
+
+public class EntityDestroyerRo extends EntityShipBase {
+
+    public EntityDestroyerRo(EntityType<? extends TamableAnimal> type, Level level) {
+        super(type, level);
+        setModelPos(new float[]{0, 0, 0, 25});
+        setStateMinor(STATE_MINOR_FACTION_ID, -1);
+        setStateMinor(STATE_MINOR_SHIP_CLASS, 1);
+        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
+        setStateMinor(STATE_MINOR_RARITY, 1);
+        setStateFlag(15, false);
+        setStateFlag(16, false);
+        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+
+        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+            applyBuffToOwner();
+        }
+    }
+
+    public double getPassengersRidingOffset() {
+        if (this.getIsSitting()) {
+            return this.getBbHeight() * 0.28f;
+        }
+        return this.getBbHeight() * 0.6f;
+    }
+
+    private void applyBuffToOwner() {
+        if (this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+            if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
+                int amp = this.getStateMinor(0) / 30;
+                this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.DIG_SPEED,
+                        80 + this.getStateMinor(0), amp, false, false));
+            }
+        }
+    }
+
+    @Override
+    protected void setFaceNormal() {
+        setSimpleFace(FACE_EYES_OPEN);
+    }
+
+    @Override
+    protected void setFaceCry() {
+        setSimpleFace(FACE_EYES_HALF);
+    }
+
+    @Override
+    protected void setFaceDamaged() {
+        setSimpleFace(FACE_EYES_HALF);
+    }
+
+    @Override
+    protected void setFaceScorn() {
+        setSimpleFace(FACE_EYES_HALF);
+    }
+
+    @Override
+    protected void setFaceHungry() {
+        setSimpleFace(FACE_EYES_HALF);
+    }
+
+    @Override
+    protected void setFaceAngry() {
+        setSimpleFace(FACE_EYES_OPEN);
+    }
+
+    @Override
+    protected void setFaceBored() {
+        setSimpleFace(FACE_EYES_CLOSED);
+    }
+
+    @Override
+    protected void setFaceShy() {
+        setSimpleFace(FACE_EYES_OPEN);
+    }
+
+    @Override
+    protected void setFaceHappy() {
+        setSimpleFace(FACE_EYES_OPEN);
+    }
+
+    private void setSimpleFace(int faceId) {
+        this.setFaceId(faceId);
+        this.setMouthId(MOUTH_FRONT_0);
+    }
+
+    @Override
+    protected Item getShipSpawnEggItem() {
+        return ModItems.DESTROYER_RO_SPAWN_EGG.get();
+    }
+}
+

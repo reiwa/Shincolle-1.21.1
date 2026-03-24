@@ -1,0 +1,71 @@
+package org.trp.shincolle.entity;
+
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.init.ModItems;
+
+import java.util.List;
+
+public class EntitySubmSo extends EntityShipBase {
+
+    public static final String EQUIP_HEAD_BASE = "equip_head_base";
+    public static final String EQUIP_CANNON = "equip_cannon";
+    public static final String EQUIP_NORMAL_BODY = "equip_normal_body";
+    public static final String EQUIP_TORPEDO = "equip_torpedo";
+
+    public EntitySubmSo(EntityType<? extends TamableAnimal> type, Level level) {
+        super(type, level);
+        setModelPos(new float[]{0, 25, 0, 45});
+        setStateMinor(STATE_MINOR_FACTION_ID, 8);
+        setStateMinor(STATE_MINOR_SHIP_CLASS, 19);
+        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 6);
+        setStateMinor(STATE_MINOR_RARITY, 4);
+        setStateFlag(15, false);
+        setStateFlag(16, false);
+        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setEquipFlag(EQUIP_HEAD_BASE, true);
+        setEquipFlag(EQUIP_CANNON, true);
+        setEquipFlag(EQUIP_NORMAL_BODY, true);
+        setEquipFlag(EQUIP_TORPEDO, true);
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+
+        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+            updateServerLogic();
+        }
+    }
+
+    private void updateServerLogic() {
+        if (this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+            int duration = 40 + this.getLevel();
+            this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
+            if (this.getStateFlag(1) && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
+                this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
+            }
+        }
+    }
+
+    @Override
+    public List<EquipOption> getEquipOptions() {
+        return List.of(
+                new EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"),
+                new EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"),
+                new EquipOption(EQUIP_NORMAL_BODY, "gui.shincolle.equip.normal_body"),
+                new EquipOption(EQUIP_TORPEDO, "gui.shincolle.equip.torpedo")
+        );
+    }
+
+    @Override
+    protected Item getShipSpawnEggItem() {
+        return ModItems.SUBM_SO_SPAWN_EGG.get();
+    }
+}
+
