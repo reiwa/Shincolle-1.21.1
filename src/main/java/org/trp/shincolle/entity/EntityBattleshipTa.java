@@ -33,17 +33,17 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
         setStateMinor(STATE_MINOR_SHIP_CLASS, 14);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 3);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
         setEquipFlag(EQUIP_CLOAK, true);
         setEquipFlag(EQUIP_RIGGING, true);
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
@@ -115,7 +115,7 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
         if (this.numRensouhou < MAX_RENSOUHOU) {
             this.numRensouhou++;
         }
-        if (this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
             applyBuffToNearbyAllies();
         }
     }

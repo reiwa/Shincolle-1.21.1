@@ -115,30 +115,73 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     }
 
     @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        if (this.carrierId != null) {
+            compound.putUUID("CarrierId", this.carrierId);
+        }
+        if (this.targetId != null) {
+            compound.putUUID("TargetId", this.targetId);
+        }
+        compound.putBoolean("BackHome", this.backHome);
+        compound.putBoolean("MissionLight", this.missionLightAircraft);
+        compound.putInt("MissionTick", this.missionTick);
+        compound.putInt("AttackDelay", this.attackDelay);
+        compound.putInt("MaxAttackDelay", this.maxAttackDelay);
+        compound.putInt("NumAmmoLight", this.numAmmoLight);
+        compound.putInt("NumAmmoHeavy", this.numAmmoHeavy);
+        compound.putFloat("AttackRangeSq", this.attackRangeSq);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        this.carrierId = compound.hasUUID("CarrierId") ? compound.getUUID("CarrierId") : null;
+        this.targetId = compound.hasUUID("TargetId") ? compound.getUUID("TargetId") : null;
+        this.backHome = compound.getBoolean("BackHome");
+        this.missionLightAircraft = compound.getBoolean("MissionLight");
+        this.missionTick = compound.getInt("MissionTick");
+        this.attackDelay = compound.getInt("AttackDelay");
+        this.maxAttackDelay = compound.getInt("MaxAttackDelay");
+        this.numAmmoLight = compound.getInt("NumAmmoLight");
+        this.numAmmoHeavy = compound.getInt("NumAmmoHeavy");
+        this.attackRangeSq = compound.getFloat("AttackRangeSq");
+
+        if (this.attackRangeSq <= 0.0F) {
+            this.attackRangeSq = (this.missionLightAircraft ? ATTACK_RANGE_LIGHT : ATTACK_RANGE_HEAVY);
+            this.attackRangeSq *= this.attackRangeSq;
+        }
+        if (this.maxAttackDelay <= 0) {
+            this.maxAttackDelay = FIXED_ATTACK_DELAY_AIRCRAFT + BASE_ATTACK_SPEED_AIRCRAFT;
+        }
+        if (this.attackDelay <= 0) {
+            this.attackDelay = this.maxAttackDelay + HOST_CHECK_TIMEOUT;
+        }
+    }
+
+    @Override
     public void aiStep() {
         super.aiStep();
 
-        if (!this.isDying) {
-            this.setNoGravity(true);
-            this.fallDistance = 0.0F;
+        if (this.isDying) {
+            if (!this.level().isClientSide) {
+                tickDeathAnimation();
+            }
+            return;
         }
+
+        this.setNoGravity(true);
+        this.fallDistance = 0.0F;
         updateRotation();
 
         if (this.level().isClientSide) {
-            if (!this.isDying) {
-                applyFlyParticle();
-            }
+            applyFlyParticle();
         } else {
             updateServerLogic();
         }
     }
 
     private void updateServerLogic() {
-        if (this.isDying) {
-            tickDeathAnimation();
-            return;
-        }
-
         this.missionTick++;
         if (this.attackDelay > 0) {
             this.attackDelay--;
@@ -156,9 +199,18 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         }
 
         handleInitialBoost();
-
         handleTargeting(carrier);
+        checkMissionStatus();
 
+        if (!this.backHome) {
+            Entity target = getMissionTarget();
+            if (target != null && target.isAlive()) {
+                tickCombatMovement(target);
+            }
+        }
+    }
+
+    private void checkMissionStatus() {
         if (this.missionTick >= LIFETIME_TICKS) {
             this.backHome = true;
             this.targetId = null;
@@ -173,12 +225,6 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         if (!this.missionLightAircraft && this.numAmmoHeavy <= 0) {
             this.backHome = true;
             this.targetId = null;
-            return;
-        }
-
-        Entity target = getMissionTarget();
-        if (target != null && target.isAlive()) {
-            tickCombatMovement(target);
         }
     }
 
@@ -548,7 +594,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
     @Nullable
     private Entity findNewTarget(EntityShipBase carrier) {
-        double range = carrier.getStateFlag(19) ? TARGETING_RANGE_AIR_ONLY : TARGETING_RANGE_NORMAL;
+        double range = carrier.isStateAntiAir() ? TARGETING_RANGE_AIR_ONLY : TARGETING_RANGE_NORMAL;
         AABB box = this.getBoundingBox().inflate(range, range, range);
         List<Entity> entities = this.level().getEntities(this, box, entity -> {
             if (entity == null || !entity.isAlive() || entity == this) return false;
@@ -591,50 +637,6 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     }
 
 
-    @Override
-    public void addAdditionalSaveData(CompoundTag compound) {
-        super.addAdditionalSaveData(compound);
-        if (this.carrierId != null) {
-            compound.putUUID("CarrierId", this.carrierId);
-        }
-        if (this.targetId != null) {
-            compound.putUUID("TargetId", this.targetId);
-        }
-        compound.putBoolean("BackHome", this.backHome);
-        compound.putBoolean("MissionLight", this.missionLightAircraft);
-        compound.putInt("MissionTick", this.missionTick);
-        compound.putInt("AttackDelay", this.attackDelay);
-        compound.putInt("MaxAttackDelay", this.maxAttackDelay);
-        compound.putInt("NumAmmoLight", this.numAmmoLight);
-        compound.putInt("NumAmmoHeavy", this.numAmmoHeavy);
-        compound.putFloat("AttackRangeSq", this.attackRangeSq);
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
-        this.carrierId = compound.hasUUID("CarrierId") ? compound.getUUID("CarrierId") : null;
-        this.targetId = compound.hasUUID("TargetId") ? compound.getUUID("TargetId") : null;
-        this.backHome = compound.getBoolean("BackHome");
-        this.missionLightAircraft = compound.getBoolean("MissionLight");
-        this.missionTick = compound.getInt("MissionTick");
-        this.attackDelay = compound.getInt("AttackDelay");
-        this.maxAttackDelay = compound.getInt("MaxAttackDelay");
-        this.numAmmoLight = compound.getInt("NumAmmoLight");
-        this.numAmmoHeavy = compound.getInt("NumAmmoHeavy");
-        this.attackRangeSq = compound.getFloat("AttackRangeSq");
-
-        if (this.attackRangeSq <= 0.0F) {
-            this.attackRangeSq = (this.missionLightAircraft ? ATTACK_RANGE_LIGHT : ATTACK_RANGE_HEAVY);
-            this.attackRangeSq *= this.attackRangeSq;
-        }
-        if (this.maxAttackDelay <= 0) {
-            this.maxAttackDelay = FIXED_ATTACK_DELAY_AIRCRAFT + BASE_ATTACK_SPEED_AIRCRAFT;
-        }
-        if (this.attackDelay <= 0) {
-            this.attackDelay = this.maxAttackDelay + HOST_CHECK_TIMEOUT;
-        }
-    }
 
     public boolean isMissionLightAircraft() {
         return this.missionLightAircraft;

@@ -35,8 +35,8 @@ public class EntityBattleshipNagato extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 37);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 2);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
         setEquipFlag(EQUIP_HEAD, true);
         setEquipFlag(EQUIP_CANNON, true);
     }
@@ -47,9 +47,15 @@ public class EntityBattleshipNagato extends EntityShipBase {
 
         if (this.level().isClientSide) {
             updateClientParticles();
-        } else if ((this.tickCount % 128) == 0 && !this.isInDeadPose()) {
+        }
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+        if ((this.tickCount % 128) == 0) {
             addMoraleSpecialEvent();
-            if (this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+            if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
                 applyBuffToNearbyAllies();
             }
         }
@@ -103,12 +109,13 @@ public class EntityBattleshipNagato extends EntityShipBase {
     }
 
     private void updateClientParticles() {
-        if (this.tickCount % 4 == 0 && checkModelState(1, this.getStateEmotion(0))
-                && !this.getIsSitting() && !this.getStateFlag(2) && !this.isInDeadPose()) {
+        if (this.tickCount % 4 == 0 && !this.getIsSitting() && this.getEquipFlag(EQUIP_CANNON) && !this.isInDeadPose()) {
             float[] partPos = rotateXZByAxis(-0.56f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f);
-            this.level().addParticle(ParticleTypes.FLAME,
-                    this.getX() + partPos[1], this.getY() + 1.5D, this.getZ() + partPos[0],
-                    0.0D, 0.0D, 0.0D);
+            for (int i = 0; i < 3; i++) {
+                this.level().addParticle(ParticleTypes.SMOKE,
+                        this.getX() + partPos[1], this.getY() + 1.5D + i * 0.1D, this.getZ() + partPos[0],
+                        0.0D, 0.0D, 0.0D);
+            }
         }
 
         if (this.tickCount % 8 == 0) {

@@ -32,7 +32,7 @@ public class EntityAirfieldHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 21);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 4);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateCanRide(true);
         setEquipFlag(EQUIP_HAND, true);
     }
 
@@ -66,10 +66,10 @@ public class EntityAirfieldHime extends EntityShipBase {
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
@@ -89,7 +89,7 @@ public class EntityAirfieldHime extends EntityShipBase {
             this.heal(this.getMaxHealth() * 0.06f + 1.0f);
         }
 
-        if (!(this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 50)) {
+        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 50)) {
             return;
         }
 

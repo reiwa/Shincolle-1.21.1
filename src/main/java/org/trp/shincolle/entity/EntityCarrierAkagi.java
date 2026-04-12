@@ -22,8 +22,8 @@ public class EntityCarrierAkagi extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 48);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1);
         setStateMinor(STATE_MINOR_RARITY, 8);
-        setStateFlag(13, false);
-        setStateFlag(14, false);
+        setStateGuiBtn1(false);
+        setStateGuiBtn2(false);
     }
 
     @Override
@@ -32,19 +32,25 @@ public class EntityCarrierAkagi extends EntityShipBase {
 
         if (this.level().isClientSide) {
             updateClientEffects();
-        } else if ((this.tickCount % 128) == 0) {
+        }
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
 
     private void updateClientEffects() {
-        if ((this.tickCount % 128) == 0 && this.getRandom().nextInt(4) == 0 && !this.getStateFlag(2)) {
+        if ((this.tickCount % 128) == 0 && this.getRandom().nextInt(4) == 0 && !this.isStateNoEquip()) {
             this.applyParticleEmotion(9);
         }
     }
 
     private void updateServerLogic() {
-        if (!(this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
             return;
         }
 

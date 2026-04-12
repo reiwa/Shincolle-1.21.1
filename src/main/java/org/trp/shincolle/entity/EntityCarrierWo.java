@@ -25,10 +25,10 @@ public class EntityCarrierWo extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 12);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1);
         setStateMinor(STATE_MINOR_RARITY, 5);
-        setStateFlag(13, false);
-        setStateFlag(14, false);
-        setStateFlag(ShipContainerMenu.STATE_FLAG_LIGHT_AIRCRAFT_ATTACK, true);
-        setStateFlag(ShipContainerMenu.STATE_FLAG_HEAVY_AIRCRAFT_ATTACK, true);
+        setStateGuiBtn1(false);
+        setStateGuiBtn2(false);
+        setStateLightAircraftAttack(true);
+        setStateHeavyAircraftAttack(true);
     }
 
     @Override
@@ -37,7 +37,13 @@ public class EntityCarrierWo extends EntityShipBase {
 
         if (this.level().isClientSide) {
             updateClientEffects();
-        } else if ((this.tickCount % 128) == 0) {
+        }
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
@@ -45,7 +51,7 @@ public class EntityCarrierWo extends EntityShipBase {
     private void updateClientEffects() {
         if ((this.tickCount % 4) == 0) {
             boolean shouldGlow = checkModelState(0, this.getStateEmotion(0))
-                    && !this.getStateFlag(2)
+                    && !this.isStateNoEquip()
                     && !(this.getIsSitting() && this.getStateEmotion(1) == 4);
             if (shouldGlow) {
                 spawnEyeGlowParticles();
@@ -75,7 +81,7 @@ public class EntityCarrierWo extends EntityShipBase {
     }
 
     private void updateServerLogic() {
-        if (!(this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
             return;
         }
 

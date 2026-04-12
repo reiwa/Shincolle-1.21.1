@@ -21,15 +21,15 @@ public class EntityBattleshipHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 26);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 1);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             applyBuffToNearbyAllies();
         }
     }
@@ -45,7 +45,7 @@ public class EntityBattleshipHime extends EntityShipBase {
     }
 
     private void applyBuffToNearbyAllies() {
-        if (!(this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
             return;
         }
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,

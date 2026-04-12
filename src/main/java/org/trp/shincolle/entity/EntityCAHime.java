@@ -40,8 +40,8 @@ public class EntityCAHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 49);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4);
         setStateMinor(STATE_MINOR_RARITY, 5);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
         setEquipFlag(EQUIP_TAIL_1, true);
         setEquipFlag(EQUIP_TAIL_2, false);
         setEquipFlag(EQUIP_HAT_1, true);
@@ -50,21 +50,19 @@ public class EntityCAHime extends EntityShipBase {
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide) {
-            if ((this.tickCount & 0x7F) == 0) {
-                updateServerLogic();
-            }
-            if (this.isPushing) {
-                updatePushingState();
-            }
+        if ((this.tickCount & 0x7F) == 0) {
+            updateServerLogic();
+        }
+        if (this.isPushing) {
+            updatePushingState();
         }
     }
 
     private void updateServerLogic() {
-        if (!this.level().isDay() && this.getStateFlag(9)) {
+        if (!this.level().isDay() && this.isStateRingEffect()) {
             int duration = 150;
             int ampSpeed = Math.max(0, this.getStateMinor(0) / 50);
             int ampJump = Math.max(0, this.getStateMinor(0) / 40);
@@ -73,7 +71,7 @@ public class EntityCAHime extends EntityShipBase {
         }
 
         boolean canFindTarget = (this.tickCount & 0xFF) == 0 && this.getRandom().nextInt(5) == 0;
-        boolean isActionBlocked = this.getIsSitting() || this.isPassenger() || this.getStateFlag(2) || this.isLeashed();
+        boolean isActionBlocked = this.getIsSitting() || this.isPassenger() || this.isStateNoEquip() || this.isLeashed();
         if (canFindTarget && !isActionBlocked) {
             findTargetPush();
         }

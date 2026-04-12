@@ -24,8 +24,8 @@ public class EntityCruiserAtago extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 58);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4);
         setStateMinor(STATE_MINOR_RARITY, 4);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
         setEquipFlag(EQUIP_RIGGING, true);
     }
 

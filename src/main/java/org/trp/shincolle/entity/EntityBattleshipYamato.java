@@ -35,8 +35,8 @@ public class EntityBattleshipYamato extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 46);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 4);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
         setEquipFlag(EQUIP_BELT, true);
         setEquipFlag(EQUIP_HEAD_BASE, true);
         setEquipFlag(EQUIP_UPPER, true);
@@ -49,7 +49,13 @@ public class EntityBattleshipYamato extends EntityShipBase {
 
         if (this.level().isClientSide) {
             updateClientParticles();
-        } else if ((this.tickCount % 128) == 0) {
+        }
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+        if ((this.tickCount % 128) == 0) {
             applyBuffToNearbyAllies();
         }
     }
@@ -110,11 +116,13 @@ public class EntityBattleshipYamato extends EntityShipBase {
 
     private void updateClientParticles() {
         if (this.tickCount % 4 == 0 && checkModelState(0, this.getStateEmotion(0))
-                && !this.getIsSitting() && !this.getStateFlag(2)) {
+                && !this.getIsSitting() && !this.isStateNoEquip()) {
             float[] partPos = rotateXZByAxis(-0.63f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f);
-            this.level().addParticle(ParticleTypes.FLAME,
-                    this.getX() + partPos[1], this.getY() + 1.65D, this.getZ() + partPos[0],
-                    0.0D, 0.0D, 0.0D);
+            for (int i = 0; i < 3; i++) {
+            this.level().addParticle(ParticleTypes.SMOKE,
+                this.getX() + partPos[1], this.getY() + 1.65D + i * 0.1D, this.getZ() + partPos[0],
+                0.0D, 0.0D, 0.0D);
+            }
         }
 
         if (this.tickCount % 16 == 0 && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
@@ -125,7 +133,7 @@ public class EntityBattleshipYamato extends EntityShipBase {
     }
 
     private void applyBuffToNearbyAllies() {
-        if (!(this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
             return;
         }
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,

@@ -15,7 +15,7 @@ public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBa
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "bb_haruna"), "main");
 
     private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelBBHaruna");
-    private static final float SITTING_ALT_TRANSLATE_Y = 0.69F;
+    private static final float SITTING_ALT_TRANSLATE_Y = 0.69F * 3;
     private static final float SITTING_IDLE_TRANSLATE_Y = 0.39F * 3;
     private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelBBHaruna");
     private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelBBHaruna");
@@ -892,7 +892,7 @@ public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBa
         float addk2 = angleAdd2 * 0.3F - 0.21F;
         boolean spcStand = true;
 
-        if (entity != null && (entity.isSprinting() || limbSwingAmount > 0.9F)) {
+        if (entity != null && (entity.getIsSprinting() || limbSwingAmount > 0.9F)) {
             spcStand = false;
             BodyMain.xRot = 0.2F;
             Skirt01.xRot = -0.4F;
@@ -954,43 +954,67 @@ public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBa
             boolean isScorn = entity.getStateEmotion(1) == 4;
 
             if (sitTick > 256) {
-                this.poseTranslateY = isScorn ? SITTING_ALT_TRANSLATE_Y : SITTING_TRANSLATE_Y;
-                Head.xRot += 0.1F;
-                BodyMain.xRot = -0.1F;
-                Butt.xRot = -0.4F;
-                Butt.z = buttDefaultZ + (0.19F * OFFSET_SCALE);
-                Skirt01.xRot = -0.35F;
-                Skirt02.xRot = -0.19F;
-                Cloth02a1.xRot = 0.2F;
-                Cloth02b1.xRot = 0.2F;
-                Cloth02c1.xRot = 1.5F;
-                Cloth02c2.xRot = 0.35F;
-                Cloth02c3.xRot = 0.05F;
-                Cloth02c1_1.xRot = 1.5F;
-                Cloth02c2_1.xRot = 0.35F;
-                Cloth02c3_1.xRot = 0.05F;
-                ArmLeft01.xRot = -1.18F;
-                ArmLeft01.yRot = 0.27F;
-                ArmLeft01.zRot = -0.1F;
-                ArmLeft02.zRot = 0.92F;
-                ArmRight01.xRot = -1.18F;
-                ArmRight01.yRot = -0.27F;
-                ArmRight01.zRot = 0.1F;
-                ArmRight02.zRot = -1.32F;
-                addk1 = -2.57F;
-                addk2 = -2.57F;
-                LegLeft01.y = legLeft01DefaultY + (0.25F * OFFSET_SCALE);
-                LegLeft01.z = legLeft01DefaultZ + (-0.2F * OFFSET_SCALE);
-                LegLeft01.yRot = 0.11F;
-                LegLeft01.zRot = -0.12F;
-                LegLeft02.xRot = 2.75F;
-                LegLeft02.z = legLeft02DefaultZ + (0.37F * OFFSET_SCALE);
-                LegRight01.y = legRight01DefaultY + (0.25F * OFFSET_SCALE);
-                LegRight01.z = legRight01DefaultZ + (-0.2F * OFFSET_SCALE);
-                LegRight01.yRot = -0.11F;
-                LegRight01.zRot = 0.12F;
-                LegRight02.xRot = 2.75F;
-                LegRight02.z = legRight02DefaultZ + (0.37F * OFFSET_SCALE);
+                if (isScorn) {
+                    this.poseTranslateY = SITTING_ALT_TRANSLATE_Y;
+                    Head.xRot = -0.35F;
+                    Head.yRot = 0.0F;
+                    BodyMain.xRot = -1.6F;
+                    ArmLeft01.xRot = 3.0F;
+                    ArmLeft01.yRot = 0.0F;
+                    ArmLeft01.zRot = 0.7F;
+                    ArmRight01.xRot = 3.0F;
+                    ArmRight01.yRot = 0.0F;
+                    ArmRight01.zRot = -0.7F;
+                    ArmLeft02.xRot = 0.0F;
+                    ArmRight02.xRot = 0.0F;
+                    addk1 = -0.2F;
+                    addk2 = -0.2F;
+                    LegLeft01.yRot = 0.0F;
+                    LegLeft01.zRot = -0.1F;
+                    LegLeft02.xRot = 0.0F;
+                    LegRight01.yRot = 0.0F;
+                    LegRight01.zRot = 0.1F;
+                    LegRight02.xRot = 0.0F;
+                    EquipBase.visible = false;
+                } else {
+                    this.poseTranslateY = SITTING_TRANSLATE_Y;
+                    Head.xRot += 0.1F;
+                    BodyMain.xRot = -0.1F;
+                    Butt.xRot = -0.4F;
+                    Butt.z = buttDefaultZ + (0.19F * OFFSET_SCALE);
+                    Skirt01.xRot = -0.35F;
+                    Skirt02.xRot = -0.19F;
+                    Cloth02a1.xRot = 0.2F;
+                    Cloth02b1.xRot = 0.2F;
+                    Cloth02c1.xRot = 1.5F;
+                    Cloth02c2.xRot = 0.35F;
+                    Cloth02c3.xRot = 0.05F;
+                    Cloth02c1_1.xRot = 1.5F;
+                    Cloth02c2_1.xRot = 0.35F;
+                    Cloth02c3_1.xRot = 0.05F;
+                    ArmLeft01.xRot = -1.18F;
+                    ArmLeft01.yRot = 0.27F;
+                    ArmLeft01.zRot = -0.1F;
+                    ArmLeft02.zRot = 0.92F;
+                    ArmRight01.xRot = -1.18F;
+                    ArmRight01.yRot = -0.27F;
+                    ArmRight01.zRot = 0.1F;
+                    ArmRight02.zRot = -1.32F;
+                    addk1 = -2.57F;
+                    addk2 = -2.57F;
+                    LegLeft01.y = legLeft01DefaultY + (0.25F * OFFSET_SCALE);
+                    LegLeft01.z = legLeft01DefaultZ + (-0.2F * OFFSET_SCALE);
+                    LegLeft01.yRot = 0.11F;
+                    LegLeft01.zRot = -0.12F;
+                    LegLeft02.xRot = 2.75F;
+                    LegLeft02.z = legLeft02DefaultZ + (0.37F * OFFSET_SCALE);
+                    LegRight01.y = legRight01DefaultY + (0.25F * OFFSET_SCALE);
+                    LegRight01.z = legRight01DefaultZ + (-0.2F * OFFSET_SCALE);
+                    LegRight01.yRot = -0.11F;
+                    LegRight01.zRot = 0.12F;
+                    LegRight02.xRot = 2.75F;
+                    LegRight02.z = legRight02DefaultZ + (0.37F * OFFSET_SCALE);
+                }
             } else {
                 this.poseTranslateY = SITTING_IDLE_TRANSLATE_Y;
                 Head.xRot -= 0.1F;

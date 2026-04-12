@@ -25,23 +25,23 @@ public class EntityCarrierHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 20);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1);
         setStateMinor(STATE_MINOR_RARITY, 3);
-        setStateFlag(13, false);
-        setStateFlag(14, false);
+        setStateGuiBtn1(false);
+        setStateGuiBtn2(false);
         setEquipFlag(EQUIP_LEFT, true);
         setEquipFlag(EQUIP_RIGHT, true);
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
 
     private void updateServerLogic() {
-        if (!(this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
             return;
         }
 

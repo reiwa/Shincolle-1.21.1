@@ -36,6 +36,11 @@ public class EntityBattleshipRu extends EntityShipBase {
 
     public EntityBattleshipRu(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
+        setModelPos(new float[]{-6, 25, 0, 40});
+        setStateMinor(STATE_MINOR_FACTION_ID, 6);
+        setStateMinor(STATE_MINOR_SHIP_CLASS, 13);
+        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
+        setStateMinor(STATE_MINOR_RARITY, 2);
         setEquipFlag(EQUIP_WEAPON, true);
         setEquipFlag(EQUIP_BASE, true);
         setEquipFlag(EQUIP_GLOVES, true);
@@ -52,9 +57,13 @@ public class EntityBattleshipRu extends EntityShipBase {
 
         if (this.level().isClientSide) {
             updateClientEffects();
-        } else {
-            updateServerEffects();
         }
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+        updateServerEffects();
     }
 
     public double getPassengersRidingOffset() {
@@ -161,7 +170,7 @@ public class EntityBattleshipRu extends EntityShipBase {
     }
 
     private void updateServerEffects() {
-        if ((this.tickCount & 0x7F) == 0 && this.level().isDay() && this.getStateFlag(9)) {
+        if ((this.tickCount & 0x7F) == 0 && this.level().isDay() && this.isStateRingEffect()) {
             this.addEffect(new MobEffectInstance(MobEffects.LUCK, 150, Math.max(0, this.getStateMinor(0) / 140), false, false));
         }
         if (this.getStateEmotion(EMOTION_SKILL_PHASE) > 0) {

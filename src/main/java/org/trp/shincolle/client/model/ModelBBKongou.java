@@ -1044,7 +1044,7 @@ public class ModelBBKongou<T extends EntityShipBase> extends ShipModelHumanoidBa
 
         boolean isCrouching = entity != null && entity.isCrouching();
         boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger());
-        boolean isSprinting = entity != null && entity.isSprinting() || limbSwingAmount > 0.9F;
+        boolean isSprinting = (entity != null && entity.getIsSprinting()) || limbSwingAmount > 0.9F;
 
         if (isSprinting) {
             spcStand = false;
@@ -1062,9 +1062,11 @@ public class ModelBBKongou<T extends EntityShipBase> extends ShipModelHumanoidBa
             ArmLeft01.xRot = ctx.angleAdd2 * 1.2F + 0.5F;
             ArmLeft01.yRot = 0.0F;
             ArmLeft02.xRot = -1.0F;
+            ArmLeft02.zRot = 0.0F;
             ArmRight01.xRot = ctx.angleAdd1 * 1.2F + 0.5F;
             ArmRight01.yRot = 0.0F;
             ArmRight02.xRot = -1.0F;
+            ArmRight02.zRot = 0.0F;
 
             legAddLeft = ctx.angleAdd1 * 0.7F - 0.48F;
             legAddRight = ctx.angleAdd2 * 0.7F - 0.41F;
@@ -1219,7 +1221,7 @@ public class ModelBBKongou<T extends EntityShipBase> extends ShipModelHumanoidBa
             LegRight01.zRot = 0.17F;
         }
 
-        if (spcStand) {
+        if (spcStand && (entity == null || (entity.tickCount % 512) > 256)) {
             BodyMain.xRot = -0.17F;
             ArmLeft01.xRot = -1.57F;
             ArmLeft01.yRot = -0.26F;
@@ -1233,6 +1235,10 @@ public class ModelBBKongou<T extends EntityShipBase> extends ShipModelHumanoidBa
             LegLeft01.zRot = -0.17F;
             LegRight01.yRot = 0.0F;
             LegRight01.zRot = 0.17F;
+            if (entity != null && hasLegacyState(entity, 7, 4)) {
+                setFace(3);
+                setMouth(5);
+            }
         }
 
         float swing = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);

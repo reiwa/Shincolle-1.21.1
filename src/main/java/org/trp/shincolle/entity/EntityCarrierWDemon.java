@@ -24,21 +24,21 @@ public class EntityCarrierWDemon extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 33);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1);
         setStateMinor(STATE_MINOR_RARITY, 2);
-        setStateFlag(14, false);
+        setStateGuiBtn2(false);
         setEquipFlag(EQUIP_RIGGING, true);
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
 
     private void updateServerLogic() {
-        if (this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
             List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
                     this.getBoundingBox().inflate(16.0D, 16.0D, 16.0D));
             if (!ships.isEmpty()) {

@@ -1,13 +1,22 @@
 package org.trp.shincolle.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
+import org.trp.shincolle.entity.EntityDestroyerIkazuchi;
+import org.trp.shincolle.entity.EntityDestroyerInazuma;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.menu.ShipContainerMenu;
 
@@ -31,6 +40,13 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private static final int SETTINGS_TAB_1 = 1;
     private static final int SETTINGS_TAB_2 = 2;
     private static final int APPEARANCE_ROWS_PER_PAGE = 6;
+    private static final int MODEL_BOX_HALF_WIDTH = 150;
+    private static final int MODEL_BOX_TOP = 170;
+    private static final int MODEL_BOX_BOTTOM = 110;
+    private static final int MODEL_BOX_HALF_WIDTH_GATTAI = 175;
+    private static final int MODEL_BOX_TOP_GATTAI = 195;
+    private static final int MODEL_BOX_BOTTOM_GATTAI = 130;
+    private static final float MODEL_SCALE_GATTAI_MULTIPLIER = 0.90F;
 
     private int activeDetailTab = DETAIL_TAB_BASIC;
     private int activeSettingsTab = SETTINGS_TAB_1;
@@ -354,6 +370,11 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         int shipType = ship.getStateMinor(EntityShipBase.STATE_MINOR_FACTION_ID);
         int shipClass = ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
 
+        if (isRaidenGattaiState(ship)) {
+            shipType = 2;
+            shipClass = 55;
+        }
+
         int[] shipTypeIconUv = SHIP_TYPE_ICON_MAP.getOrDefault((byte) shipType, DEFAULT_SHIP_TYPE_ICON);
         int[] shipNameIconData = SHIP_NAME_ICON_MAP.getOrDefault(shipClass, DEFAULT_SHIP_NAME_ICON);
 
@@ -383,16 +404,133 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private void drawShipEntityModel(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         EntityShipBase ship = this.menu.getShip();
         float[] modelPos = ship.getModelPos();
+        boolean isGattai = isRaidenGattaiState(ship);
 
         int modelX = this.leftPos + 218 + Mth.floor(modelPos[0]);
         int modelY = this.topPos + 100 + Mth.floor(modelPos[1]);
-        int modelScale = Math.max(16, Mth.floor(modelPos[3]));
-        int boxX1 = modelX - 150;
-        int boxY1 = modelY - 170;
-        int boxX2 = modelX + 150;
-        int boxY2 = modelY + 110;
+        float scaleMultiplier = isGattai ? MODEL_SCALE_GATTAI_MULTIPLIER : 1.0F;
+        int modelScale = Math.max(16, Mth.floor(modelPos[3] * scaleMultiplier));
 
-        InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, boxX1, boxY1, boxX2, boxY2, modelScale, 0.0F, mouseX, mouseY, ship);
+        int boxHalfWidth = isGattai ? MODEL_BOX_HALF_WIDTH_GATTAI : MODEL_BOX_HALF_WIDTH;
+        int boxTop = isGattai ? MODEL_BOX_TOP_GATTAI : MODEL_BOX_TOP;
+        int boxBottom = isGattai ? MODEL_BOX_BOTTOM_GATTAI : MODEL_BOX_BOTTOM;
+
+        int boxX1 = modelX - boxHalfWidth;
+        int boxY1 = modelY - boxTop;
+        int boxX2 = modelX + boxHalfWidth;
+        int boxY2 = modelY + boxBottom;
+
+        if(isGattai){
+            renderEntityWithPassengers(guiGraphics, modelX, modelY, modelScale, mouseX, mouseY, ship);
+        } else {
+            InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, boxX1, boxY1, boxX2, boxY2, modelScale, 0.0F, mouseX, mouseY, ship);
+        }
+    }
+
+    private boolean isRaidenGattaiState(EntityShipBase ship) {
+        return (ship instanceof EntityDestroyerIkazuchi || ship instanceof EntityDestroyerInazuma)
+                && ship.getRidingState() > 1;
+    }
+
+    public static void renderEntityWithPassengers(GuiGraphics guiGraphics, int x, int y, int scale, float mouseX, float mouseY, LivingEntity entity) {
+        float f = (float)Math.atan((x - mouseX) / 40.0F);
+        float f1 = (float)Math.atan((y - 50.0F - mouseY) / 40.0F);
+
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(x, y, 50.0D);
+        poseStack.scale(scale, scale, -scale);
+
+        Quaternionf quaternionf = (new Quaternionf()).rotateZ(3.1415927F);
+        Quaternionf quaternionf1 = (new Quaternionf()).rotateX(f1 * 20.0F * 0.017453292F);
+        quaternionf.mul(quaternionf1);
+        poseStack.mulPose(quaternionf);
+
+        float yBodyRotO = entity.yBodyRotO;
+        float yBodyRot = entity.yBodyRot;
+        float yRotO = entity.getYRot();
+        float xRotO = entity.getXRot();
+        float yHeadRotO = entity.yHeadRotO;
+        float yHeadRot = entity.yHeadRot;
+
+        entity.yBodyRotO = 180.0F + f * 20.0F;
+        entity.yBodyRot = 180.0F + f * 20.0F;
+        entity.setYRot(180.0F + f * 40.0F);
+        entity.yHeadRotO = entity.getYRot();
+        entity.yHeadRot = entity.getYRot();
+        entity.setXRot(f1 * 20.0F);
+
+        EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        quaternionf1.conjugate();
+        entityRenderDispatcher.overrideCameraOrientation(quaternionf1);
+        entityRenderDispatcher.setRenderShadow(false);
+
+        RenderSystem.runAsFancy(() -> {
+            entityRenderDispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, poseStack, guiGraphics.bufferSource(), 15728880);
+
+            for (Entity passenger : entity.getPassengers()) {
+                float passYBodyRotO = 0, passYBodyRot = 0, passYRotO = 0, passXRotO = 0, passYHeadRotO = 0, passYHeadRot = 0;
+
+                if (passenger instanceof LivingEntity livingPassenger) {
+                    passYBodyRotO = livingPassenger.yBodyRotO;
+                    passYBodyRot = livingPassenger.yBodyRot;
+                    passYRotO = livingPassenger.getYRot();
+                    passXRotO = livingPassenger.getXRot();
+                    passYHeadRotO = livingPassenger.yHeadRotO;
+                    passYHeadRot = livingPassenger.yHeadRot;
+
+                    livingPassenger.yBodyRotO = entity.yBodyRotO;
+                    livingPassenger.yBodyRot = entity.yBodyRot;
+                    livingPassenger.setYRot(entity.getYRot());
+                    livingPassenger.yHeadRotO = entity.yHeadRotO;
+                    livingPassenger.yHeadRot = entity.yHeadRot;
+                    livingPassenger.setXRot(entity.getXRot());
+                }
+
+                poseStack.pushPose();
+
+                Vec3 ridingPos = entity.getPassengerRidingPosition(passenger);
+
+                double invScale = 1.0D / scale;
+                double relativeX = (ridingPos.x - entity.getX()) * invScale;
+                double relativeY = (ridingPos.y - entity.getY()) * invScale + 0.09D;
+                double relativeZ = (ridingPos.z - entity.getZ()) * invScale;
+
+                double customZOffset = -0.3D * invScale;
+                float yawRad = entity.getYRot() * ((float) Math.PI / 180F);
+                relativeX += -Math.sin(yawRad) * customZOffset;
+                relativeZ += Math.cos(yawRad) * customZOffset;
+
+                poseStack.translate(relativeX, relativeY, relativeZ+0.2F);
+
+                poseStack.translate(relativeX, relativeY, relativeZ);
+
+                entityRenderDispatcher.render(passenger, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, poseStack, guiGraphics.bufferSource(), 15728880);
+
+                poseStack.popPose();
+
+                if (passenger instanceof LivingEntity livingPassenger) {
+                    livingPassenger.yBodyRotO = passYBodyRotO;
+                    livingPassenger.yBodyRot = passYBodyRot;
+                    livingPassenger.setYRot(passYRotO);
+                    livingPassenger.setXRot(passXRotO);
+                    livingPassenger.yHeadRotO = passYHeadRotO;
+                    livingPassenger.yHeadRot = passYHeadRot;
+                }
+            }
+        });
+
+        guiGraphics.flush();
+        entityRenderDispatcher.setRenderShadow(true);
+
+        entity.yBodyRotO = yBodyRotO;
+        entity.yBodyRot = yBodyRot;
+        entity.setYRot(yRotO);
+        entity.setXRot(xRotO);
+        entity.yHeadRotO = yHeadRotO;
+        entity.yHeadRot = yHeadRot;
+
+        poseStack.popPose();
     }
 
     private int getMoraleLevel(int morale) {

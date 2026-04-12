@@ -26,8 +26,8 @@ public class EntityCruiserTenryuu extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 56);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4);
         setStateMinor(STATE_MINOR_RARITY, 5);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
         setEquipFlag(EQUIP_RIGGING, true);
         setEquipFlag(EQUIP_EARS, true);
         setEquipFlag(EQUIP_SIDE, true);
@@ -36,16 +36,16 @@ public class EntityCruiserTenryuu extends EntityShipBase {
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
 
     private void updateServerLogic() {
-        if (!this.level().isDay() && this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (!this.level().isDay() && this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
             if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 150, 0, false, false));
             }

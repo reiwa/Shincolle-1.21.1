@@ -43,20 +43,16 @@ public class EntityBattleshipRe extends EntityShipBase {
         setStateMinor(STATE_MINOR_RARITY, 3);
     }
 
-    @Override
-    public void aiStep() {
-        super.aiStep();
 
-        if (!this.level().isClientSide) {
-            setEquipFlag(EQUIP_HAIR, true);
-            setEquipFlag(EQUIP_BAG, true);
-            setEquipFlag(EQUIP_EARS, true);
-            if ((this.tickCount & 0x7F) == 0) {
-                updateServerLogic();
-            }
-            if (this.isPushing) {
-                updatePushingState();
-            }
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+
+        if ((this.tickCount & 0x7F) == 0) {
+            updateServerLogic();
+        }
+        if (this.isPushing) {
+            updatePushingState();
         }
     }
 
@@ -194,7 +190,7 @@ public class EntityBattleshipRe extends EntityShipBase {
     }
 
     private void updateServerLogic() {
-        if (this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
             LivingEntity owner = this.getOwner();
             if (owner != null && this.distanceToSqr(owner) < 256.0D) {
                 int duration = 50 + this.getStateMinor(0);
@@ -204,7 +200,7 @@ public class EntityBattleshipRe extends EntityShipBase {
         }
 
         boolean canFindTarget = (this.tickCount & 0xFF) == 0 && this.getRandom().nextInt(5) != 0;
-        boolean isActionBlocked = this.getIsSitting() || this.isPassenger() || this.getStateFlag(2) || this.isLeashed();
+        boolean isActionBlocked = this.getIsSitting() || this.isPassenger() || this.isStateNoEquip() || this.isLeashed();
         if (canFindTarget && !isActionBlocked) {
             findTargetPush();
         }
@@ -254,7 +250,7 @@ public class EntityBattleshipRe extends EntityShipBase {
     private void findTargetPush() {
         AABB impactBox = this.getBoundingBox().inflate(12.0D, 6.0D, 12.0D);
         List<LivingEntity> list = this.level().getEntitiesOfClass(LivingEntity.class, impactBox,
-                ent -> ent != this && ent.isAlive() && ent.canBeCollidedWith());
+                ent -> ent != this && ent.isAlive() && ent.isPushable());
         if (!list.isEmpty()) {
             this.targetPush = list.get(this.getRandom().nextInt(list.size()));
             this.tickPush = 0;
@@ -290,21 +286,6 @@ public class EntityBattleshipRe extends EntityShipBase {
         }
     }
 
-    private int getLegacyFaceTick(int mask) {
-        return (this.tickCount + (this.getStateMinor(22) << 7)) & mask;
-    }
-
-    private int mapLegacyMouth(int legacyId) {
-        return switch (legacyId) {
-            case 0 -> MOUTH_FRONT_0;
-            case 1 -> MOUTH_FRONT_1;
-            case 2 -> MOUTH_FRONT_2;
-            case 3 -> MOUTH_FLIP_0;
-            case 4 -> MOUTH_FLIP_1;
-            case 5 -> MOUTH_FLIP_2;
-            default -> MOUTH_FRONT_0;
-        };
-    }
 
     @Override
     protected Item getShipSpawnEggItem() {

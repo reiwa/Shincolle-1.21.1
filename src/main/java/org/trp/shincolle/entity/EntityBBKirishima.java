@@ -16,6 +16,11 @@ import java.util.Objects;
 
 public class EntityBBKirishima extends EntityShipBase {
 
+    public static final String EQUIP_RIGGING = "equip_rigging";
+    public static final String EQUIP_HEAD_BASE = "equip_head_base";
+    public static final String EQUIP_HAIR_SET = "equip_hair_set";
+    public static final String EQUIP_AHOKE = "equip_ahoke";
+
     public EntityBBKirishima(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 25, 0, 40});
@@ -23,8 +28,12 @@ public class EntityBBKirishima extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 63);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 3);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
+        setEquipFlag(EQUIP_RIGGING, true);
+        setEquipFlag(EQUIP_HEAD_BASE, true);
+        setEquipFlag(EQUIP_HAIR_SET, true);
+        setEquipFlag(EQUIP_AHOKE, true);
     }
 
     @Override
@@ -33,7 +42,13 @@ public class EntityBBKirishima extends EntityShipBase {
 
         if (this.level().isClientSide) {
             updateClientParticles();
-        } else if ((this.tickCount % 128) == 0) {
+        }
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+        if ((this.tickCount % 128) == 0) {
             applyBuffToNearbyAllies();
         }
     }
@@ -51,18 +66,29 @@ public class EntityBBKirishima extends EntityShipBase {
         return this.getBbHeight() * 0.35f;
     }
 
+    @Override
+    public List<EquipOption> getEquipOptions() {
+        return List.of(
+                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
+                new EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"),
+                new EquipOption(EQUIP_HAIR_SET, "gui.shincolle.equip.hair"),
+                new EquipOption(EQUIP_AHOKE, "gui.shincolle.equip.ahoke")
+        );
+    }
+
     private void updateClientParticles() {
-        if (this.tickCount % 4 == 0 && checkModelState(0, this.getStateEmotion(0))
-                && !this.getIsSitting() && !this.getStateFlag(2) && !this.isInDeadPose()) {
+        if (this.tickCount % 4 == 0 && !this.getIsSitting() && this.getEquipFlag(EQUIP_RIGGING) && !this.isInDeadPose()) {
             float[] partPos = rotateXZByAxis(-0.6f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f);
-            this.level().addParticle(ParticleTypes.FLAME,
-                    this.getX() + partPos[1], this.getY() + 1.17D, this.getZ() + partPos[0],
-                    0.0D, 0.0D, 0.0D);
+            for (int i = 0; i < 3; i++) {
+                this.level().addParticle(ParticleTypes.SMOKE,
+                        this.getX() + partPos[1], this.getY() + 1.17D + i * 0.1D, this.getZ() + partPos[0],
+                        0.0D, 0.0D, 0.0D);
+            }
         }
     }
 
     private void applyBuffToNearbyAllies() {
-        if (!(this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
             return;
         }
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
