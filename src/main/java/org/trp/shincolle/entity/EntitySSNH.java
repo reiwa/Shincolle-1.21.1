@@ -29,31 +29,30 @@ public class EntitySSNH extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 72);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 6);
         setStateMinor(STATE_MINOR_RARITY, 3);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
+        setStateCanRide(true);
         setEquipFlag(EQUIP_HAND_RING, true);
         setEquipFlag(EQUIP_RING_BASE, true);
         setEquipFlag(EQUIP_TORPEDO, true);
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide) {
-            if ((this.tickCount % 128) == 0) {
-                updateServerLogic();
-            }
-            updateRidingState();
+        if ((this.tickCount % 128) == 0) {
+            updateServerLogic();
         }
+        updateRidingState();
     }
 
     private void updateServerLogic() {
-        if (this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateRingEffect()) {
             int duration = 80 + this.getLevel();
             this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
-            if (this.getStateFlag(1) && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
+            this.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, false));
+            if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
             }
         }
@@ -82,7 +81,7 @@ public class EntitySSNH extends EntityShipBase {
         }
 
         boolean canFindTarget = (this.tickCount & 0x7F) == 0 && this.getRandom().nextInt(4) == 0;
-        boolean isActionBlocked = this.getIsSitting() || this.getStateFlag(2) || this.isLeashed();
+        boolean isActionBlocked = this.getIsSitting() || this.isStateNoEquip() || this.isLeashed();
         if (canFindTarget && !isActionBlocked) {
             findRideTarget();
         }

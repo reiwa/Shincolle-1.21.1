@@ -42,9 +42,9 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
         setStateMinor(STATE_MINOR_SHIP_CLASS, 36);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 6);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
+        setStateCanRide(true);
         setEquipFlag(EQUIP_RIGGING, true);
         setEquipFlag(EQUIP_HAIR_ANCHOR, true);
         setEquipFlag(EQUIP_HAIR_FRONT_1, true);
@@ -53,10 +53,10 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
@@ -83,7 +83,7 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
         if (this.numRensouhou < MAX_RENSOUHOU) {
             this.numRensouhou++;
         }
-        if (this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
             if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 int amp = this.getStateMinor(0) / 35 + 1;
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,
@@ -315,21 +315,6 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
         }
     }
 
-    private int getLegacyFaceTick(int mask) {
-        return (this.tickCount + (this.getStateMinor(22) << 7)) & mask;
-    }
-
-    private int mapLegacyMouth(int legacyId) {
-        return switch (legacyId) {
-            case 0 -> MOUTH_FRONT_0;
-            case 1 -> MOUTH_FRONT_1;
-            case 2 -> MOUTH_FRONT_2;
-            case 3 -> MOUTH_FLIP_0;
-            case 4 -> MOUTH_FLIP_1;
-            case 5 -> MOUTH_FLIP_2;
-            default -> MOUTH_FRONT_0;
-        };
-    }
 
     @Override
     protected Item getShipSpawnEggItem() {

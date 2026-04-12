@@ -33,9 +33,9 @@ public class EntitySubmYo extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 18);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 6);
         setStateMinor(STATE_MINOR_RARITY, 2);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
+        setStateCanRide(true);
         setEquipFlag(EQUIP_BASE, true);
         setEquipFlag(EQUIP_NORMAL_BODY, true);
     }
@@ -46,7 +46,13 @@ public class EntitySubmYo extends EntityShipBase {
 
         if (this.level().isClientSide) {
             updateClientEffects();
-        } else if ((this.tickCount % 128) == 0) {
+        }
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
@@ -54,7 +60,7 @@ public class EntitySubmYo extends EntityShipBase {
     private void updateClientEffects() {
         if ((this.tickCount % 4) == 0) {
             boolean shouldGlow = checkModelState(0, this.getStateEmotion(0))
-                    && !this.getStateFlag(2)
+                    && !this.isStateNoEquip()
                     && !(this.getIsSitting() && this.getStateEmotion(1) == 4);
             if (shouldGlow) {
                 spawnEyeGlowParticles();
@@ -85,10 +91,11 @@ public class EntitySubmYo extends EntityShipBase {
     }
 
     private void updateServerLogic() {
-        if (this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateRingEffect()) {
             int duration = 40 + this.getLevel();
             this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
-            if (this.getStateFlag(1) && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
+            this.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, false));
+            if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
             }
         }

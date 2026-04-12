@@ -39,29 +39,29 @@ class EntityShipBaseCombat {
     }
 
     boolean canUseLightAmmo() {
-        return this.ship.getStateFlag(ShipContainerMenu.STATE_FLAG_LIGHT_ATTACK)
+        return this.ship.isStateLightAttack()
                 && this.ship.getAmmoLight() > 0;
     }
 
     boolean canUseHeavyAmmo() {
-        return this.ship.getStateFlag(ShipContainerMenu.STATE_FLAG_HEAVY_ATTACK)
+        return this.ship.isStateHeavyAttack()
                 && this.ship.getAmmoHeavy() > 0;
     }
 
     boolean canUseMeleeAttack() {
-        return this.ship.getStateFlag(ShipContainerMenu.STATE_FLAG_CAN_MELEE);
+        return this.ship.isStateCanMelee();
     }
 
     boolean canUseLightAircraft() {
         return this.ship.supportsAircraftCombat()
-                && this.ship.getStateFlag(ShipContainerMenu.STATE_FLAG_LIGHT_AIRCRAFT_ATTACK)
+                && this.ship.isStateLightAircraftAttack()
                 && this.ship.hasAirLight()
                 && this.ship.getAmmoLight() >= AIRCRAFT_LIGHT_AMMO_COST;
     }
 
     boolean canUseHeavyAircraft() {
         return this.ship.supportsAircraftCombat()
-                && this.ship.getStateFlag(ShipContainerMenu.STATE_FLAG_HEAVY_AIRCRAFT_ATTACK)
+                && this.ship.isStateHeavyAircraftAttack()
                 && this.ship.hasAirHeavy()
                 && this.ship.getAmmoHeavy() >= AIRCRAFT_HEAVY_AMMO_COST;
     }
@@ -119,10 +119,10 @@ class EntityShipBaseCombat {
         }
 
         this.aircraftLaunchDelay--;
-        if (!this.ship.getStateFlag(ShipContainerMenu.STATE_FLAG_LIGHT_AIRCRAFT_ATTACK)) {
+        if (!this.ship.isStateLightAircraftAttack()) {
             this.aircraftLaunchTypeLight = false;
         }
-        if (!this.ship.getStateFlag(ShipContainerMenu.STATE_FLAG_HEAVY_AIRCRAFT_ATTACK)) {
+        if (!this.ship.isStateHeavyAircraftAttack()) {
             this.aircraftLaunchTypeLight = true;
         }
 

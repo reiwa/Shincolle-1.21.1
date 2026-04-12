@@ -34,21 +34,19 @@ public class EntityHeavyCruiserNe extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 10);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4);
         setStateMinor(STATE_MINOR_RARITY, 0);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide) {
-            if ((this.tickCount % 128) == 0) {
-                updateServerLogic();
-            }
-            if (this.isPushing) {
-                updatePushingState();
-            }
+        if ((this.tickCount % 128) == 0) {
+            updateServerLogic();
+        }
+        if (this.isPushing) {
+            updatePushingState();
         }
     }
 
@@ -60,14 +58,14 @@ public class EntityHeavyCruiserNe extends EntityShipBase {
     }
 
     private void updateServerLogic() {
-        if (!this.level().isDay() && this.getStateFlag(9)) {
+        if (!this.level().isDay() && this.isStateRingEffect()) {
             int duration = 150;
             int ampSpeed = Math.max(0, this.getStateMinor(0) / 50);
             this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, ampSpeed, false, false));
         }
 
         boolean canFindTarget = (this.tickCount & 0xFF) == 0 && this.getRandom().nextInt(5) == 0;
-        boolean isActionBlocked = this.getIsSitting() || this.isPassenger() || this.getStateFlag(2) || this.isLeashed();
+        boolean isActionBlocked = this.getIsSitting() || this.isPassenger() || this.isStateNoEquip() || this.isLeashed();
         if (canFindTarget && !isActionBlocked) {
             findTargetPush();
         }

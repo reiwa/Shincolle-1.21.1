@@ -27,11 +27,11 @@ public class EntityTransportWa extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 16);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 0);
         setStateMinor(STATE_MINOR_RARITY, 3);
-        setStateFlag(13, false);
-        setStateFlag(14, false);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateGuiBtn1(false);
+        setStateGuiBtn2(false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
+        setStateCanRide(true);
         setEquipFlag(EQUIP_BASE, true);
         setEquipFlag(EQUIP_LEG, true);
         setEquipFlag(EQUIP_HEAD_BASE, true);
@@ -43,7 +43,13 @@ public class EntityTransportWa extends EntityShipBase {
 
         if (this.level().isClientSide) {
             updateClientEffects();
-        } else if ((this.tickCount % 128) == 0) {
+        }
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
@@ -74,7 +80,7 @@ public class EntityTransportWa extends EntityShipBase {
             consumeSupplyItems(2);
         }
 
-        if ((this.tickCount % 256) == 0 && !this.getStateFlag(2)) {
+        if ((this.tickCount % 256) == 0 && !this.isStateNoEquip()) {
             trySupplyAllies();
         }
     }

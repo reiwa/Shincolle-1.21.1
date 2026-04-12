@@ -26,6 +26,12 @@ public class EntityNorthernHime extends EntityShipBase {
 
     public EntityNorthernHime(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
+        setModelPos(new float[]{-6, 25, 0, 40});
+        setStateMinor(STATE_MINOR_FACTION_ID, 7);
+        setStateMinor(STATE_MINOR_SHIP_CLASS, 31);
+        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
+        setStateMinor(STATE_MINOR_RARITY, 5);
+        setEquipFlag(EQUIP_CANNON, true);
     }
 
     @Override
@@ -172,18 +178,6 @@ public class EntityNorthernHime extends EntityShipBase {
             this.setFaceId(FACE_WINK);
             this.setMouthId(mapLegacyMouth(3));
         }
-    }
-
-    private int mapLegacyMouth(int legacyId) {
-        return switch (legacyId) {
-            case 0 -> MOUTH_FRONT_0;
-            case 1 -> MOUTH_FRONT_1;
-            case 2 -> MOUTH_FRONT_2;
-            case 3 -> MOUTH_FLIP_0;
-            case 4 -> MOUTH_FLIP_1;
-            case 5 -> MOUTH_FLIP_2;
-            default -> MOUTH_FRONT_0;
-        };
     }
 
 

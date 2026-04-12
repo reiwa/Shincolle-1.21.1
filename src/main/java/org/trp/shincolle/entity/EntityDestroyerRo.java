@@ -18,16 +18,16 @@ public class EntityDestroyerRo extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 1);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 1);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
+        setStateCanRide(true);
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             applyBuffToOwner();
         }
     }
@@ -40,7 +40,7 @@ public class EntityDestroyerRo extends EntityShipBase {
     }
 
     private void applyBuffToOwner() {
-        if (this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
             if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 int amp = this.getStateMinor(0) / 30;
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.DIG_SPEED,

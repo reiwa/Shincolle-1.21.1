@@ -32,7 +32,7 @@ public class EntityIsolatedHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 29);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 8);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateCanRide(true);
         setEquipFlag(EQUIP_HAT_BASE, true);
         setEquipFlag(EQUIP_HEAD_GEAR, true);
         setEquipFlag(EQUIP_CLOTH_1, true);

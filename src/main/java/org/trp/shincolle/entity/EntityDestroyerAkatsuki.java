@@ -43,7 +43,7 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
         setModelPos(new float[]{0.0f, 25.0f, 0.0f, 50.0f});
         setStateFlag(STATE_FLAG_15, false);
         setStateFlag(STATE_FLAG_16, false);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateCanRide(true);
         setEquipFlag(EQUIP_RIGGING, true);
         setEquipFlag(EQUIP_ANCHOR, true);
     }
@@ -81,13 +81,17 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
 
         if (this.level().isClientSide) {
             updateClientEffects();
-        } else {
-            updateServerLogic();
         }
 
         if (!this.getPassengers().isEmpty()) {
             syncRotateToRider();
         }
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+        updateServerLogic();
     }
 
     @Override
@@ -146,7 +150,7 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
 
     private void updateClientEffects() {
         if ((this.tickCount % 4) == 0) {
-            if (checkModelState(0, this.getStateEmotion(0)) && !this.getIsSitting() && !this.getStateFlag(2)
+            if (!this.getIsSitting() && this.getEquipFlag(EQUIP_RIGGING)
                     && this.riderType < 1) {
                 float addZ = this.isPassenger() ? -0.2f : 0.0f;
                 float[] partPos = rotateXZByAxis(-0.42f + addZ, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
@@ -182,7 +186,7 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
     }
 
     private void applyPlayerBuff() {
-        if (this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
             if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 int amp = this.getStateMinor(0) / 30;
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.DIG_SPEED,
@@ -225,7 +229,7 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
         if (!Objects.equals(this.getOwnerUUID(), ship.getOwnerUUID())) {
             return false;
         }
-        return !ship.isPassenger() && !ship.getIsSitting() && !ship.getStateFlag(2)
+        return !ship.isPassenger() && !ship.getIsSitting() && !ship.isStateNoEquip()
                 && ship.getStateMinor(43) == 0 && ship.getStateMinor(26) == 1;
     }
 
@@ -235,7 +239,7 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
             this.stopRiding();
             return;
         }
-        if (this.getIsSitting() || this.getStateFlag(2) || this.riderType == RIDER_TYPE_ALL) {
+        if (this.getIsSitting() || this.isStateNoEquip() || this.riderType == RIDER_TYPE_ALL) {
             return;
         }
 
@@ -406,21 +410,6 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
         }
     }
 
-    private int getLegacyFaceTick(int mask) {
-        return (this.tickCount + (this.getStateMinor(22) << 7)) & mask;
-    }
-
-    private int mapLegacyMouth(int legacyId) {
-        return switch (legacyId) {
-            case 0 -> MOUTH_FRONT_0;
-            case 1 -> MOUTH_FRONT_1;
-            case 2 -> MOUTH_FRONT_2;
-            case 3 -> MOUTH_FLIP_0;
-            case 4 -> MOUTH_FLIP_1;
-            case 5 -> MOUTH_FLIP_2;
-            default -> MOUTH_FRONT_0;
-        };
-    }
 
     @Override
     protected Item getShipSpawnEggItem() {

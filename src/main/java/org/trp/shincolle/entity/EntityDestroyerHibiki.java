@@ -27,13 +27,13 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
     public EntityDestroyerHibiki(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 25, 0, 50});
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateCanRide(true);
         setStateMinor(STATE_MINOR_FACTION_ID, -1);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 52);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 5);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
         setEquipFlag(EQUIP_RIGGING, true);
         setEquipFlag(EQUIP_TORPEDO, true);
         setEquipFlag(EQUIP_HAIR_FRONT_1, true);
@@ -48,14 +48,18 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
 
         if (this.level().isClientSide) {
             updateClientLogic();
-        } else {
-            updateServerLogic();
         }
 
         EntityDestroyerAkatsuki akatsuki = getAkatsukiRiding();
         if (akatsuki != null) {
             akatsuki.syncRotateToRider();
         }
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+        updateServerLogic();
     }
 
     public double getPassengersRidingOffset() {
@@ -112,7 +116,7 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
     }
 
     private void applyBuffToOwner() {
-        if (this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
             if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 int amp = this.getStateMinor(0) / 45 + 1;
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.JUMP,
@@ -122,8 +126,8 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
     }
 
     private void spawnEngineParticles() {
-        boolean canSpawn = checkModelState(0, this.getStateEmotion(0)) && !this.getIsSitting()
-                && !this.getStateFlag(2) && this.riderType < 2;
+        boolean canSpawn = !this.getIsSitting()
+                && this.getEquipFlag(EQUIP_RIGGING) && this.riderType < 2;
         if (canSpawn) {
             float[] partPos = rotateXZByAxis(-0.42f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
             this.level().addParticle(ParticleTypes.SMOKE,
@@ -263,21 +267,6 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
         }
     }
 
-    private int getLegacyFaceTick(int mask) {
-        return (this.tickCount + (this.getStateMinor(22) << 7)) & mask;
-    }
-
-    private int mapLegacyMouth(int legacyId) {
-        return switch (legacyId) {
-            case 0 -> MOUTH_FRONT_0;
-            case 1 -> MOUTH_FRONT_1;
-            case 2 -> MOUTH_FRONT_2;
-            case 3 -> MOUTH_FLIP_0;
-            case 4 -> MOUTH_FLIP_1;
-            case 5 -> MOUTH_FLIP_2;
-            default -> MOUTH_FRONT_0;
-        };
-    }
 
     @Override
     protected Item getShipSpawnEggItem() {

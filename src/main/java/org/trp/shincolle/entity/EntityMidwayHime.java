@@ -25,22 +25,22 @@ public class EntityMidwayHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 30);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 2);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateCanRide(true);
         setEquipFlag(EQUIP_RIGGING, true);
         setEquipFlag(EQUIP_COLLAR, true);
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
 
     private void updateServerLogic() {
-        if (!(this.getStateFlag(1) && this.getStateFlag(9))) {
+        if (!(this.isStateMarried() && this.isStateRingEffect())) {
             return;
         }
 

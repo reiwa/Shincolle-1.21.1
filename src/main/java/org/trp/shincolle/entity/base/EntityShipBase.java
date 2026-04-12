@@ -23,6 +23,7 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -91,7 +92,21 @@ public abstract class EntityShipBase extends TamableAnimal {
     public static final int STATE_MINOR_SPECIAL_EQUIP = 25;
     public static final int STATE_MINOR_RARITY = 13;
 
+    public static final int STATE_FLAG_MARRIED = 1;
+    public static final int STATE_FLAG_NO_EQUIP = 2;
+    public static final int STATE_FLAG_CAN_MELEE = 3;
+    public static final int STATE_FLAG_LIGHT_ATTACK = 4;
+    public static final int STATE_FLAG_HEAVY_ATTACK = 5;
+    public static final int STATE_FLAG_LIGHT_AIRCRAFT_ATTACK = 6;
+    public static final int STATE_FLAG_HEAVY_AIRCRAFT_ATTACK = 7;
+    public static final int STATE_FLAG_RING_EFFECT = 9;
+    public static final int STATE_FLAG_GUI_BTN_1 = 13;
+    public static final int STATE_FLAG_GUI_BTN_2 = 14;
+    public static final int STATE_FLAG_GUI_BTN_3 = 15;
+    public static final int STATE_FLAG_GUI_BTN_4 = 16;
+    public static final int STATE_FLAG_ANTI_AIR = 19;
     public static final int STATE_FLAG_CAN_RIDE = 24;
+    public static final int STATE_FLAG_APPEARANCE = 25;
 
     private static final int LEGACY_STATE_MINOR_SIZE = 46;
     private static final int LEGACY_STATE_TIMER_SIZE = 21;
@@ -521,10 +536,18 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public void setNoFuel(boolean val) {
+        boolean wasNoFuel = this.isNoFuel();
         this.entityData.set(NO_FUEL, val);
         if (val) {
             this.entityData.set(FUEL, 0);
         }
+        boolean isNoFuelNow = this.isNoFuel();
+        if (wasNoFuel != isNoFuelNow) {
+            this.updateFuelState(isNoFuelNow);
+        }
+    }
+
+    protected void updateFuelState(boolean nofuel) {
     }
 
     public boolean isInDeadPose() {
@@ -682,6 +705,51 @@ public abstract class EntityShipBase extends TamableAnimal {
         legacyState.setBoolean(legacyState.stateFlag, index, value > 0);
     }
 
+    public boolean isStateMarried() { return getStateFlag(STATE_FLAG_MARRIED); }
+    public void setStateMarried(boolean value) { setStateFlag(STATE_FLAG_MARRIED, value); }
+    
+    public boolean isStateNoEquip() { return getStateFlag(STATE_FLAG_NO_EQUIP); }
+    public void setStateNoEquip(boolean value) { setStateFlag(STATE_FLAG_NO_EQUIP, value); }
+    
+    public boolean isStateCanMelee() { return getStateFlag(STATE_FLAG_CAN_MELEE); }
+    public void setStateCanMelee(boolean value) { setStateFlag(STATE_FLAG_CAN_MELEE, value); }
+    
+    public boolean isStateLightAttack() { return getStateFlag(STATE_FLAG_LIGHT_ATTACK); }
+    public void setStateLightAttack(boolean value) { setStateFlag(STATE_FLAG_LIGHT_ATTACK, value); }
+    
+    public boolean isStateHeavyAttack() { return getStateFlag(STATE_FLAG_HEAVY_ATTACK); }
+    public void setStateHeavyAttack(boolean value) { setStateFlag(STATE_FLAG_HEAVY_ATTACK, value); }
+    
+    public boolean isStateLightAircraftAttack() { return getStateFlag(STATE_FLAG_LIGHT_AIRCRAFT_ATTACK); }
+    public void setStateLightAircraftAttack(boolean value) { setStateFlag(STATE_FLAG_LIGHT_AIRCRAFT_ATTACK, value); }
+    
+    public boolean isStateHeavyAircraftAttack() { return getStateFlag(STATE_FLAG_HEAVY_AIRCRAFT_ATTACK); }
+    public void setStateHeavyAircraftAttack(boolean value) { setStateFlag(STATE_FLAG_HEAVY_AIRCRAFT_ATTACK, value); }
+    
+    public boolean isStateRingEffect() { return getStateFlag(STATE_FLAG_RING_EFFECT); }
+    public void setStateRingEffect(boolean value) { setStateFlag(STATE_FLAG_RING_EFFECT, value); }
+    
+    public boolean isStateGuiBtn1() { return getStateFlag(STATE_FLAG_GUI_BTN_1); }
+    public void setStateGuiBtn1(boolean value) { setStateFlag(STATE_FLAG_GUI_BTN_1, value); }
+    
+    public boolean isStateGuiBtn2() { return getStateFlag(STATE_FLAG_GUI_BTN_2); }
+    public void setStateGuiBtn2(boolean value) { setStateFlag(STATE_FLAG_GUI_BTN_2, value); }
+    
+    public boolean isStateGuiBtn3() { return getStateFlag(STATE_FLAG_GUI_BTN_3); }
+    public void setStateGuiBtn3(boolean value) { setStateFlag(STATE_FLAG_GUI_BTN_3, value); }
+    
+    public boolean isStateGuiBtn4() { return getStateFlag(STATE_FLAG_GUI_BTN_4); }
+    public void setStateGuiBtn4(boolean value) { setStateFlag(STATE_FLAG_GUI_BTN_4, value); }
+    
+    public boolean isStateAntiAir() { return getStateFlag(STATE_FLAG_ANTI_AIR); }
+    public void setStateAntiAir(boolean value) { setStateFlag(STATE_FLAG_ANTI_AIR, value); }
+    
+    public boolean isStateCanRide() { return getStateFlag(STATE_FLAG_CAN_RIDE); }
+    public void setStateCanRide(boolean value) { setStateFlag(STATE_FLAG_CAN_RIDE, value); }
+    
+    public boolean isStateAppearance() { return getStateFlag(STATE_FLAG_APPEARANCE); }
+    public void setStateAppearance(boolean value) { setStateFlag(STATE_FLAG_APPEARANCE, value); }
+
     public boolean getUpdateFlag(int index) {
         return legacyState.getBoolean(legacyState.updateFlag, index);
     }
@@ -837,8 +905,14 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public void setFuel(int val) {
-        this.entityData.set(FUEL, val);
-        this.entityData.set(NO_FUEL, val == 0);
+        int newFuel = Math.max(0, val);
+        boolean wasNoFuel = this.isNoFuel();
+        this.entityData.set(FUEL, newFuel);
+        this.entityData.set(NO_FUEL, newFuel == 0);
+        boolean isNoFuelNow = newFuel == 0;
+        if (wasNoFuel != isNoFuelNow) {
+            this.updateFuelState(isNoFuelNow);
+        }
     }
 
     public boolean getEquipFlag(String key) {
@@ -917,34 +991,42 @@ public abstract class EntityShipBase extends TamableAnimal {
     public void aiStep() {
         super.aiStep();
 
-        if (this.isInWater() && !this.isPassenger()) {
-            double acceleration = getAcceleration();
+        if (this.isAlive()) {
+            if (this.isInWater() && !this.isPassenger()) {
+                double acceleration = getAcceleration();
 
-            this.smoothedForce += acceleration;
+                this.smoothedForce += acceleration;
 
-            double motionY = Mth.clamp(this.smoothedForce, -0.18D, 0.18D);
+                double motionY = Mth.clamp(this.smoothedForce, -0.18D, 0.18D);
 
-            Vec3 delta = this.getDeltaMovement();
-            this.setDeltaMovement(delta.x, motionY, delta.z);
-            this.fallDistance = 0.0F;
+                Vec3 delta = this.getDeltaMovement();
+                this.setDeltaMovement(delta.x, motionY, delta.z);
+                this.fallDistance = 0.0F;
+            }
+
+            applyShoreClimbAssist();
+
+            if (!this.level().isClientSide) {
+                this.tickAliveLogic();
+            }
         }
+    }
 
-        applyShoreClimbAssist();
-
-        if (!this.level().isClientSide) {
+    protected void tickAliveLogic() {
+        if (!this.isNoFuel()) {
             this.pointer.tickPointerTargetEntity();
             this.emotions.tickEmotions();
             this.combat.tickAircraftRecovery();
             tickEmotes();
-            tickFuelDecay();
-            tickAutoRecovery();
-            tickLegacyTimers();
-            if ((this.tickCount % 40) == 0) {
-                this.recalculateLegacyShipStats();
-            }
-            if ((this.tickCount & 0xFF) == 0 && !this.isNoFuel()) {
+            if ((this.tickCount & 0xFF) == 0) {
                 applyEmotesReaction(4);
             }
+        }
+        tickFuelDecay();
+        tickAutoRecovery();
+        tickLegacyTimers();
+        if ((this.tickCount % 40) == 0) {
+            this.recalculateLegacyShipStats();
         }
     }
 
@@ -992,10 +1074,6 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     private void tickAutoRecovery() {
-        if (!this.isAlive()) {
-            return;
-        }
-
         if ((this.tickCount & 0x1F) == 0 && this.getHealth() < this.getMaxHealth() * AUTO_HEAL_THRESHOLD_RATIO) {
             this.heal(this.getMaxHealth() * AUTO_HEAL_FAST_RATIO + AUTO_HEAL_FAST_FLAT);
         }
@@ -1352,6 +1430,22 @@ public abstract class EntityShipBase extends TamableAnimal {
             case MOUTH_FLIP_2 -> MOUTH_FRONT_2;
             default -> id;
         };
+    }
+
+    protected int mapLegacyMouth(int legacyId) {
+        return switch (legacyId) {
+            case 0 -> MOUTH_FRONT_0;
+            case 1 -> MOUTH_FRONT_1;
+            case 2 -> MOUTH_FRONT_2;
+            case 3 -> MOUTH_FLIP_0;
+            case 4 -> MOUTH_FLIP_1;
+            case 5 -> MOUTH_FLIP_2;
+            default -> MOUTH_FRONT_0;
+        };
+    }
+
+    protected int getLegacyFaceTick(int mask) {
+        return (this.tickCount + (this.getStateMinor(22) << 7)) & mask;
     }
 
     protected void applyFaceTimeline(FaceStep[] steps, int fallbackFaceId, int fallbackMouthId, int tick) {

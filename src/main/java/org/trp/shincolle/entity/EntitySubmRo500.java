@@ -33,28 +33,29 @@ public class EntitySubmRo500 extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 39);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 6);
         setStateMinor(STATE_MINOR_RARITY, 3);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
+        setStateCanRide(true);
         setEquipFlag(EQUIP_BASE_1, true);
         setEquipFlag(EQUIP_BASE_2, true);
         setEquipFlag(EQUIP_FLOWER, true);
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
 
     private void updateServerLogic() {
-        if (this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateRingEffect()) {
             int duration = 40 + this.getLevel();
             this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
-            if (this.getStateFlag(1) && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
+            this.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, false));
+            if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
             }
         }

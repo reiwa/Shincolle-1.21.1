@@ -66,7 +66,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot canMeleeData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_CAN_MELEE) ? 1 : 0;
+            return ship.isStateCanMelee() ? 1 : 0;
         }
 
         @Override
@@ -77,7 +77,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot lightAttackData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_LIGHT_ATTACK) ? 1 : 0;
+            return ship.isStateLightAttack() ? 1 : 0;
         }
 
         @Override
@@ -88,7 +88,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot heavyAttackData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_HEAVY_ATTACK) ? 1 : 0;
+            return ship.isStateHeavyAttack() ? 1 : 0;
         }
 
         @Override
@@ -99,7 +99,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot lightAircraftAttackData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_LIGHT_AIRCRAFT_ATTACK) ? 1 : 0;
+            return ship.isStateLightAircraftAttack() ? 1 : 0;
         }
 
         @Override
@@ -110,7 +110,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot heavyAircraftAttackData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_HEAVY_AIRCRAFT_ATTACK) ? 1 : 0;
+            return ship.isStateHeavyAircraftAttack() ? 1 : 0;
         }
 
         @Override
@@ -121,7 +121,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot appearanceData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_APPEARANCE) ? 1 : 0;
+            return ship.isStateAppearance() ? 1 : 0;
         }
 
         @Override
@@ -144,12 +144,12 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     public ShipContainerMenu(int containerId, Inventory playerInv, EntityShipBase ship) {
         super(ModMenus.SHIP_MENU.get(), containerId);
         this.ship = ship;
-        this.canMeleeSynced = ship.getStateFlag(STATE_FLAG_CAN_MELEE);
-        this.lightAttackSynced = ship.getStateFlag(STATE_FLAG_LIGHT_ATTACK);
-        this.heavyAttackSynced = ship.getStateFlag(STATE_FLAG_HEAVY_ATTACK);
-        this.lightAircraftAttackSynced = ship.getStateFlag(STATE_FLAG_LIGHT_AIRCRAFT_ATTACK);
-        this.heavyAircraftAttackSynced = ship.getStateFlag(STATE_FLAG_HEAVY_AIRCRAFT_ATTACK);
-        this.appearanceSynced = ship.getStateFlag(STATE_FLAG_APPEARANCE);
+        this.canMeleeSynced = ship.isStateCanMelee();
+        this.lightAttackSynced = ship.isStateLightAttack();
+        this.heavyAttackSynced = ship.isStateHeavyAttack();
+        this.lightAircraftAttackSynced = ship.isStateLightAircraftAttack();
+        this.heavyAircraftAttackSynced = ship.isStateHeavyAircraftAttack();
+        this.appearanceSynced = ship.isStateAppearance();
         this.addDataSlot(pageData);
         this.addDataSlot(canMeleeData);
         this.addDataSlot(lightAttackData);
@@ -346,33 +346,33 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
         switch (id) {
             case TOGGLE_BUTTON_CAN_MELEE -> {
-                ship.setStateFlag(STATE_FLAG_CAN_MELEE, !ship.getStateFlag(STATE_FLAG_CAN_MELEE));
-                canMeleeSynced = ship.getStateFlag(STATE_FLAG_CAN_MELEE);
+                ship.setStateCanMelee(!ship.isStateCanMelee());
+                canMeleeSynced = ship.isStateCanMelee();
                 return true;
             }
             case TOGGLE_BUTTON_LIGHT_ATTACK -> {
-                ship.setStateFlag(STATE_FLAG_LIGHT_ATTACK, !ship.getStateFlag(STATE_FLAG_LIGHT_ATTACK));
-                lightAttackSynced = ship.getStateFlag(STATE_FLAG_LIGHT_ATTACK);
+                ship.setStateLightAttack(!ship.isStateLightAttack());
+                lightAttackSynced = ship.isStateLightAttack();
                 return true;
             }
             case TOGGLE_BUTTON_HEAVY_ATTACK -> {
-                ship.setStateFlag(STATE_FLAG_HEAVY_ATTACK, !ship.getStateFlag(STATE_FLAG_HEAVY_ATTACK));
-                heavyAttackSynced = ship.getStateFlag(STATE_FLAG_HEAVY_ATTACK);
+                ship.setStateHeavyAttack(!ship.isStateHeavyAttack());
+                heavyAttackSynced = ship.isStateHeavyAttack();
                 return true;
             }
             case TOGGLE_BUTTON_LIGHT_AIRCRAFT -> {
-                ship.setStateFlag(STATE_FLAG_LIGHT_AIRCRAFT_ATTACK, !ship.getStateFlag(STATE_FLAG_LIGHT_AIRCRAFT_ATTACK));
-                lightAircraftAttackSynced = ship.getStateFlag(STATE_FLAG_LIGHT_AIRCRAFT_ATTACK);
+                ship.setStateLightAircraftAttack(!ship.isStateLightAircraftAttack());
+                lightAircraftAttackSynced = ship.isStateLightAircraftAttack();
                 return true;
             }
             case TOGGLE_BUTTON_HEAVY_AIRCRAFT -> {
-                ship.setStateFlag(STATE_FLAG_HEAVY_AIRCRAFT_ATTACK, !ship.getStateFlag(STATE_FLAG_HEAVY_AIRCRAFT_ATTACK));
-                heavyAircraftAttackSynced = ship.getStateFlag(STATE_FLAG_HEAVY_AIRCRAFT_ATTACK);
+                ship.setStateHeavyAircraftAttack(!ship.isStateHeavyAircraftAttack());
+                heavyAircraftAttackSynced = ship.isStateHeavyAircraftAttack();
                 return true;
             }
             case TOGGLE_BUTTON_APPEARANCE -> {
-                ship.setStateFlag(STATE_FLAG_APPEARANCE, !ship.getStateFlag(STATE_FLAG_APPEARANCE));
-                appearanceSynced = ship.getStateFlag(STATE_FLAG_APPEARANCE);
+                ship.setStateAppearance(!ship.isStateAppearance());
+                appearanceSynced = ship.isStateAppearance();
                 return true;
             }
             default -> {

@@ -27,9 +27,9 @@ public class EntityDestroyerHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 27);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 6);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
+        setStateCanRide(true);
 
         setEquipFlag(EQUIP_RIGGING, true);
         setEquipFlag(EQUIP_HAT, true);
@@ -52,10 +52,10 @@ public class EntityDestroyerHime extends EntityShipBase {
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             applyBuffToOwner();
         }
     }
@@ -71,7 +71,7 @@ public class EntityDestroyerHime extends EntityShipBase {
     }
 
     private void applyBuffToOwner() {
-        if (this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
             if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 int ampSpeed = this.getStateMinor(0) / 45 + 1;
                 int ampHaste = this.getStateMinor(0) / 30;
@@ -184,21 +184,6 @@ public class EntityDestroyerHime extends EntityShipBase {
         }
     }
 
-    private int getLegacyFaceTick(int mask) {
-        return (this.tickCount + (this.getStateMinor(22) << 7)) & mask;
-    }
-
-    private int mapLegacyMouth(int legacyId) {
-        return switch (legacyId) {
-            case 0 -> MOUTH_FRONT_0;
-            case 1 -> MOUTH_FRONT_1;
-            case 2 -> MOUTH_FRONT_2;
-            case 3 -> MOUTH_FLIP_0;
-            case 4 -> MOUTH_FLIP_1;
-            case 5 -> MOUTH_FLIP_2;
-            default -> MOUTH_FRONT_0;
-        };
-    }
 
     @Override
     protected Item getShipSpawnEggItem() {

@@ -1,6 +1,7 @@
 package org.trp.shincolle.entity;
 
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -20,9 +21,13 @@ import java.util.Objects;
 public class EntityDestroyerInazuma extends EntityShipBase implements IShipRiderType {
 
     public static final String EQUIP_RIGGING = "equip_rigging";
+    private static final long RAIDEN_GATTAI_DURATION_TICKS = 20L * 45L;
+    private static final long RAIDEN_GATTAI_COOLDOWN_TICKS = 20L * 20L;
 
     private int riderType;
     private boolean isRaiden;
+    private long raidenGattaiExpireTick;
+    private long raidenGattaiCooldownUntilTick;
 
     public EntityDestroyerInazuma(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -31,12 +36,14 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
         setStateMinor(STATE_MINOR_SHIP_CLASS, 54);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 1);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
-        setStateFlag(STATE_FLAG_CAN_RIDE, true);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
+        setStateCanRide(true);
         setEquipFlag(EQUIP_RIGGING, true);
         this.riderType = 0;
         this.isRaiden = false;
+        this.raidenGattaiExpireTick = 0L;
+        this.raidenGattaiCooldownUntilTick = 0L;
     }
 
     @Override
@@ -45,12 +52,16 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
 
         if (this.level().isClientSide) {
             updateClientLogic();
-        } else {
-            updateServerLogic();
-            applyRaidenFollowOwner();
         }
 
         updateRiderRotation();
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+        updateServerLogic();
+        applyRaidenFollowOwner();
     }
 
     @Override
@@ -99,9 +110,24 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
         return damaged;
     }
 
+    @Override
+    protected void updateFuelState(boolean nofuel) {
+        if (nofuel) {
+            if (this.getVehicle() instanceof EntityDestroyerAkatsuki akatsuki) {
+                akatsuki.dismountAllRider();
+                this.stopRiding();
+            }
+            if (this.isRaiden) {
+                dismountRaiden();
+            }
+        }
+        super.updateFuelState(nofuel);
+    }
+
     private void updateClientLogic() {
-        if ((this.tickCount % 4) == 0 && checkModelState(0, this.getStateEmotion(0))
-                && !this.getIsSitting() && !this.getStateFlag(2) && this.riderType < 4) {
+        if ((this.tickCount % 4) == 0 && !this.getIsSitting() && !this.isInDeadPose() && this.getEquipFlag(EQUIP_RIGGING)
+            && this.riderType < 4
+            && this.getPassengers().stream().noneMatch(EntityDestroyerIkazuchi.class::isInstance)) {
             float[] partPos = rotateXZByAxis(-0.42f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
             this.level().addParticle(ParticleTypes.SMOKE,
                     this.getX() + partPos[1], this.getY() + 1.4D, this.getZ() + partPos[0],
@@ -118,6 +144,19 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
         }
 
         updateState();
+        if (!this.isRaiden) {
+            this.raidenGattaiExpireTick = 0L;
+        }
+        if (this.raidenGattaiCooldownUntilTick > 0L && this.level().getGameTime() >= this.raidenGattaiCooldownUntilTick) {
+            this.raidenGattaiCooldownUntilTick = 0L;
+        }
+        if (this.isRaiden && (this.getIsSitting() || this.isInDeadPose() || this.getHealth() <= this.getMaxHealth() * 0.5f
+                || isRaidenGattaiDurationExpired())) {
+            dismountRaiden();
+        }
+        if (this.isRaiden && this.getPassengers().stream().noneMatch(EntityDestroyerIkazuchi.class::isInstance)) {
+            this.isRaiden = false;
+        }
         if (this.riderType == 0 && this.isRaiden && this.getMorale() < 7650) {
             this.addMorale(100);
         }
@@ -134,7 +173,7 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
     }
 
     private void applyBuffToPlayer() {
-        if (this.getStateFlag(1) && this.getStateFlag(9) && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
             if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 int amp = this.getStateMinor(0) / 45;
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,
@@ -183,15 +222,7 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
     }
 
     private void tryRaidenGattai() {
-        if (this.getStateMinor(43) > 0) {
-            dismountRaiden();
-            this.stopRiding();
-            return;
-        }
-        if (this.getIsSitting() || this.getStateFlag(2) || this.riderType > 0 || this.isRaiden || this.isPassenger()) {
-            return;
-        }
-        if (this.getHealth() <= this.getMaxHealth() * 0.5f) {
+        if (!canAttemptGattai()) {
             return;
         }
 
@@ -200,11 +231,34 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
         for (EntityDestroyerIkazuchi ikazuchi : list) {
             if (canGattaiWith(ikazuchi)) {
                 ikazuchi.startRiding(this, true);
-                this.isRaiden = true;
-                ikazuchi.setRaiden(true);
+                beginRaidenGattai(ikazuchi);
                 break;
             }
         }
+    }
+
+    private boolean canAttemptGattai() {
+        if (this.getStateMinor(43) > 0) {
+            dismountRaiden();
+            this.stopRiding();
+            return false;
+        }
+        if (isRaidenGattaiCooldownActive()) {
+            return false;
+        }
+        if (this.getIsSitting() || this.isStateNoEquip() || this.riderType > 0 || this.isRaiden || this.isPassenger()) {
+            return false;
+        }
+        return this.getHealth() > this.getMaxHealth() * 0.5f;
+    }
+
+    private void beginRaidenGattai(EntityDestroyerIkazuchi ikazuchi) {
+        this.isRaiden = true;
+        ikazuchi.setRaiden(true);
+
+        long expireTick = this.level().getGameTime() + RAIDEN_GATTAI_DURATION_TICKS;
+        this.setRaidenGattaiExpireTick(expireTick);
+        ikazuchi.setRaidenGattaiExpireTick(expireTick);
     }
 
     private boolean canGattaiWith(EntityDestroyerIkazuchi ikazuchi) {
@@ -215,7 +269,8 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
             return false;
         }
         return ikazuchi.getRiderType() == 0 && !ikazuchi.isRaiden()
-                && !ikazuchi.getStateFlag(2) && ikazuchi.getStateMinor(43) == 0;
+                && !ikazuchi.isStateNoEquip() && ikazuchi.getStateMinor(43) == 0
+                && !ikazuchi.isRaidenGattaiCooldownActive();
     }
 
     private void checkRiderType() {
@@ -242,13 +297,68 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
     }
 
     private void dismountRaiden() {
+        boolean hadRaiden = this.isRaiden;
         for (Entity rider : this.getPassengers()) {
             if (rider instanceof EntityDestroyerIkazuchi ikazuchi) {
+                hadRaiden = true;
                 ikazuchi.setRaiden(false);
+                ikazuchi.startRaidenGattaiCooldown();
                 ikazuchi.stopRiding();
+                placeIkazuchiAfterRaidenDismount(ikazuchi);
             }
         }
+        if (hadRaiden) {
+            this.startRaidenGattaiCooldown();
+        }
         this.isRaiden = false;
+    }
+
+    void placeIkazuchiAfterRaidenDismount(EntityDestroyerIkazuchi ikazuchi) {
+        if (ikazuchi == null) {
+            return;
+        }
+        float[] dismountOffset = rotateXZByAxis(0.0f, 1.1f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
+        ikazuchi.moveTo(
+                this.getX() + dismountOffset[1],
+                this.getY() + 0.1D,
+                this.getZ() + dismountOffset[0],
+                ikazuchi.getYRot(),
+                ikazuchi.getXRot()
+        );
+    }
+
+    boolean isRaidenGattaiCooldownActive() {
+        return this.raidenGattaiCooldownUntilTick > this.level().getGameTime();
+    }
+
+    void setRaidenGattaiExpireTick(long expireTick) {
+        this.raidenGattaiExpireTick = expireTick;
+    }
+
+    void startRaidenGattaiCooldown() {
+        this.raidenGattaiExpireTick = 0L;
+        this.raidenGattaiCooldownUntilTick = Math.max(
+                this.raidenGattaiCooldownUntilTick,
+                this.level().getGameTime() + RAIDEN_GATTAI_COOLDOWN_TICKS
+        );
+    }
+
+    private boolean isRaidenGattaiDurationExpired() {
+        return this.raidenGattaiExpireTick > 0L && this.level().getGameTime() >= this.raidenGattaiExpireTick;
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putLong("RaidenGattaiExpireTick", this.raidenGattaiExpireTick);
+        compound.putLong("RaidenGattaiCooldownUntilTick", this.raidenGattaiCooldownUntilTick);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        this.raidenGattaiExpireTick = compound.getLong("RaidenGattaiExpireTick");
+        this.raidenGattaiCooldownUntilTick = compound.getLong("RaidenGattaiCooldownUntilTick");
     }
 
     @Override
@@ -370,21 +480,6 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
         }
     }
 
-    private int getLegacyFaceTick(int mask) {
-        return (this.tickCount + (this.getStateMinor(22) << 7)) & mask;
-    }
-
-    private int mapLegacyMouth(int legacyId) {
-        return switch (legacyId) {
-            case 0 -> MOUTH_FRONT_0;
-            case 1 -> MOUTH_FRONT_1;
-            case 2 -> MOUTH_FRONT_2;
-            case 3 -> MOUTH_FLIP_0;
-            case 4 -> MOUTH_FLIP_1;
-            case 5 -> MOUTH_FLIP_2;
-            default -> MOUTH_FRONT_0;
-        };
-    }
 
     @Override
     protected Item getShipSpawnEggItem() {

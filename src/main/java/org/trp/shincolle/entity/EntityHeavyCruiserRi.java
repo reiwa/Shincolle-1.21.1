@@ -25,8 +25,8 @@ public class EntityHeavyCruiserRi extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 9);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4);
         setStateMinor(STATE_MINOR_RARITY, 4);
-        setStateFlag(15, false);
-        setStateFlag(16, false);
+        setStateGuiBtn3(false);
+        setStateGuiBtn4(false);
         setEquipFlag(EQUIP_LEFT, true);
         setEquipFlag(EQUIP_RIGHT, true);
         setEquipFlag(EQUIP_CLOAK, true);
@@ -34,10 +34,10 @@ public class EntityHeavyCruiserRi extends EntityShipBase {
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
 
-        if (!this.level().isClientSide && (this.tickCount % 128) == 0) {
+        if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
     }
@@ -50,7 +50,7 @@ public class EntityHeavyCruiserRi extends EntityShipBase {
     }
 
     private void updateServerLogic() {
-        if (!this.level().isDay() && this.getStateFlag(9)) {
+        if (!this.level().isDay() && this.isStateRingEffect()) {
             int duration = 150;
             int ampSpeed = Math.max(0, this.getStateMinor(0) / 50);
             int ampJump = Math.max(0, this.getStateMinor(0) / 40);
