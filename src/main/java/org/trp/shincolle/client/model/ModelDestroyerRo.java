@@ -15,6 +15,8 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 
 public class ModelDestroyerRo<T extends Entity> extends EntityModel<T> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "destroyer_ro"), "main");
+    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelDestroyerRo");
+    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelDestroyerRo");
 
     private final ModelPart Back;
     private final ModelPart NeckBack;
@@ -189,7 +191,7 @@ public class ModelDestroyerRo<T extends Entity> extends EntityModel<T> {
         }
 
         if (ship.isInDeadPose()) {
-            applyStopPose(ship);
+            applyDeadPose(ship);
             syncGlowParts();
             return;
         }
@@ -253,8 +255,8 @@ public class ModelDestroyerRo<T extends Entity> extends EntityModel<T> {
         }
     }
 
-    private void applyStopPose(EntityShipBase ship) {
-        poseTranslateY += 0.45F;
+    private void applyDeadPose(EntityShipBase ship) {
+        this.poseTranslateY = DEAD_TRANSLATE_Y;
         setFace(1);
         HeadD01.xRot = 0.7F;
         NeckBack.xRot = 0.0F;
@@ -279,6 +281,7 @@ public class ModelDestroyerRo<T extends Entity> extends EntityModel<T> {
     }
 
     private void applySittingPose(EntityShipBase ship, float angleX) {
+        this.poseTranslateY = SITTING_TRANSLATE_Y;
         poseTranslateY += 0.45F;
         if (ship.getEmotionSecondary() == EntityShipBase.EMOTION_BORED) {
             setFace(2);

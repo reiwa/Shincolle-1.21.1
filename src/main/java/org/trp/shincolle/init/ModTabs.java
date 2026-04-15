@@ -65,8 +65,13 @@ public class ModTabs {
                 output.accept(ModItems.AMMO_LIGHT_CONTAINER.get());
                 output.accept(ModItems.AMMO_HEAVY.get());
                 output.accept(ModItems.AMMO_HEAVY_CONTAINER.get());
+                output.accept(ModItems.ABYSS_METAL.get());
+                output.accept(ModItems.ABYSS_POLYMETAL.get());
                 output.accept(ModItems.GRUDGE.get());
                 output.accept(ModItems.GRUDGE_BLOCK.get());
                 output.accept(ModItems.GRUDGE_HEAVY_BLOCK.get());
+                output.accept(ModItems.POLYMETAL.get());
+                output.accept(ModItems.POLYMETAL_ORE.get());
+                output.accept(ModItems.POLYMETAL_GRAVEL.get());
             }).build());
 }

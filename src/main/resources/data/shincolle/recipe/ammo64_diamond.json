@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "g": {
+      "item": "shincolle:grudge"
+    },
+    "i": {
+      "tag": "c:gems/diamond"
+    },
+    "p": {
+      "item": "minecraft:gunpowder"
+    }
+  },
+  "pattern": [
+    "iii",
+    "igi",
+    "ipi"
+  ],
+  "result": {
+    "count": 64,
+    "id": "shincolle:ammo"
+  }
+}

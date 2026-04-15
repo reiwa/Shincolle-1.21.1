@@ -180,9 +180,24 @@ public class ModItems {
     public static final DeferredItem<Item> GRUDGE = ITEMS.register("grudge",
             () -> new GrudgeItem(new Item.Properties().food(GRUDGE_FOOD)));
 
+    public static final DeferredItem<Item> ABYSS_METAL = ITEMS.register("abyss_metal",
+            () -> new Item(new Item.Properties()));
+
+    public static final DeferredItem<Item> ABYSS_POLYMETAL = ITEMS.register("abyss_polymetal",
+            () -> new Item(new Item.Properties()));
+
     public static final DeferredItem<Item> GRUDGE_BLOCK = ITEMS.register("grudge_block",
             () -> new BlockItem(ModBlocks.GRUDGE_BLOCK.get(), new Item.Properties()));
 
     public static final DeferredItem<Item> GRUDGE_HEAVY_BLOCK = ITEMS.register("grudge_heavy_block",
             () -> new BlockItem(ModBlocks.GRUDGE_HEAVY_BLOCK.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> POLYMETAL = ITEMS.register("polymetal",
+            () -> new BlockItem(ModBlocks.POLYMETAL.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> POLYMETAL_ORE = ITEMS.register("polymetal_ore",
+            () -> new BlockItem(ModBlocks.POLYMETAL_ORE.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> POLYMETAL_GRAVEL = ITEMS.register("polymetal_gravel",
+            () -> new BlockItem(ModBlocks.POLYMETAL_GRAVEL.get(), new Item.Properties()));
 }

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "g": {
+      "item": "shincolle:grudge"
+    },
+    "i": {
+      "tag": "c:ingots/bronze"
+    },
+    "p": {
+      "item": "minecraft:blaze_powder"
+    }
+  },
+  "pattern": [
+    "iii",
+    "igi",
+    "ipi"
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:ammo2"
+  }
+}

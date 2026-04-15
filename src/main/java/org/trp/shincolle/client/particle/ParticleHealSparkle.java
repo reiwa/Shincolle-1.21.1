@@ -1,15 +1,20 @@
 package org.trp.shincolle.client.particle;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -17,34 +22,42 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class ParticleHealSparkle extends TextureSheetParticle {
+public class ParticleHealSparkle extends Particle {
+    private static final ParticleRenderType UNTEXTURED_RENDER = new ParticleRenderType() {
+        @Override
+        public BufferBuilder begin(Tesselator tesselator, TextureManager tm) {
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        }
+
+        @Override
+        public String toString() {
+            return "SHINCOLLE_HEAL_SPARKLE";
+        }
+    };
+
     private static final int LIFETIME = 20;
     private static final int MAX_BEAM_AGE = 20;
     private static final float BASE_SCALE = 0.075F;
 
-    private final SpriteSet sprites;
     private final float beamFad;
     private final float beamRiseSpeed;
     private final float beamHeight;
     private final float[][] beams;
     private int beamCurrent;
+    private final float quadSize;
 
     protected ParticleHealSparkle(ClientLevel level, double x, double y, double z,
-                                  double beamFad, double beamRiseSpeed, double beamHeight,
-                                  SpriteSet sprites) {
+                                  double beamFad, double beamRiseSpeed, double beamHeight) {
         super(level, x, y, z);
-        this.sprites = sprites;
         this.beamFad = (float) Math.max(0.0D, beamFad);
         this.beamRiseSpeed = (float) beamRiseSpeed;
         this.beamHeight = (float) Math.max(0.0D, beamHeight);
         this.lifetime = LIFETIME;
         this.hasPhysics = false;
         this.quadSize = BASE_SCALE;
-        this.alpha = 1.0F;
-        this.rCol = 1.0F;
-        this.gCol = 1.0F;
-        this.bCol = 1.0F;
-        this.setSpriteFromAge(sprites);
 
         int setting = getParticleSetting(level);
         int numBeam = Math.max(1, (3 - setting) * 15);
@@ -78,19 +91,12 @@ public class ParticleHealSparkle extends TextureSheetParticle {
 
     @Override
     public void render(VertexConsumer buffer, Camera camera, float partialTicks) {
-        TextureAtlasSprite sprite = this.sprite;
-        float u0 = sprite.getU0();
-        float u1 = sprite.getU1();
-        float v0 = sprite.getV0();
-        float v1 = sprite.getV1();
-
         Vec3 cameraPos = camera.getPosition();
         float baseX = (float) (Mth.lerp(partialTicks, this.xo, this.x) - cameraPos.x());
         float baseY = (float) (Mth.lerp(partialTicks, this.yo, this.y) - cameraPos.y());
         float baseZ = (float) (Mth.lerp(partialTicks, this.zo, this.z) - cameraPos.z());
 
         Quaternionf rotation = camera.rotation();
-        int light = this.getLightColor(partialTicks);
 
         for (float[] beam : this.beams) {
             float beamAge = beam[7];
@@ -120,31 +126,26 @@ public class ParticleHealSparkle extends TextureSheetParticle {
                 corner.add(px, py, pz);
             }
 
-            float r = beam[3];
-            float g = beam[4];
-            float b = beam[5];
-            float a = beam[6];
+            float r = Math.min(1.0F, Math.max(0.0F, beam[3]));
+            float g = Math.min(1.0F, Math.max(0.0F, beam[4]));
+            float b = Math.min(1.0F, Math.max(0.0F, beam[5]));
+            float a = Math.min(1.0F, Math.max(0.0F, beam[6]));
 
-            emitVertex(buffer, corners[0], u1, v1, light, r, g, b, a);
-            emitVertex(buffer, corners[1], u1, v0, light, r, g, b, a);
-            emitVertex(buffer, corners[2], u0, v0, light, r, g, b, a);
-            emitVertex(buffer, corners[3], u0, v1, light, r, g, b, a);
+            buffer.addVertex(corners[0].x(), corners[0].y(), corners[0].z()).setColor(r, g, b, a);
+            buffer.addVertex(corners[1].x(), corners[1].y(), corners[1].z()).setColor(r, g, b, a);
+            buffer.addVertex(corners[2].x(), corners[2].y(), corners[2].z()).setColor(r, g, b, a);
+            buffer.addVertex(corners[3].x(), corners[3].y(), corners[3].z()).setColor(r, g, b, a);
 
-            emitVertex(buffer, corners[3], u1, v1, light, r, g, b, a);
-            emitVertex(buffer, corners[2], u1, v0, light, r, g, b, a);
-            emitVertex(buffer, corners[1], u0, v0, light, r, g, b, a);
-            emitVertex(buffer, corners[0], u0, v1, light, r, g, b, a);
+            buffer.addVertex(corners[3].x(), corners[3].y(), corners[3].z()).setColor(r, g, b, a);
+            buffer.addVertex(corners[2].x(), corners[2].y(), corners[2].z()).setColor(r, g, b, a);
+            buffer.addVertex(corners[1].x(), corners[1].y(), corners[1].z()).setColor(r, g, b, a);
+            buffer.addVertex(corners[0].x(), corners[0].y(), corners[0].z()).setColor(r, g, b, a);
         }
     }
 
     @Override
     public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
-
-    @Override
-    protected int getLightColor(float partialTicks) {
-        return LightTexture.FULL_BRIGHT;
+        return UNTEXTURED_RENDER;
     }
 
     private void spawnBeam() {
@@ -165,14 +166,6 @@ public class ParticleHealSparkle extends TextureSheetParticle {
         this.beamCurrent = (this.beamCurrent + 1) % this.beams.length;
     }
 
-    private void emitVertex(VertexConsumer buffer, Vector3f pos, float u, float v, int light,
-                            float red, float green, float blue, float alpha) {
-        buffer.addVertex(pos.x(), pos.y(), pos.z())
-                .setColor(red, green, blue, alpha)
-                .setUv(u, v)
-                .setLight(light);
-    }
-
     private int getParticleSetting(Level level) {
         if (Minecraft.getInstance().level != level) {
             return 0;
@@ -181,16 +174,13 @@ public class ParticleHealSparkle extends TextureSheetParticle {
     }
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet sprites;
-
         public Provider(SpriteSet sprites) {
-            this.sprites = sprites;
         }
 
         @Override
         public ParticleHealSparkle createParticle(SimpleParticleType type, ClientLevel level, double x, double y,
                                                   double z, double xSpeed, double ySpeed, double zSpeed) {
-            return new ParticleHealSparkle(level, x, y, z, xSpeed, ySpeed, zSpeed, this.sprites);
+            return new ParticleHealSparkle(level, x, y, z, xSpeed, ySpeed, zSpeed);
         }
     }
 }

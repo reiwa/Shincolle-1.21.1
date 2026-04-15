@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "shincolle:polymetal_gravel"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "shincolle:abyss_polymetal"
+  }
+}

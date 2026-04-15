@@ -15,8 +15,8 @@ license = "${mod_license}"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]]
 modId = "shincolle"
-version = "0.1.1"
-displayName = "Shincolle"
+version = "0.2.0"
+displayName = "Shinkaiseikan Collection"
 # A URL to query for updates for this mod. See the JSON update specification https://docs.neoforge.net/docs/misc/updatechecker/
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
 # A URL for the "homepage" for this mod, displayed in the mod UI

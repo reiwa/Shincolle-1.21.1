@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "entries": [
+    "shincolle:chest_inject_basic",
+    "shincolle:chest_inject_mid",
+    "shincolle:chest_inject_high",
+    "shincolle:chest_inject_trial"
+  ]
+}

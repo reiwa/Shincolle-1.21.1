@@ -9,6 +9,10 @@ public final class LegacyPoseOffsets {
         return switch (modelName) {
             case "ModelAirfieldHime" -> 0.55F * 3;
             case "ModelDestroyerAkatsuki" -> 1.9F;
+            case "ModelDestroyerI" -> 1.5F;
+            case "ModelDestroyerRo" -> 1.5F;
+            case "ModelDestroyerHa" -> 2.5F;
+            case "ModelDestroyerNi" -> 2.8F;
             case "ModelDestroyerHibiki" -> 1.9F;
             case "ModelDestroyerIkazuchi" -> 1.9F;
             case "ModelDestroyerShimakaze" -> 1.9F;
@@ -95,6 +99,10 @@ public final class LegacyPoseOffsets {
     public static float sittingY(String modelName) {
         return switch (modelName) {
             case "ModelAirfieldHime" -> 0.37F * 4;
+            case "ModelDestroyerI" -> 0.5F;
+            case "ModelDestroyerRo" -> 1.3F;
+            case "ModelDestroyerHa" -> 1.5F;
+            case "ModelDestroyerNi" -> 1.8F;
             case "ModelDestroyerIkazuchi" -> 1.3F;
             case "ModelDestroyerHime" -> 0.43F * 3.2F;
             case "ModelCruiserTakao" -> 0.35F * 3.1F;

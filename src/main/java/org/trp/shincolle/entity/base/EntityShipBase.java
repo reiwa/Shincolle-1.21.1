@@ -1253,7 +1253,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                 beamFad,
                 beamRiseSpeed,
                 beamHeight,
-                0.0D
+                1.0D
         );
     }
 
