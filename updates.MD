@@ -1,4 +1,4 @@
-## 0.2.0 (2026/04/16 JST)
+## v0.2.0 (2026/04/16 JST)
 - Implemented several blocks and items
 - Fixed an issue with entity rendering
 - Fixed an issue with particle rendering
@@ -8,7 +8,7 @@
 - Other fixes
 
 
-## 0.1.1 (2026/04/13 JST)
+## v0.1.1 (2026/04/13 JST)
 - Fixed a bug with equipment particles
 - Fixed a bug in the Raiden state of Ikazuchi and Inazuma
 - Temporarily implemented behavior where Re pushes entities
@@ -16,5 +16,5 @@
 - Refined the program
 
 
-## 0.1.0
+## v0.1.0
 - Initial verion
