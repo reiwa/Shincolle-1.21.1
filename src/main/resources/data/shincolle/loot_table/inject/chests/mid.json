@@ -130,6 +130,21 @@
               }
             }
           ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "shincolle:instantconmat",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1.0,
+                "max": 3.0
+              }
+            }
+          ]
         }
       ]
     },
@@ -177,6 +192,16 @@
           "type": "minecraft:item",
           "name": "shincolle:subm_so_spawn_egg",
           "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "shincolle:trainingbook",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "shincolle:marriagering",
+          "weight": 1
         }
       ]
     }

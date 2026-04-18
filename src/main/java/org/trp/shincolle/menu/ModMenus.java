@@ -12,4 +12,14 @@ public class ModMenus {
 
     public static final DeferredHolder<MenuType<?>, MenuType<ShipContainerMenu>> SHIP_MENU = MENUS.register("ship_menu",
             () -> IMenuTypeExtension.create(ShipContainerMenu::new));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<SmallShipyardMenu>> SMALL_SHIPYARD_MENU = MENUS.register(
+        "small_shipyard_menu",
+        () -> IMenuTypeExtension.create(SmallShipyardMenu::new)
+    );
+
+    public static final DeferredHolder<MenuType<?>, MenuType<LargeShipyardMenu>> LARGE_SHIPYARD_MENU = MENUS.register(
+        "large_shipyard_menu",
+        () -> IMenuTypeExtension.create(LargeShipyardMenu::new)
+    );
 }

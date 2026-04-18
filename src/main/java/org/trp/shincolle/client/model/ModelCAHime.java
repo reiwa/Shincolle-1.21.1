@@ -436,6 +436,8 @@ public class ModelCAHime<T extends EntityShipBase> extends ShipModelHumanoidBase
 
         if (entity.isInWater()) {
             this.poseTranslateY += angleX * 0.05F + 0.025F;
+        } else {
+            this.poseTranslateY += 0.5F;
         }
 
         float addk1 = angleAdd1 * 0.35F - 0.14F;

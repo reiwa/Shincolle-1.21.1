@@ -1,6 +1,9 @@
 {
   "variants": {
-    "": {
+    "formed=false": {
+      "model": "shincolle:block/polymetal"
+    },
+    "formed=true": {
       "model": "shincolle:block/polymetal"
     }
   }

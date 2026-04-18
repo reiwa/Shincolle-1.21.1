@@ -58,6 +58,13 @@ public class EntityBattleshipYamato extends EntityShipBase {
         if ((this.tickCount % 128) == 0) {
             applyBuffToNearbyAllies();
         }
+
+	if (!this.level().isClientSide && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
+            Entity target = this.getTarget();
+            if (target == null || !target.isAlive()) {
+                this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
+            }
+        }
     }
 
     public double getPassengersRidingOffset() {

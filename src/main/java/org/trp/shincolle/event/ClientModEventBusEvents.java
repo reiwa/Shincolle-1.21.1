@@ -14,7 +14,12 @@ import org.trp.shincolle.client.particle.ParticleEmotion;
 import org.trp.shincolle.client.particle.ParticleHealSparkle;
 import org.trp.shincolle.client.particle.ParticleTeam;
 import org.trp.shincolle.client.renderer.*;
+import org.trp.shincolle.client.renderer.block.RenderLargeShipyard;
+import org.trp.shincolle.client.renderer.block.RenderSmallShipyard;
+import org.trp.shincolle.client.screen.LargeShipyardScreen;
+import org.trp.shincolle.client.screen.SmallShipyardScreen;
 import org.trp.shincolle.client.screen.ShipInventoryScreen;
+import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.menu.ModMenus;
@@ -163,6 +168,9 @@ public class ClientModEventBusEvents {
         event.registerEntityRenderer(ModEntities.ABYSS_MISSILE.get(), RendererAbyssMissile::new);
         event.registerEntityRenderer(ModEntities.PROJECTILE_BEAM.get(), RendererProjectileBeam::new);
         event.registerEntityRenderer(ModEntities.SHIP_GRUDGE.get(), RendererShipGrudge::new);
+
+        event.registerBlockEntityRenderer(ModBlockEntities.SMALL_SHIPYARD.get(), RenderSmallShipyard::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.LARGE_SHIPYARD.get(), RenderLargeShipyard::new);
     }
 
     @SubscribeEvent
@@ -230,11 +238,16 @@ public class ClientModEventBusEvents {
         event.registerLayerDefinition(ModelAbyssMissile.LAYER_LOCATION, ModelAbyssMissile::createBodyLayer);
         event.registerLayerDefinition(ModelProjectileBeam.LAYER_LOCATION, ModelProjectileBeam::createBodyLayer);
         event.registerLayerDefinition(ModelShipGrudge.LAYER_LOCATION, ModelShipGrudge::createBodyLayer);
+                event.registerLayerDefinition(ModelSmallShipyard.LAYER_LOCATION, ModelSmallShipyard::createBodyLayer);
+                event.registerLayerDefinition(ModelLargeShipyard.LAYER_LOCATION, ModelLargeShipyard::createBodyLayer);
+                event.registerLayerDefinition(ModelVortex.LAYER_LOCATION, ModelVortex::createBodyLayer);
     }
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.SHIP_MENU.get(), ShipInventoryScreen::new);
+                event.register(ModMenus.SMALL_SHIPYARD_MENU.get(), SmallShipyardScreen::new);
+                event.register(ModMenus.LARGE_SHIPYARD_MENU.get(), LargeShipyardScreen::new);
     }
 
     @SubscribeEvent

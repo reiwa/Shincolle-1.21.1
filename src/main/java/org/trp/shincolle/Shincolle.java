@@ -12,6 +12,7 @@ public class Shincolle {
     public Shincolle(IEventBus modEventBus) {
         ModItems.ITEMS.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
+        ModBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
         ModTabs.CREATIVE_MODE_TABS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);

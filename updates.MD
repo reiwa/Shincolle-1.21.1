@@ -1,3 +1,10 @@
+## v0.3.0(2026/04/18 JST)
+- Added implementation for blocks and items
+- Implemented Small/Large Shipyard and construction system
+- Fixed issues related to entity appearance
+- Other minor fixes
+
+
 ## v0.2.0 (2026/04/16 JST)
 - Implemented several blocks and items
 - Fixed an issue with entity rendering

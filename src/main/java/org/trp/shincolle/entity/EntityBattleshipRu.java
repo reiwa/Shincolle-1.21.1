@@ -153,12 +153,6 @@ public class EntityBattleshipRu extends EntityShipBase {
         if ((this.tickCount & 0xF) != 0) {
             return;
         }
-        if (checkModelState(3, this.getStateEmotion(0)) && (this.tickCount & 0x1FF) < 400
-                && !this.getIsSitting() && !this.isPassenger()) {
-            this.level().addParticle(ParticleTypes.SMOKE,
-                    this.getX(), this.getY() + 1.34D, this.getZ(),
-                    0.0D, 0.05D, 0.0D);
-        }
         if ((this.tickCount & 0x3F) == 0) {
             if (this.getStateEmotion(1) == 4 && checkModelState(0, this.getStateEmotion(0))
                     && (this.tickCount & 0x1FF) > 400) {

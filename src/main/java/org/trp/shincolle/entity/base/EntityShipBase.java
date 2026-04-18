@@ -1013,9 +1013,9 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     protected void tickAliveLogic() {
+        this.emotions.tickEmotions();
         if (!this.isNoFuel()) {
             this.pointer.tickPointerTargetEntity();
-            this.emotions.tickEmotions();
             this.combat.tickAircraftRecovery();
             tickEmotes();
             if ((this.tickCount & 0xFF) == 0) {
@@ -1032,6 +1032,8 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     @Override
     protected void tickDeath() {
+        this.setEmotionPrimary(EMOTION_HUNGRY);
+        this.setFaceHungry();
         this.shipDeathTicks++;
         if (!this.level().isClientSide && this.shipDeathTicks == SHIP_DEATH_MAX_TICKS) {
             spawnShipGrudge();

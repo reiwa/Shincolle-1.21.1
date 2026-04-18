@@ -231,6 +231,10 @@ public class EntityBattleshipRe extends EntityShipBase {
     private void executePushAttack() {
         float yawRad = this.getYRot() * Mth.DEG_TO_RAD;
         Vec3 push = new Vec3(-Mth.sin(yawRad) * 0.5f, 0.5f, Mth.cos(yawRad) * 0.5f);
+
+	    this.targetPush.hasImpulse = true;
+        this.targetPush.hurtMarked = true;
+
         this.targetPush.setDeltaMovement(this.targetPush.getDeltaMovement().add(push));
         this.swing(InteractionHand.MAIN_HAND);
         if (this.level() instanceof ServerLevel serverLevel) {

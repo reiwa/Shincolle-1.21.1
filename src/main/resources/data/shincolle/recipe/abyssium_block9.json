@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "shincolle:abyss_metal"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "shincolle:abyssium"
+  }
+}

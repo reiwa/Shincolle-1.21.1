@@ -11,8 +11,10 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.item.GrudgeItem;
+import org.trp.shincolle.item.RandomShipSpawnEggItem;
 import org.trp.shincolle.item.ShipClass;
 import org.trp.shincolle.item.ShipSpawnEggItem;
+import org.trp.shincolle.item.SmallShipyardBlockItem;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Shincolle.MODID);
@@ -22,6 +24,14 @@ public class ModItems {
             .saturationModifier(0.0F)
             .alwaysEdible()
             .build();
+
+    public static final DeferredItem<Item> SHIPSPAWNEGGS = ITEMS.register("shipspawneggs",
+            () -> new RandomShipSpawnEggItem(ModEntities.DESTROYER_I, ShipClass.DESTROYER, false,
+                    0xFFFFFF, 0xFFFFFF, new Item.Properties()));
+
+    public static final DeferredItem<Item> SHIPSPAWNEGGL = ITEMS.register("shipspawneggl",
+            () -> new RandomShipSpawnEggItem(ModEntities.DESTROYER_HIME, ShipClass.PRINCESS, true,
+                    0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
     public static final DeferredItem<Item> DESTROYER_I_SPAWN_EGG = ITEMS.register("destroyer_i_spawn_egg",
             () -> new ShipSpawnEggItem(ModEntities.DESTROYER_I, ShipClass.DESTROYER, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
@@ -99,7 +109,7 @@ public class ModItems {
             () -> new ShipSpawnEggItem(ModEntities.SSNH, ShipClass.SUBMARINE, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
     public static final DeferredItem<Item> CARRIER_W_DEMON_SPAWN_EGG = ITEMS.register("carrier_w_demon_spawn_egg",
-            () -> new ShipSpawnEggItem(ModEntities.CARRIER_W_DEMON, ShipClass.AIRCRAFT_CARRIER, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
+            () -> new ShipSpawnEggItem(ModEntities.CARRIER_W_DEMON, ShipClass.DESTROYER_ESCORT, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
     public static final DeferredItem<Item> DESTROYER_AKATSUKI_SPAWN_EGG = ITEMS.register("destroyer_akatsuki_spawn_egg",
             () -> new ShipSpawnEggItem(ModEntities.DESTROYER_AKATSUKI, ShipClass.DESTROYER, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
@@ -165,6 +175,18 @@ public class ModItems {
                             .build()
             )));
 
+    public static final DeferredItem<Item> INSTANT_CON_MAT = ITEMS.register("instantconmat",
+            () -> new Item(new Item.Properties()));
+
+    public static final DeferredItem<Item> KAITAI_HAMMER = ITEMS.register("kaitaihammer",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<Item> MARRIAGE_RING = ITEMS.register("marriagering",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<Item> TRAINING_BOOK = ITEMS.register("trainingbook",
+            () -> new Item(new Item.Properties()));
+
     public static final DeferredItem<Item> AMMO_LIGHT = ITEMS.register("ammo",
             () -> new Item(new Item.Properties()));
 
@@ -186,6 +208,9 @@ public class ModItems {
     public static final DeferredItem<Item> ABYSS_POLYMETAL = ITEMS.register("abyss_polymetal",
             () -> new Item(new Item.Properties()));
 
+    public static final DeferredItem<Item> ABYSSIUM = ITEMS.register("abyssium",
+            () -> new BlockItem(ModBlocks.ABYSSIUM.get(), new Item.Properties()));
+
     public static final DeferredItem<Item> GRUDGE_BLOCK = ITEMS.register("grudge_block",
             () -> new BlockItem(ModBlocks.GRUDGE_BLOCK.get(), new Item.Properties()));
 
@@ -200,4 +225,7 @@ public class ModItems {
 
     public static final DeferredItem<Item> POLYMETAL_GRAVEL = ITEMS.register("polymetal_gravel",
             () -> new BlockItem(ModBlocks.POLYMETAL_GRAVEL.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> SMALL_SHIPYARD = ITEMS.register("small_shipyard",
+            () -> new SmallShipyardBlockItem(ModBlocks.SMALL_SHIPYARD.get(), new Item.Properties()));
 }
