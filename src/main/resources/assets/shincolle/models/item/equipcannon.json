@@ -1,0 +1,20 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "shincolle:item/equipcannon0"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 1.0
+      },
+      "model": "shincolle:item/equipcannon1"
+    },
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 2.0
+      },
+      "model": "shincolle:item/equipcannon2"
+    }
+  ]
+}

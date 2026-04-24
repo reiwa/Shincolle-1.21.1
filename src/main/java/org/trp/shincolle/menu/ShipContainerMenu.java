@@ -2,16 +2,22 @@ package org.trp.shincolle.menu;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.inventory.ShipInventoryHandler;
+import org.trp.shincolle.item.ShipTankItem;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ShipContainerMenu extends AbstractContainerMenu {
     public static final int EQUIP_BUTTON_BASE = 100;
@@ -23,14 +29,52 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     public static final int TOGGLE_BUTTON_HEAVY_ATTACK = 32;
     public static final int TOGGLE_BUTTON_LIGHT_AIRCRAFT = 33;
     public static final int TOGGLE_BUTTON_HEAVY_AIRCRAFT = 34;
-    public static final int TOGGLE_BUTTON_APPEARANCE = 35;
+    public static final int TOGGLE_BUTTON_RING_EFFECT = 35;
+    public static final int TOGGLE_BUTTON_PASSIVE_ATTACK = 50;
+    public static final int TOGGLE_BUTTON_ON_SIGHT = 51;
+    public static final int TOGGLE_BUTTON_PVP = 52;
+    public static final int TOGGLE_BUTTON_ANTI_AIR = 53;
+    public static final int TOGGLE_BUTTON_ANTI_SUB = 54;
+    public static final int TOGGLE_BUTTON_TIMEKEEP = 55;
+    public static final int TOGGLE_BUTTON_PICK_ITEM = 60;
+    public static final int TOGGLE_BUTTON_AUTO_PUMP = 61;
+    public static final int TOGGLE_BUTTON_SHOW_HELD = 71;
+
+    public static final int SLIDER_FOLLOW_MIN_BASE = 400;
+    public static final int SLIDER_FOLLOW_MAX_BASE = 500;
+    public static final int SLIDER_FLEE_HP_BASE = 700;
+    public static final int SLIDER_RATION_MORALE_BASE = 900;
 
     public static final int STATE_FLAG_CAN_MELEE = 3;
     public static final int STATE_FLAG_LIGHT_ATTACK = 4;
     public static final int STATE_FLAG_HEAVY_ATTACK = 5;
     public static final int STATE_FLAG_LIGHT_AIRCRAFT_ATTACK = 6;
     public static final int STATE_FLAG_HEAVY_AIRCRAFT_ATTACK = 7;
+    public static final int STATE_FLAG_RING_EFFECT = 9;
+    public static final int STATE_FLAG_ON_SIGHT = 12;
+    public static final int STATE_FLAG_PVP = 18;
+    public static final int STATE_FLAG_ANTI_AIR = 19;
+    public static final int STATE_FLAG_ANTI_SUB = 20;
+    public static final int STATE_FLAG_PASSIVE_ATTACK = 21;
+    public static final int STATE_FLAG_TIMEKEEP = 22;
+    public static final int STATE_FLAG_PICK_ITEM = 23;
     private static final int STATE_FLAG_APPEARANCE = 25;
+    public static final int STATE_FLAG_AUTO_PUMP = 26;
+
+    public static final int STATE_MINOR_RATION_MORALE = 9;
+    public static final int STATE_MINOR_FOLLOW_MIN = 10;
+    public static final int STATE_MINOR_FOLLOW_MAX = 11;
+    public static final int STATE_MINOR_FLEE_HP = 12;
+    private static final int STATE_MINOR_EQUIP_DRUM = 36;
+
+    private static final int FOLLOW_MIN_MIN = 1;
+    private static final int FOLLOW_MIN_MAX = 31;
+    private static final int FOLLOW_MAX_MIN = 2;
+    private static final int FOLLOW_MAX_MAX = 32;
+    private static final int FLEE_HP_MIN = 0;
+    private static final int FLEE_HP_MAX = 100;
+    private static final int RATION_MORALE_MIN = 1;
+    private static final int RATION_MORALE_MAX = 4;
 
     private static final int EQUIP_SLOTS = 6;
     private static final int PAGE_SLOTS = 18;
@@ -55,12 +99,25 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot pageData = new DataSlot() {
         @Override
         public int get() {
+            inventoryPage = clampPage(inventoryPage);
             return inventoryPage;
         }
 
         @Override
         public void set(int value) {
             inventoryPage = clampPage(value);
+        }
+    };
+    private final DataSlot unlockedStoragePagesData = new DataSlot() {
+        @Override
+        public int get() {
+            return getUnlockedStoragePagesServer();
+        }
+
+        @Override
+        public void set(int value) {
+            unlockedStoragePagesSynced = Mth.clamp(value, 0, SHIP_PAGE_COUNT - 1);
+            inventoryPage = clampPage(inventoryPage);
         }
     };
     private final DataSlot canMeleeData = new DataSlot() {
@@ -118,6 +175,138 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             heavyAircraftAttackSynced = value != 0;
         }
     };
+    private final DataSlot ringEffectData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.isStateRingEffect() ? 1 : 0;
+        }
+
+        @Override
+        public void set(int value) {
+            ringEffectSynced = value != 0;
+        }
+    };
+    private final DataSlot followMinData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateMinor(STATE_MINOR_FOLLOW_MIN);
+        }
+
+        @Override
+        public void set(int value) {
+            followMinSynced = clampFollowMin(value);
+        }
+    };
+    private final DataSlot followMaxData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateMinor(STATE_MINOR_FOLLOW_MAX);
+        }
+
+        @Override
+        public void set(int value) {
+            followMaxSynced = clampFollowMax(value, followMinSynced);
+        }
+    };
+    private final DataSlot fleeHpData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateMinor(STATE_MINOR_FLEE_HP);
+        }
+
+        @Override
+        public void set(int value) {
+            fleeHpSynced = clampFleeHp(value);
+        }
+    };
+    private final DataSlot passiveAttackData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK) ? 1 : 0;
+        }
+
+        @Override
+        public void set(int value) {
+            passiveAttackSynced = value != 0;
+        }
+    };
+    private final DataSlot onSightData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateFlag(STATE_FLAG_ON_SIGHT) ? 1 : 0;
+        }
+
+        @Override
+        public void set(int value) {
+            onSightSynced = value != 0;
+        }
+    };
+    private final DataSlot pvpData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateFlag(STATE_FLAG_PVP) ? 1 : 0;
+        }
+
+        @Override
+        public void set(int value) {
+            pvpSynced = value != 0;
+        }
+    };
+    private final DataSlot antiAirData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateFlag(STATE_FLAG_ANTI_AIR) ? 1 : 0;
+        }
+
+        @Override
+        public void set(int value) {
+            antiAirSynced = value != 0;
+        }
+    };
+    private final DataSlot antiSubData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateFlag(STATE_FLAG_ANTI_SUB) ? 1 : 0;
+        }
+
+        @Override
+        public void set(int value) {
+            antiSubSynced = value != 0;
+        }
+    };
+    private final DataSlot timeKeepingData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateFlag(STATE_FLAG_TIMEKEEP) ? 1 : 0;
+        }
+
+        @Override
+        public void set(int value) {
+            timeKeepingSynced = value != 0;
+        }
+    };
+    private final DataSlot pickItemData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateFlag(STATE_FLAG_PICK_ITEM) ? 1 : 0;
+        }
+
+        @Override
+        public void set(int value) {
+            pickItemSynced = value != 0;
+        }
+    };
+    private final DataSlot autoPumpData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateFlag(STATE_FLAG_AUTO_PUMP) ? 1 : 0;
+        }
+
+        @Override
+        public void set(int value) {
+            autoPumpSynced = value != 0;
+        }
+    };
     private final DataSlot appearanceData = new DataSlot() {
         @Override
         public int get() {
@@ -129,13 +318,88 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             appearanceSynced = value != 0;
         }
     };
+    private final DataSlot rationMoraleData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateMinor(STATE_MINOR_RATION_MORALE);
+        }
+
+        @Override
+        public void set(int value) {
+            rationMoraleSynced = clampRationMorale(value);
+        }
+    };
+    private final DataSlot shipTankFluidAmountLowData = new DataSlot() {
+        @Override
+        public int get() {
+            refreshShipTankFluidSyncValues();
+            return shipTankFluidAmountSynced & 0xFFFF;
+        }
+
+        @Override
+        public void set(int value) {
+            shipTankFluidAmountSynced = (shipTankFluidAmountSynced & 0xFFFF0000) | (value & 0xFFFF);
+        }
+    };
+    private final DataSlot shipTankFluidAmountHighData = new DataSlot() {
+        @Override
+        public int get() {
+            refreshShipTankFluidSyncValues();
+            return (shipTankFluidAmountSynced >>> 16) & 0xFFFF;
+        }
+
+        @Override
+        public void set(int value) {
+            shipTankFluidAmountSynced = (shipTankFluidAmountSynced & 0xFFFF) | ((value & 0xFFFF) << 16);
+        }
+    };
+    private final DataSlot shipTankFluidCapacityLowData = new DataSlot() {
+        @Override
+        public int get() {
+            refreshShipTankFluidSyncValues();
+            return shipTankFluidCapacitySynced & 0xFFFF;
+        }
+
+        @Override
+        public void set(int value) {
+            shipTankFluidCapacitySynced = (shipTankFluidCapacitySynced & 0xFFFF0000) | (value & 0xFFFF);
+        }
+    };
+    private final DataSlot shipTankFluidCapacityHighData = new DataSlot() {
+        @Override
+        public int get() {
+            refreshShipTankFluidSyncValues();
+            return (shipTankFluidCapacitySynced >>> 16) & 0xFFFF;
+        }
+
+        @Override
+        public void set(int value) {
+            shipTankFluidCapacitySynced = (shipTankFluidCapacitySynced & 0xFFFF) | ((value & 0xFFFF) << 16);
+        }
+    };
     private int inventoryPage = 0;
+    private int unlockedStoragePagesSynced;
     private boolean canMeleeSynced;
     private boolean lightAttackSynced;
     private boolean heavyAttackSynced;
     private boolean lightAircraftAttackSynced;
     private boolean heavyAircraftAttackSynced;
+    private boolean ringEffectSynced;
+    private int followMinSynced;
+    private int followMaxSynced;
+    private int fleeHpSynced;
+    private boolean passiveAttackSynced;
+    private boolean onSightSynced;
+    private boolean pvpSynced;
+    private boolean antiAirSynced;
+    private boolean antiSubSynced;
+    private boolean timeKeepingSynced;
+    private boolean pickItemSynced;
+    private boolean autoPumpSynced;
     private boolean appearanceSynced;
+    private int rationMoraleSynced;
+    private int shipTankFluidAmountSynced;
+    private int shipTankFluidCapacitySynced;
 
     public ShipContainerMenu(int containerId, Inventory playerInv, RegistryFriendlyByteBuf buf) {
         this(containerId, playerInv, getEntity(playerInv, buf));
@@ -144,19 +408,58 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     public ShipContainerMenu(int containerId, Inventory playerInv, EntityShipBase ship) {
         super(ModMenus.SHIP_MENU.get(), containerId);
         this.ship = ship;
+        this.unlockedStoragePagesSynced = Mth.clamp(ship.getStateMinor(STATE_MINOR_EQUIP_DRUM), 0, SHIP_PAGE_COUNT - 1);
         this.canMeleeSynced = ship.isStateCanMelee();
         this.lightAttackSynced = ship.isStateLightAttack();
         this.heavyAttackSynced = ship.isStateHeavyAttack();
         this.lightAircraftAttackSynced = ship.isStateLightAircraftAttack();
         this.heavyAircraftAttackSynced = ship.isStateHeavyAircraftAttack();
+        this.ringEffectSynced = ship.isStateRingEffect();
+        this.followMinSynced = clampFollowMin(ship.getStateMinor(STATE_MINOR_FOLLOW_MIN));
+        this.followMaxSynced = clampFollowMax(ship.getStateMinor(STATE_MINOR_FOLLOW_MAX), this.followMinSynced);
+        this.fleeHpSynced = clampFleeHp(ship.getStateMinor(STATE_MINOR_FLEE_HP));
+        this.passiveAttackSynced = ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK);
+        this.onSightSynced = ship.getStateFlag(STATE_FLAG_ON_SIGHT);
+        this.pvpSynced = ship.getStateFlag(STATE_FLAG_PVP);
+        this.antiAirSynced = ship.getStateFlag(STATE_FLAG_ANTI_AIR);
+        this.antiSubSynced = ship.getStateFlag(STATE_FLAG_ANTI_SUB);
+        this.timeKeepingSynced = ship.getStateFlag(STATE_FLAG_TIMEKEEP);
+        this.pickItemSynced = ship.getStateFlag(STATE_FLAG_PICK_ITEM);
+        this.autoPumpSynced = ship.getStateFlag(STATE_FLAG_AUTO_PUMP);
         this.appearanceSynced = ship.isStateAppearance();
+        this.rationMoraleSynced = clampRationMorale(ship.getStateMinor(STATE_MINOR_RATION_MORALE));
+        refreshShipTankFluidSyncValues();
+
+        ship.setStateMinor(STATE_MINOR_FOLLOW_MIN, this.followMinSynced);
+        ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this.followMaxSynced);
+        ship.setStateMinor(STATE_MINOR_FLEE_HP, this.fleeHpSynced);
+        ship.setStateMinor(STATE_MINOR_RATION_MORALE, this.rationMoraleSynced);
+
         this.addDataSlot(pageData);
+        this.addDataSlot(unlockedStoragePagesData);
         this.addDataSlot(canMeleeData);
         this.addDataSlot(lightAttackData);
         this.addDataSlot(heavyAttackData);
         this.addDataSlot(lightAircraftAttackData);
         this.addDataSlot(heavyAircraftAttackData);
+        this.addDataSlot(ringEffectData);
+        this.addDataSlot(followMinData);
+        this.addDataSlot(followMaxData);
+        this.addDataSlot(fleeHpData);
+        this.addDataSlot(passiveAttackData);
+        this.addDataSlot(onSightData);
+        this.addDataSlot(pvpData);
+        this.addDataSlot(antiAirData);
+        this.addDataSlot(antiSubData);
+        this.addDataSlot(timeKeepingData);
+        this.addDataSlot(pickItemData);
+        this.addDataSlot(autoPumpData);
         this.addDataSlot(appearanceData);
+        this.addDataSlot(rationMoraleData);
+        this.addDataSlot(shipTankFluidAmountLowData);
+        this.addDataSlot(shipTankFluidAmountHighData);
+        this.addDataSlot(shipTankFluidCapacityLowData);
+        this.addDataSlot(shipTankFluidCapacityHighData);
 
         for (int i = 0; i < EQUIP_SLOTS; i++) {
             this.addSlot(new EquipSlot(i, EQUIP_INV_X, EQUIP_INV_Y + i * 18));
@@ -236,7 +539,16 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     }
 
     public int getInventoryPage() {
+        this.inventoryPage = clampPage(this.inventoryPage);
         return inventoryPage;
+    }
+
+    public int getUnlockedStoragePages() {
+        return Mth.clamp(this.unlockedStoragePagesSynced, 0, SHIP_PAGE_COUNT - 1);
+    }
+
+    public int getUnlockedInventoryPageCount() {
+        return 1 + getUnlockedStoragePages();
     }
 
     public boolean isCanMeleeEnabled() {
@@ -259,8 +571,68 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         return heavyAircraftAttackSynced;
     }
 
+    public boolean isRingEffectEnabled() {
+        return ringEffectSynced;
+    }
+
+    public int getFollowMinDistance() {
+        return followMinSynced;
+    }
+
+    public int getFollowMaxDistance() {
+        return followMaxSynced;
+    }
+
+    public int getFleeHpPercent() {
+        return fleeHpSynced;
+    }
+
+    public boolean isPassiveAttackEnabled() {
+        return passiveAttackSynced;
+    }
+
+    public boolean isOnSightEnabled() {
+        return onSightSynced;
+    }
+
+    public boolean isPvpEnabled() {
+        return pvpSynced;
+    }
+
+    public boolean isAntiAirEnabled() {
+        return antiAirSynced;
+    }
+
+    public boolean isAntiSubEnabled() {
+        return antiSubSynced;
+    }
+
+    public boolean isTimeKeepingEnabled() {
+        return timeKeepingSynced;
+    }
+
+    public boolean isPickItemEnabled() {
+        return pickItemSynced;
+    }
+
+    public boolean isAutoPumpEnabled() {
+        return autoPumpSynced;
+    }
+
     public boolean isAppearanceEnabled() {
         return appearanceSynced;
+    }
+
+    public int getRationMoraleThreshold() {
+        return rationMoraleSynced;
+    }
+
+    public int getShipTankFluidAmount() {
+        return Math.max(0, shipTankFluidAmountSynced);
+    }
+
+    public int getShipTankFluidCapacity() {
+        return Math.max(0, shipTankFluidCapacitySynced);
     }
 
     public List<EntityShipBase.EquipOption> getEquipOptions() {
@@ -331,11 +703,17 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 return true;
             }
             case PAGE_BUTTON_1 -> {
+                if (!isPageUnlocked(1)) {
+                    return true;
+                }
                 this.inventoryPage = 1;
                 this.broadcastFullState();
                 return true;
             }
             case PAGE_BUTTON_2 -> {
+                if (!isPageUnlocked(2)) {
+                    return true;
+                }
                 this.inventoryPage = 2;
                 this.broadcastFullState();
                 return true;
@@ -370,13 +748,88 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 heavyAircraftAttackSynced = ship.isStateHeavyAircraftAttack();
                 return true;
             }
-            case TOGGLE_BUTTON_APPEARANCE -> {
+            case TOGGLE_BUTTON_RING_EFFECT -> {
+                ship.setStateRingEffect(!ship.isStateRingEffect());
+                ringEffectSynced = ship.isStateRingEffect();
+                return true;
+            }
+            case TOGGLE_BUTTON_PASSIVE_ATTACK -> {
+                ship.setStateFlag(STATE_FLAG_PASSIVE_ATTACK, !ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK));
+                passiveAttackSynced = ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK);
+                return true;
+            }
+            case TOGGLE_BUTTON_ON_SIGHT -> {
+                ship.setStateFlag(STATE_FLAG_ON_SIGHT, !ship.getStateFlag(STATE_FLAG_ON_SIGHT));
+                onSightSynced = ship.getStateFlag(STATE_FLAG_ON_SIGHT);
+                return true;
+            }
+            case TOGGLE_BUTTON_PVP -> {
+                ship.setStateFlag(STATE_FLAG_PVP, !ship.getStateFlag(STATE_FLAG_PVP));
+                pvpSynced = ship.getStateFlag(STATE_FLAG_PVP);
+                return true;
+            }
+            case TOGGLE_BUTTON_ANTI_AIR -> {
+                ship.setStateFlag(STATE_FLAG_ANTI_AIR, !ship.getStateFlag(STATE_FLAG_ANTI_AIR));
+                antiAirSynced = ship.getStateFlag(STATE_FLAG_ANTI_AIR);
+                return true;
+            }
+            case TOGGLE_BUTTON_ANTI_SUB -> {
+                ship.setStateFlag(STATE_FLAG_ANTI_SUB, !ship.getStateFlag(STATE_FLAG_ANTI_SUB));
+                antiSubSynced = ship.getStateFlag(STATE_FLAG_ANTI_SUB);
+                return true;
+            }
+            case TOGGLE_BUTTON_TIMEKEEP -> {
+                ship.setStateFlag(STATE_FLAG_TIMEKEEP, !ship.getStateFlag(STATE_FLAG_TIMEKEEP));
+                timeKeepingSynced = ship.getStateFlag(STATE_FLAG_TIMEKEEP);
+                return true;
+            }
+            case TOGGLE_BUTTON_PICK_ITEM -> {
+                ship.setStateFlag(STATE_FLAG_PICK_ITEM, !ship.getStateFlag(STATE_FLAG_PICK_ITEM));
+                pickItemSynced = ship.getStateFlag(STATE_FLAG_PICK_ITEM);
+                return true;
+            }
+            case TOGGLE_BUTTON_AUTO_PUMP -> {
+                ship.setStateFlag(STATE_FLAG_AUTO_PUMP, !ship.getStateFlag(STATE_FLAG_AUTO_PUMP));
+                autoPumpSynced = ship.getStateFlag(STATE_FLAG_AUTO_PUMP);
+                return true;
+            }
+            case TOGGLE_BUTTON_SHOW_HELD -> {
                 ship.setStateAppearance(!ship.isStateAppearance());
                 appearanceSynced = ship.isStateAppearance();
                 return true;
             }
             default -> {
             }
+        }
+
+        if (id >= SLIDER_FOLLOW_MIN_BASE && id <= SLIDER_FOLLOW_MIN_BASE + FOLLOW_MIN_MAX) {
+            int requested = id - SLIDER_FOLLOW_MIN_BASE;
+            this.followMinSynced = clampFollowMin(requested);
+            this.followMaxSynced = clampFollowMax(this.followMaxSynced, this.followMinSynced);
+            ship.setStateMinor(STATE_MINOR_FOLLOW_MIN, this.followMinSynced);
+            ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this.followMaxSynced);
+            return true;
+        }
+
+        if (id >= SLIDER_FOLLOW_MAX_BASE && id <= SLIDER_FOLLOW_MAX_BASE + FOLLOW_MAX_MAX) {
+            int requested = id - SLIDER_FOLLOW_MAX_BASE;
+            this.followMaxSynced = clampFollowMax(requested, this.followMinSynced);
+            ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this.followMaxSynced);
+            return true;
+        }
+
+        if (id >= SLIDER_FLEE_HP_BASE && id <= SLIDER_FLEE_HP_BASE + FLEE_HP_MAX) {
+            int requested = id - SLIDER_FLEE_HP_BASE;
+            this.fleeHpSynced = clampFleeHp(requested);
+            ship.setStateMinor(STATE_MINOR_FLEE_HP, this.fleeHpSynced);
+            return true;
+        }
+
+        if (id >= SLIDER_RATION_MORALE_BASE && id <= SLIDER_RATION_MORALE_BASE + RATION_MORALE_MAX) {
+            int requested = id - SLIDER_RATION_MORALE_BASE;
+            this.rationMoraleSynced = clampRationMorale(requested);
+            ship.setStateMinor(STATE_MINOR_RATION_MORALE, this.rationMoraleSynced);
+            return true;
         }
 
         int index = id - EQUIP_BUTTON_BASE;
@@ -390,17 +843,82 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     }
 
     private int clampPage(int page) {
+        int unlockedCount = getUnlockedPageCount();
+        if (unlockedCount <= 1) {
+            return 0;
+        }
         if (page < 0) {
             return 0;
         }
-        if (page >= SHIP_PAGE_COUNT) {
-            return SHIP_PAGE_COUNT - 1;
+        if (page >= unlockedCount) {
+            return unlockedCount - 1;
         }
         return page;
     }
 
+    private int getUnlockedStoragePagesServer() {
+        if (this.ship.level().isClientSide) {
+            return getUnlockedStoragePages();
+        }
+        return Mth.clamp(this.ship.getStateMinor(STATE_MINOR_EQUIP_DRUM), 0, SHIP_PAGE_COUNT - 1);
+    }
+
+    private int getUnlockedPageCount() {
+        return 1 + Mth.clamp(getUnlockedStoragePagesServer(), 0, SHIP_PAGE_COUNT - 1);
+    }
+
+    private boolean isPageUnlocked(int page) {
+        return page >= 0 && page < getUnlockedPageCount();
+    }
+
+    private int clampFollowMin(int value) {
+        int clamped = Math.max(FOLLOW_MIN_MIN, Math.min(FOLLOW_MIN_MAX, value));
+        return Math.min(clamped, FOLLOW_MAX_MAX - 1);
+    }
+
+    private int clampFollowMax(int value, int followMin) {
+        int min = Math.max(FOLLOW_MAX_MIN, followMin + 1);
+        return Math.max(min, Math.min(FOLLOW_MAX_MAX, value));
+    }
+
+    private int clampFleeHp(int value) {
+        return Math.max(FLEE_HP_MIN, Math.min(FLEE_HP_MAX, value));
+    }
+
+    private int clampRationMorale(int value) {
+        return Math.max(RATION_MORALE_MIN, Math.min(RATION_MORALE_MAX, value));
+    }
+
+    private void refreshShipTankFluidSyncValues() {
+        if (this.ship.level().isClientSide) {
+            return;
+        }
+
+        int totalAmount = 0;
+        int totalCapacity = 0;
+        int slotCount = this.ship.getAccessibleInventorySlotCount();
+        for (int i = ShipInventoryHandler.getEquipSlotCount(); i < slotCount; i++) {
+            ItemStack stack = this.ship.getInventory().getStackInSlot(i);
+            if (stack.isEmpty() || !(stack.getItem() instanceof ShipTankItem)) {
+                continue;
+            }
+
+            Optional<IFluidHandlerItem> handlerOptional = FluidUtil.getFluidHandler(stack);
+            if (handlerOptional.isPresent()) {
+                IFluidHandlerItem handler = handlerOptional.get();
+                totalAmount += handler.getFluidInTank(0).getAmount();
+                totalCapacity += handler.getTankCapacity(0);
+            } else {
+                totalCapacity += ShipTankItem.getCapacity(stack);
+            }
+        }
+
+        this.shipTankFluidAmountSynced = Math.max(0, totalAmount);
+        this.shipTankFluidCapacitySynced = Math.max(0, totalCapacity);
+    }
+
     private int toActualShipSlot(int localVisibleSlot) {
-        int mapped = EQUIP_SLOTS + (inventoryPage * PAGE_SLOTS) + localVisibleSlot;
+        int mapped = EQUIP_SLOTS + (clampPage(inventoryPage) * PAGE_SLOTS) + localVisibleSlot;
         if (mapped < 0) {
             return 0;
         }
@@ -437,19 +955,27 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
         @Override
         public ItemStack getItem() {
+            int idx = toActualShipSlot(localVisibleSlot);
+            if (!ship.getInventory().isSlotAvailable(idx)) {
+                return ItemStack.EMPTY;
+            }
             if (ship.level().isClientSide) {
                 return this.clientStack;
             }
-            return ship.getInventory().getStackInSlot(toActualShipSlot(localVisibleSlot));
+            return ship.getInventory().getStackInSlot(idx);
         }
 
         @Override
         public void set(ItemStack stack) {
+            int idx = toActualShipSlot(localVisibleSlot);
+            if (!ship.getInventory().isSlotAvailable(idx)) {
+                return;
+            }
             if (ship.level().isClientSide) {
                 this.clientStack = stack.copy();
                 return;
             }
-            ship.getInventory().setStackInSlot(toActualShipSlot(localVisibleSlot), stack);
+            ship.getInventory().setStackInSlot(idx, stack);
             setChanged();
         }
 
@@ -465,6 +991,10 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
         @Override
         public ItemStack remove(int amount) {
+            int idx = toActualShipSlot(localVisibleSlot);
+            if (!ship.getInventory().isSlotAvailable(idx)) {
+                return ItemStack.EMPTY;
+            }
             if (ship.level().isClientSide) {
                 if (this.clientStack.isEmpty() || amount <= 0) {
                     return ItemStack.EMPTY;
@@ -477,26 +1007,35 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 }
                 return result;
             }
-            int idx = toActualShipSlot(localVisibleSlot);
             return ship.getInventory().extractItem(idx, amount, false);
         }
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return ship.getInventory().isItemValid(toActualShipSlot(localVisibleSlot), stack);
+            int idx = toActualShipSlot(localVisibleSlot);
+            return ship.getInventory().isSlotAvailable(idx)
+                    && ship.getInventory().isItemValid(idx, stack);
         }
 
         @Override
         public boolean mayPickup(Player player) {
+            int idx = toActualShipSlot(localVisibleSlot);
+            if (!ship.getInventory().isSlotAvailable(idx)) {
+                return false;
+            }
             if (ship.level().isClientSide) {
                 return !this.clientStack.isEmpty();
             }
-            return !ship.getInventory().extractItem(toActualShipSlot(localVisibleSlot), 1, true).isEmpty();
+            return !ship.getInventory().extractItem(idx, 1, true).isEmpty();
         }
 
         @Override
         public int getMaxStackSize() {
-            return ship.getInventory().getSlotLimit(toActualShipSlot(localVisibleSlot));
+            int idx = toActualShipSlot(localVisibleSlot);
+            if (!ship.getInventory().isSlotAvailable(idx)) {
+                return 0;
+            }
+            return ship.getInventory().getSlotLimit(idx);
         }
 
         @Override

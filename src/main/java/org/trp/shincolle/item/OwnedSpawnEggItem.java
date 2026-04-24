@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class OwnedSpawnEggItem extends DeferredSpawnEggItem {
+    private static final String TAG_SHINCOLLE_SPAWN_EGG = "ShincolleSpawnEgg";
+    private static final String TAG_SPAWN_EGG_NO_EXP = "ShincolleSpawnEggNoExpCost";
+
     private final Supplier<? extends EntityType<? extends Mob>> typeSupplier;
 
     public OwnedSpawnEggItem(Supplier<? extends EntityType<? extends Mob>> type, int primaryColor, int secondaryColor, Item.Properties properties) {
@@ -41,9 +44,11 @@ public class OwnedSpawnEggItem extends DeferredSpawnEggItem {
             int costLevel = 0;
             if (customData != null) {
                 net.minecraft.nbt.CompoundTag tag = customData.copyTag();
-                if (tag.getBoolean("ShincolleSpawnEgg")) {
+                if (tag.getBoolean(TAG_SHINCOLLE_SPAWN_EGG)) {
                     isResurrection = true;
-                    costLevel = tag.getInt("ShipLevel") / 3;
+                    if (!tag.getBoolean(TAG_SPAWN_EGG_NO_EXP)) {
+                        costLevel = tag.getInt("ShipLevel") / 3;
+                    }
                 }
             }
 
@@ -90,9 +95,11 @@ public class OwnedSpawnEggItem extends DeferredSpawnEggItem {
             int costLevel = 0;
             if (customData != null) {
                 net.minecraft.nbt.CompoundTag tag = customData.copyTag();
-                if (tag.getBoolean("ShincolleSpawnEgg")) {
+                if (tag.getBoolean(TAG_SHINCOLLE_SPAWN_EGG)) {
                     isResurrection = true;
-                    costLevel = tag.getInt("ShipLevel") / 3;
+                    if (!tag.getBoolean(TAG_SPAWN_EGG_NO_EXP)) {
+                        costLevel = tag.getInt("ShipLevel") / 3;
+                    }
                 }
             }
             
@@ -117,8 +124,8 @@ public class OwnedSpawnEggItem extends DeferredSpawnEggItem {
         CustomData customData = stack.get(DataComponents.ENTITY_DATA);
         if (customData != null) {
             net.minecraft.nbt.CompoundTag tag = customData.copyTag();
-            if (tag.getBoolean("ShincolleSpawnEgg")) {
-                int costLevel = tag.getInt("ShipLevel") / 3;
+            if (tag.getBoolean(TAG_SHINCOLLE_SPAWN_EGG)) {
+                int costLevel = tag.getBoolean(TAG_SPAWN_EGG_NO_EXP) ? 0 : tag.getInt("ShipLevel") / 3;
                 tooltipComponents.add(Component.translatable("gui.shincolle.eggText").append(" " + costLevel).withStyle(net.minecraft.ChatFormatting.AQUA));
             }
         }

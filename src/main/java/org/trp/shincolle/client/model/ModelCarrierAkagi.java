@@ -111,6 +111,9 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
     private final float legRight02DefaultX, legRight02DefaultY, legRight02DefaultZ;
     private final float equipE01DefaultX;
     private final float equipD02DefaultY;
+    private final float tail01DefaultXRot;
+    private final float tail02DefaultXRot;
+    private final float tail03DefaultXRot;
 
     public ModelCarrierAkagi(ModelPart root) {
         this.BodyMain = root.getChild("BodyMain");
@@ -207,6 +210,9 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
         this.legRight02DefaultZ = this.LegRight02.z;
         this.equipE01DefaultX = this.EquipE01.x;
         this.equipD02DefaultY = this.EquipD02.y;
+        this.tail01DefaultXRot = this.Tail01.xRot;
+        this.tail02DefaultXRot = this.Tail02.xRot;
+        this.tail03DefaultXRot = this.Tail03.xRot;
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -273,9 +279,9 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
 
         PartDefinition Tail01 = Butt.addOrReplaceChild("Tail01", CubeListBuilder.create().texOffs(63, 36).addBox(-1F, -1F, 0F, 2F, 2F, 8F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, 6.5F, 1F, -0.8727F, 0F, 0F));
 
-        PartDefinition Tail02 = Tail01.addOrReplaceChild("Tail02", CubeListBuilder.create().texOffs(63, 36).addBox(-1F, -1F, -0.3F, 2F, 2F, 8F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, 0F, 7.5F, 0.6981F, 0F, 0F));
+        PartDefinition Tail02 = Tail01.addOrReplaceChild("Tail02", CubeListBuilder.create().texOffs(63, 36).addBox(-1F, -1F, 0F, 2F, 2F, 8F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, 0F, 7.5F, 0.6981F, 0F, 0F));
 
-        PartDefinition Tail03 = Tail02.addOrReplaceChild("Tail03", CubeListBuilder.create().texOffs(63, 36).addBox(-1F, -1F, -0.4F, 2F, 2F, 6F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, 0F, 7.5F, 0.5236F, 0F, 0F));
+        PartDefinition Tail03 = Tail02.addOrReplaceChild("Tail03", CubeListBuilder.create().texOffs(63, 36).addBox(-1F, -1F, 0F, 2F, 2F, 6F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, 0F, 7.5F, 0.6981F, 0F, 0F));
 
         PartDefinition EquipABase = BodyMain.addOrReplaceChild("EquipABase", CubeListBuilder.create().texOffs(44, 35).addBox(-0.5F, -1F, -0.3F, 3F, 2F, 1F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-1F, -8F, 3.6F, 0F, 0.1396F, 0F));
 
@@ -305,7 +311,7 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
 
         PartDefinition EquipABelt02 = EquipABody05c.addOrReplaceChild("EquipABelt02", CubeListBuilder.create().texOffs(0, 27).addBox(0F, 0F, -0.5F, 17F, 0F, 1F, new CubeDeformation(0F)), PartPose.offsetAndRotation(3F, 2F, 0F, 0F, 0F, -0.7741F));
 
-        PartDefinition EquipAArr03a = EquipABody04.addOrReplaceChild("EquipAArr03a", CubeListBuilder.create().texOffs(4, 47).addBox(0F, -4F, 0F, 1F, 7F, 1F, new CubeDeformation(0F)), PartPose.offset(-1.6F, 0F, 0.4F));
+        PartDefinition EquipAArr03a = EquipABody04.addOrReplaceChild("EquipAArr03a", CubeListBuilder.create().texOffs(4, 47).addBox(0F, -4F, 0F, 1F, 7F, 1F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-1.6F, 0F, 0.4F, -0.0349F, -0.2618F, 0F));
 
         PartDefinition EquipAArr03b = EquipAArr03a.addOrReplaceChild("EquipAArr03b", CubeListBuilder.create().texOffs(0, 48).addBox(-0.5F, -2.7F, 0.5F, 2F, 4F, 0F, new CubeDeformation(0F)), PartPose.offset(0F, -2F, 0F));
 
@@ -317,9 +323,9 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
 
         PartDefinition ArmRight01 = BodyMain.addOrReplaceChild("ArmRight01", CubeListBuilder.create().texOffs(0, 8).addBox(-3F, -1F, -2.5F, 5F, 12F, 5F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-7.8F, -8.7F, -0.7F, 0F, 0F, 0.3142F));
 
-        PartDefinition EquipD01 = ArmRight01.addOrReplaceChild("EquipD01", CubeListBuilder.create().texOffs(150, 13).addBox(-3F, 0F, -3.5F, 8F, 1F, 7F, new CubeDeformation(0F)), PartPose.offset(0.3F, 2F, 0F));
+        PartDefinition EquipD01 = ArmRight01.addOrReplaceChild("EquipD01", CubeListBuilder.create().texOffs(150, 13).addBox(-3F, 0F, -3.5F, 8F, 1F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0.3F, 2F, 0F, 0F, 3.1416F, 0F));
 
-        PartDefinition EquipD02 = EquipD01.addOrReplaceChild("EquipD02", CubeListBuilder.create().texOffs(58, 55).addBox(-5.5F, 0F, 0F, 11F, 9F, 1F, new CubeDeformation(0F)), PartPose.offset(5.6F, 3F, 0F));
+        PartDefinition EquipD02 = EquipD01.addOrReplaceChild("EquipD02", CubeListBuilder.create().texOffs(58, 55).addBox(-5.5F, 0F, 0F, 11F, 9F, 1F, new CubeDeformation(0F)), PartPose.offsetAndRotation(5.6F, 3F, 0F, -0.0349F, 1.4661F, 3.1416F));
 
         PartDefinition EquipD03 = EquipD02.addOrReplaceChild("EquipD03", CubeListBuilder.create().texOffs(153, 21).addBox(-5.5F, -26F, 0F, 11F, 26F, 1F, new CubeDeformation(0F)), PartPose.offset(0F, 0F, 0F));
 
@@ -385,7 +391,7 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.resetOffsets();
-        this.applyEquipVisibility();
+        this.applyEquipVisibility(entity);
         this.applyFaceAndMouth(entity);
 
         if (entity != null && entity.isInDeadPose()) {
@@ -416,21 +422,37 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
         this.LegRight02.z = this.legRight02DefaultZ;
         this.EquipE01.x = this.equipE01DefaultX;
         this.EquipD02.y = this.equipD02DefaultY;
+        this.Tail01.xRot = this.tail01DefaultXRot;
+        this.Tail02.xRot = this.tail02DefaultXRot;
+        this.Tail03.xRot = this.tail03DefaultXRot;
     }
 
-    private void applyEquipVisibility() {
-        this.EquipE01.visible = true;
-        this.EquipGlove.visible = true;
-        this.EquipABase.visible = true;
-        this.EquipD01.visible = true;
-        this.EquipC01.visible = true;
-        this.EquipB01.visible = true;
-        this.EquipS01.visible = true;
-        this.Ear01.visible = true;
-        this.Ear02.visible = true;
-        this.Tail01.visible = true;
-        this.EquipSL01.visible = true;
-        this.EquipSR01.visible = true;
+    private void applyEquipVisibility(EntityShipBase entity) {
+        if (entity == null) return;
+        boolean show_Ear01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EAR01);
+        this.Ear01.visible = show_Ear01;
+        boolean show_Ear02 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EAR02);
+        this.Ear02.visible = show_Ear02;
+        boolean show_EquipABase = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPABASE);
+        this.EquipABase.visible = show_EquipABase;
+        boolean show_EquipB01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPB01);
+        this.EquipB01.visible = show_EquipB01;
+        boolean show_EquipC01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPC01);
+        this.EquipC01.visible = show_EquipC01;
+        boolean show_EquipD01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPD01);
+        this.EquipD01.visible = show_EquipD01;
+        boolean show_EquipE01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPE01);
+        this.EquipE01.visible = show_EquipE01;
+        boolean show_EquipGlove = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPGLOVE);
+        this.EquipGlove.visible = show_EquipGlove;
+        boolean show_EquipS01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPS01);
+        this.EquipS01.visible = show_EquipS01;
+        boolean show_EquipSL01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPSL01);
+        this.EquipSL01.visible = show_EquipSL01;
+        boolean show_EquipSR01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPSR01);
+        this.EquipSR01.visible = show_EquipSR01;
+        boolean show_Tail01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_TAIL01);
+        this.Tail01.visible = show_Tail01;
     }
 
     private void applyDeadPose() {
@@ -568,7 +590,7 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
 
         int state = entity != null ? entity.getStateEmotion(0) : 0;
         boolean hasBag = (state & (1 << 3)) != 0;
-        boolean hasTail = (state & (1 << 6)) != 0;
+        boolean hasTail = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_TAIL01);
         if (hasBag) {
             this.ArmRight01.zRot += 0.15F;
         }
@@ -770,7 +792,7 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
             this.ArmRight01.xRot = 0.0F;
             this.ArmRight01.yRot = 2.1817F;
             this.ArmRight01.zRot = 1.5708F;
-            this.ArmRight02.zRot = Math.max(-1.57F, -2.44F + 0.15F * parTick);
+            this.ArmRight02.zRot = Math.min(-1.57F, -2.44F + 0.15F * parTick);
             this.ArmRight02.x = this.armRight02DefaultX + (0.31F * OFFSET_SCALE);
             addk1 = -0.35F;
             addk2 = -0.23F;

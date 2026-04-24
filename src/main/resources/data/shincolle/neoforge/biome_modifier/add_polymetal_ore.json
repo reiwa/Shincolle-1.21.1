@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": "shincolle:polymetal_ore",
+  "step": "underground_ores"
+}

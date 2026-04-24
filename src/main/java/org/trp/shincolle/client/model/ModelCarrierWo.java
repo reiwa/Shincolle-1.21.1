@@ -443,7 +443,9 @@ public class ModelCarrierWo<T extends EntityShipBase> extends ShipModelHumanoidB
         float addk1 = net.minecraft.util.Mth.cos(limbSwing * 0.4F) * 0.5F * limbSwingAmount;
         float addk2 = net.minecraft.util.Mth.cos(limbSwing * 0.4F + (float) Math.PI) * 0.5F * limbSwingAmount;
 
-        this.poseTranslateY += angleZ * 0.05F + 0.025F;
+        if(entity.getShipDepth() > 0.0) {
+            this.poseTranslateY += angleZ * 0.05F + 0.025F;
+        }
 
         this.Head.xRot = headPitch * ((float) Math.PI / 180F) * 0.6875F;
         this.Head.yRot = netHeadYaw * ((float) Math.PI / 180F) * 0.5729F;

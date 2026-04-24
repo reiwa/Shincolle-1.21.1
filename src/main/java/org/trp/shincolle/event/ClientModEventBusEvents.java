@@ -1,9 +1,11 @@
 package org.trp.shincolle.event;
 
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
@@ -13,6 +15,7 @@ import org.trp.shincolle.client.model.*;
 import org.trp.shincolle.client.particle.ParticleEmotion;
 import org.trp.shincolle.client.particle.ParticleHealSparkle;
 import org.trp.shincolle.client.particle.ParticleTeam;
+import org.trp.shincolle.client.particle.ParticleTexts;
 import org.trp.shincolle.client.renderer.*;
 import org.trp.shincolle.client.renderer.block.RenderLargeShipyard;
 import org.trp.shincolle.client.renderer.block.RenderSmallShipyard;
@@ -21,17 +24,54 @@ import org.trp.shincolle.client.screen.SmallShipyardScreen;
 import org.trp.shincolle.client.screen.ShipInventoryScreen;
 import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModEntities;
+import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.init.ModParticles;
+import org.trp.shincolle.item.CombatRationItem;
+import org.trp.shincolle.item.LegacyEquipItem;
+import org.trp.shincolle.item.PointerItem;
+import org.trp.shincolle.item.ShipTankItem;
 import org.trp.shincolle.menu.ModMenus;
 
 @EventBusSubscriber(modid = Shincolle.MODID, value = Dist.CLIENT)
 public class ClientModEventBusEvents {
 
     private static final float DEFAULT_MODEL_SCALE = 0.34f;
+        private static final ResourceLocation LEGACY_VARIANT_MODEL_PROPERTY =
+                        ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "legacy_variant");
 
     private static ResourceLocation entityTexture(String name) {
         return ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/" + name + ".png");
     }
+
+        @SubscribeEvent
+        public static void onClientSetup(FMLClientSetupEvent event) {
+                event.enqueueWork(() -> {
+                        registerLegacyVariantProperty(ModItems.EQUIP_AIRPLANE.get());
+                        registerLegacyVariantProperty(ModItems.EQUIP_CANNON.get());
+                        registerLegacyVariantProperty(ModItems.EQUIP_DRUM.get());
+                        registerLegacyVariantProperty(ModItems.SHIP_TANK.get());
+                        registerLegacyVariantProperty(ModItems.COMBAT_RATION.get());
+                        registerLegacyVariantProperty(ModItems.POINTER_ITEM.get());
+                });
+        }
+
+        private static void registerLegacyVariantProperty(net.minecraft.world.item.Item item) {
+                ItemProperties.register(item, LEGACY_VARIANT_MODEL_PROPERTY, (stack, level, entity, seed) -> {
+                        if (stack.getItem() instanceof LegacyEquipItem legacyEquipItem) {
+                                return legacyEquipItem.getModelVariant(stack);
+                        }
+                        if (stack.getItem() instanceof ShipTankItem shipTankItem) {
+                                return shipTankItem.getModelVariant(stack);
+                        }
+                        if (stack.getItem() instanceof CombatRationItem combatRationItem) {
+                                return combatRationItem.getModelVariant(stack);
+                        }
+                        if (stack.getItem() instanceof PointerItem pointerItem) {
+                                return pointerItem.getModelVariant(stack);
+                        }
+                        return 0.0F;
+                });
+        }
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -254,9 +294,12 @@ public class ClientModEventBusEvents {
     public static void registerParticles(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(ModParticles.PARTICLE_EMOTION.get(), ParticleEmotion.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_HEAL_SPARKLE.get(), ParticleHealSparkle.Provider::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_TEXTS.get(), ParticleTexts.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM.get(), ParticleTeam.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED.get(),
                 sprites -> new ParticleTeam.Provider(sprites, ParticleTeam.RenderStyle.DEFAULT_BLUE));
+        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED_RED.get(),
+                sprites -> new ParticleTeam.Provider(sprites, ParticleTeam.RenderStyle.SELECTED_RED));
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM_TARGET.get(),
                 sprites -> new ParticleTeam.Provider(sprites, ParticleTeam.RenderStyle.TARGET_WHITE));
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM_TARGET_ENTITY.get(),

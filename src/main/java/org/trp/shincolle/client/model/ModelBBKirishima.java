@@ -652,7 +652,7 @@ public class ModelBBKirishima<T extends EntityShipBase> extends ShipModelHumanoi
 
         applyFaceAndMouth(entity);
         setFlushVisible(entity != null && (entity.getEmotionPrimary() == EntityShipBase.EMOTION_SHY || entity.getEmotionPrimary() == EntityShipBase.EMOTION_HAPPY));
-        applyEquipVisibility();
+        applyEquipVisibility(entity);
 
         if (isDeadPose(entity)) {
             applyDeadPose();
@@ -709,10 +709,27 @@ public class ModelBBKirishima<T extends EntityShipBase> extends ShipModelHumanoi
         return entity != null && entity.isInDeadPose();
     }
 
-    private void applyEquipVisibility() {
-        this.EquipBase.visible = true;
-        this.EquipHeadBase.visible = true;
-        this.EquipGlass01.visible = true;
+
+    private void applyEquipVisibility(T entity) {
+        if (entity == null) {
+            this.EquipBase.visible = true;
+            this.EquipHeadBase.visible = true;
+            this.EquipGlass01.visible = true;
+            this.HairU01.visible = true;
+            this.Ahoke.visible = true;
+            return;
+        }
+
+        boolean showRigging = entity.getEquipFlag(org.trp.shincolle.entity.EntityBBKirishima.EQUIP_RIGGING);
+        boolean showHeadBase = entity.getEquipFlag(org.trp.shincolle.entity.EntityBBKirishima.EQUIP_HEAD_BASE);
+        boolean showHairSet = entity.getEquipFlag(org.trp.shincolle.entity.EntityBBKirishima.EQUIP_HAIR_SET);
+        boolean showAhoke = entity.getEquipFlag(org.trp.shincolle.entity.EntityBBKirishima.EQUIP_AHOKE);
+
+        this.EquipBase.visible = showRigging;
+        this.EquipHeadBase.visible = showHeadBase;
+        this.EquipGlass01.visible = showHeadBase;
+        this.HairU01.visible = showHairSet;
+        this.Ahoke.visible = showAhoke;
     }
 
     private void applyDeadPose() {

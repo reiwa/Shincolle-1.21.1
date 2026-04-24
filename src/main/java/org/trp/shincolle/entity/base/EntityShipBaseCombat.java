@@ -450,4 +450,10 @@ class EntityShipBaseCombat {
         this.ship.applyEmotesReaction(3);
         return true;
     }
+
+    void resetAircraftLaunchDelay() {
+        int lightDelay = this.ship.getLegacyShipStats().getLightDelay();
+        int heavyDelay = this.ship.getLegacyShipStats().getHeavyDelay();
+        this.aircraftLaunchDelay = Math.max(20, Math.max(lightDelay, heavyDelay));
+    }
 }

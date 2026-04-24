@@ -1,19 +1,27 @@
 package org.trp.shincolle.event;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.*;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import org.trp.shincolle.Config;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.EntityAirfieldHime;
 import org.trp.shincolle.entity.EntityBattleshipRu;
@@ -24,6 +32,9 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.EntityShipBaseSimple;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
+import org.trp.shincolle.item.PointerItem;
+import org.trp.shincolle.item.ScaledTextTooltipData;
+import org.trp.shincolle.client.tooltip.ScaledTextClientTooltip;
 
 import java.util.List;
 
@@ -100,13 +111,25 @@ public class ModEventBusEvents {
     }
 
     @SubscribeEvent
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        HostileSpawnManager.tickPlayer(event.getEntity());
+    }
+
+    @SubscribeEvent
     public static void onPointerItemAttack(AttackEntityEvent event) {
         Player player = event.getEntity();
         if (player == null || player.level().isClientSide) {
             return;
         }
 
-        if (!isHoldingPointerItem(player)) {
+        ItemStack pointerStack = getPointerStack(player);
+        if (pointerStack.isEmpty()) {
+            return;
+        }
+
+        if (player.isShiftKeyDown()) {
+            tryCyclePointerMode(player, pointerStack);
+            event.setCanceled(true);
             return;
         }
 
@@ -120,42 +143,71 @@ public class ModEventBusEvents {
             return;
         }
 
-        ship.togglePointerSelected();
-        if (!ship.isPointerSelected()) {
-            ship.clearPointerTarget();
-            ship.clearPointerTargetEntity();
+        int mode = getPointerMode(pointerStack);
+        if (mode == PointerItem.MODE_GROUP) {
+            ship.togglePointerSelected();
+            if (!ship.isPointerSelected()) {
+                ship.clearPointerTarget();
+                ship.clearPointerTargetEntity();
+            }
+            return;
         }
+
+        clearOwnedPointerSelection(player, ship);
+        ship.setPointerSelected(true);
     }
 
+    @SubscribeEvent
+    public static void onPointerItemLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+        Player player = event.getEntity();
+        ItemStack pointerStack = player == null ? ItemStack.EMPTY : getPointerStack(player);
+        if (player == null || pointerStack.isEmpty() || !player.isShiftKeyDown()) {
+            return;
+        }
+
+        tryCyclePointerMode(player, pointerStack);
+        event.setCanceled(true);
+    }
 
     @SubscribeEvent
     public static void onPointerItemRightClickBlock(PlayerInteractEvent.RightClickItem event) {
         Player player = event.getEntity();
-        if (player == null || !isHoldingPointerItem(player)) {
+        ItemStack pointerStack = player == null ? ItemStack.EMPTY : getPointerStack(player);
+        if (player == null || pointerStack.isEmpty()) {
             return;
         }
-        handlePointerTargetCommand(player);
+
+        handlePointerTargetCommand(player, pointerStack);
         event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
     }
 
     @SubscribeEvent
     public static void onPointerItemRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();
-        if (player == null || !isHoldingPointerItem(player)) {
+        ItemStack pointerStack = player == null ? ItemStack.EMPTY : getPointerStack(player);
+        if (player == null || pointerStack.isEmpty()) {
             return;
         }
-        handlePointerTargetCommand(player);
+
+        handlePointerTargetCommand(player, pointerStack);
         event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
     }
 
     @SubscribeEvent
     public static void onPointerItemRightClickEntity(PlayerInteractEvent.EntityInteract event) {
         Player player = event.getEntity();
-        if (player == null || player.level().isClientSide) {
+        if (player == null) {
             return;
         }
 
-        if (!isHoldingPointerItem(player)) {
+        ItemStack pointerStack = getPointerStack(player);
+        if (pointerStack.isEmpty()) {
+            return;
+        }
+
+        if (player.level().isClientSide) {
             return;
         }
 
@@ -175,41 +227,119 @@ public class ModEventBusEvents {
         }
 
         event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
     }
 
     @SubscribeEvent
     public static void onHostileEntityDropsGrudge(LivingDropsEvent event) {
-        if (event.getEntity().level().isClientSide) {
+        Entity target = event.getEntity();
+        if (target.level().isClientSide) {
             return;
         }
 
-        if (!(event.getEntity() instanceof Enemy)) {
+        if (!isHostileDropTarget(target)) {
             return;
         }
 
-        if (!(event.getSource().getEntity() instanceof Player)) {
+        if (!target.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
             return;
         }
 
-        ItemStack drop = new ItemStack(ModItems.GRUDGE.get());
-        event.getDrops().add(new ItemEntity(event.getEntity().level(),
-                event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(), drop));
+        Entity sourceEntity = event.getSource().getEntity();
+        if (sourceEntity instanceof EntityShipBase ship) {
+            ship.addShipExp(Config.shipExpGainKill);
+        }
+
+        float dropRate = Math.max(0.0F, Config.hostileDropGrudgeRate);
+        if (dropRate <= 0.0F) {
+            return;
+        }
+
+        int fixedDrop = (int) dropRate;
+        if (fixedDrop > 0) {
+            event.getDrops().add(new ItemEntity(target.level(),
+                    target.getX(), target.getY(), target.getZ(), new ItemStack(ModItems.GRUDGE.get(), fixedDrop)));
+        }
+
+        if (target.getRandom().nextFloat() < (dropRate - fixedDrop)) {
+            event.getDrops().add(new ItemEntity(target.level(),
+                    target.getX(), target.getY(), target.getZ(), new ItemStack(ModItems.GRUDGE.get())));
+        }
     }
 
-    private static boolean isHoldingPointerItem(Player player) {
-        return isPointerItem(player.getMainHandItem()) || isPointerItem(player.getOffhandItem());
+    private static boolean isHostileDropTarget(Entity entity) {
+        if (entity instanceof EntityShipBase ship) {
+            return ship.isHostileShipMob();
+        }
+        return entity instanceof Enemy || entity instanceof Slime || entity instanceof AbstractGolem;
+    }
+
+    private static ItemStack getPointerStack(Player player) {
+        ItemStack main = player.getMainHandItem();
+        if (isPointerItem(main)) {
+            return main;
+        }
+        ItemStack off = player.getOffhandItem();
+        if (isPointerItem(off)) {
+            return off;
+        }
+        return ItemStack.EMPTY;
     }
 
     private static boolean isPointerItem(ItemStack stack) {
         return !stack.isEmpty() && stack.is(ModItems.POINTER_ITEM.get());
     }
 
-    private static void handlePointerTargetCommand(Player player) {
+    private static int getPointerMode(ItemStack pointerStack) {
+        if (pointerStack.getItem() instanceof PointerItem pointerItem) {
+            return pointerItem.getMode(pointerStack);
+        }
+        return PointerItem.MODE_SINGLE;
+    }
+
+    private static boolean tryCyclePointerMode(Player player, ItemStack pointerStack) {
+        if (!player.isShiftKeyDown()) {
+            return false;
+        }
+
+        if (!player.level().isClientSide && pointerStack.getItem() instanceof PointerItem pointerItem) {
+            int nextMode = pointerItem.cycleMode(pointerStack);
+            if (nextMode != PointerItem.MODE_GROUP) {
+                AABB searchArea = player.getBoundingBox().inflate(POINTER_SEARCH_RADIUS);
+                List<EntityShipBase> ships = player.level().getEntitiesOfClass(EntityShipBase.class, searchArea,
+                        ship -> ship.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose());
+                if (ships.size() > 1) {
+                    ships.sort((a, b) -> Double.compare(a.distanceToSqr(player), b.distanceToSqr(player)));
+                    EntityShipBase keep = ships.get(0);
+                    clearOwnedPointerSelection(player, keep);
+                    keep.setPointerSelected(true);
+                }
+            }
+            player.displayClientMessage(Component.translatable(PointerItem.getModeTranslationKey(nextMode)), true);
+        }
+        return true;
+    }
+
+    private static void clearOwnedPointerSelection(Player player, EntityShipBase keepSelected) {
+        AABB searchArea = player.getBoundingBox().inflate(POINTER_SEARCH_RADIUS);
+        List<EntityShipBase> ships = player.level().getEntitiesOfClass(EntityShipBase.class, searchArea,
+                ship -> ship.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose());
+        for (EntityShipBase ship : ships) {
+            if (ship == keepSelected) {
+                continue;
+            }
+            ship.setPointerSelected(false);
+            ship.clearPointerTarget();
+            ship.clearPointerTargetEntity();
+        }
+    }
+
+    private static void handlePointerTargetCommand(Player player, ItemStack pointerStack) {
         if (player == null || player.level().isClientSide) {
             return;
         }
 
-        if (!isHoldingPointerItem(player)) {
+        if (pointerStack.isEmpty()) {
             return;
         }
 
@@ -218,6 +348,15 @@ public class ModEventBusEvents {
                 ship -> ship.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose());
         if (ships.isEmpty()) {
             return;
+        }
+
+        int mode = getPointerMode(pointerStack);
+        if (mode != PointerItem.MODE_GROUP && ships.size() > 1) {
+            ships.sort((a, b) -> Double.compare(a.distanceToSqr(player), b.distanceToSqr(player)));
+            EntityShipBase selected = ships.get(0);
+            clearOwnedPointerSelection(player, selected);
+            selected.setPointerSelected(true);
+            ships = List.of(selected);
         }
 
         EntityHitResult entityHit = getLookTargetEntity(player);
@@ -280,5 +419,10 @@ public class ModEventBusEvents {
             return null;
         }
         return Vec3.atCenterOf(hit.getBlockPos()).add(0.0D, 1.0D, 0.0D);
+    }
+
+    @SubscribeEvent
+    public static void registerTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(ScaledTextTooltipData.class, ScaledTextClientTooltip::new);
     }
 }

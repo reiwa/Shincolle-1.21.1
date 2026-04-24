@@ -210,12 +210,7 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
             return false;
         }
 
-        if (fuel.is(Items.LAVA_BUCKET)) {
-            this.inventory.setStackInSlot(SLOT_FUEL, new ItemStack(Items.BUCKET));
-        } else {
-            fuel.shrink(1);
-            this.inventory.setStackInSlot(SLOT_FUEL, fuel);
-        }
+        this.inventory.setStackInSlot(SLOT_FUEL, ShipyardRecipes.consumeOneFuel(fuel));
 
         this.powerRemained += fuelPower;
         return true;

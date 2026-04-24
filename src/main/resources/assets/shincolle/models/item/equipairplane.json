@@ -1,0 +1,26 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "shincolle:item/equipairplane0"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 1.0
+      },
+      "model": "shincolle:item/equipairplane1"
+    },
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 2.0
+      },
+      "model": "shincolle:item/equipairplane2"
+    },
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 3.0
+      },
+      "model": "shincolle:item/equipairplane3"
+    }
+  ]
+}

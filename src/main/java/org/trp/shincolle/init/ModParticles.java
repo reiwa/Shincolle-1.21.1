@@ -16,6 +16,9 @@ public class ModParticles {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_TEAM_SELECTED =
             PARTICLES.register("particleteam_selected", () -> new SimpleParticleType(false));
 
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_TEAM_SELECTED_RED =
+            PARTICLES.register("particleteam_selected_red", () -> new SimpleParticleType(false));
+
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_TEAM_TARGET =
             PARTICLES.register("particleteam_target", () -> new SimpleParticleType(false));
 
@@ -27,6 +30,9 @@ public class ModParticles {
 
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_HEAL_SPARKLE =
             PARTICLES.register("particleheal_sparkle", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_TEXTS =
+            PARTICLES.register("particletexts", () -> new SimpleParticleType(false));
 
     private ModParticles() {
     }

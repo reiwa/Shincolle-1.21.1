@@ -628,6 +628,9 @@ public class ModelCAHime<T extends EntityShipBase> extends ShipModelHumanoidBase
             this.Ear01.zRot = 0.1745F;
             this.Ear02.zRot = -0.1745F;
         }
+
+        this.LegLeft01.xRot = addk1;
+        this.LegRight01.xRot = addk2;
     }
 
     private void applySpecialPoseAdjustments(T entity, float limbSwing, float limbSwingAmount, float ageInTicks) {

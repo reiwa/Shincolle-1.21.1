@@ -12,6 +12,8 @@ public class ModSounds {
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS =
             DeferredRegister.create(Registries.SOUND_EVENT, Shincolle.MODID);
 
+    private static final Supplier<SoundEvent>[] SHIP_TIME_SOUNDS = createShipTimeSounds();
+
     public static final Supplier<SoundEvent> SHIP_IDLE = register("ship-idle");
     public static final Supplier<SoundEvent> SHIP_HURT = register("ship-hurt");
     public static final Supplier<SoundEvent> SHIP_DEATH = register("ship-death");
@@ -19,10 +21,25 @@ public class ModSounds {
     public static final Supplier<SoundEvent> SHIP_EXPLODE = register("ship-explode");
     public static final Supplier<SoundEvent> SHIP_FIREHEAVY = register("ship-fireheavy");
     public static final Supplier<SoundEvent> SHIP_HIT = register("ship-hit");
+    public static final Supplier<SoundEvent> SHIP_LEVELUP = register("ship-levelup");
     public static final Supplier<SoundEvent> SHIP_MACHINEGUN = register("ship-machinegun");
     public static final Supplier<SoundEvent> SHIP_AIRCRAFT = register("ship-aircraft");
     public static final Supplier<SoundEvent> SHIP_MARRY = register("ship-marry");
     public static final Supplier<SoundEvent> SHIP_FEED = register("ship-feed");
+
+    private static Supplier<SoundEvent>[] createShipTimeSounds() {
+        @SuppressWarnings("unchecked")
+        Supplier<SoundEvent>[] sounds = (Supplier<SoundEvent>[]) new Supplier[24];
+        for (int i = 0; i < sounds.length; i++) {
+            sounds[i] = register("ship-time" + i);
+        }
+        return sounds;
+    }
+
+    public static SoundEvent getShipTimeSound(int hour) {
+        int idx = Math.floorMod(hour, SHIP_TIME_SOUNDS.length);
+        return SHIP_TIME_SOUNDS[idx].get();
+    }
 
     private static Supplier<SoundEvent> register(String name) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, name);

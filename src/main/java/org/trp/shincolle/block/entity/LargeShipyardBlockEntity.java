@@ -305,12 +305,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
                 continue;
             }
 
-            if (stack.is(Items.LAVA_BUCKET)) {
-                this.inventory.setStackInSlot(i, new ItemStack(Items.BUCKET));
-            } else {
-                stack.shrink(1);
-                this.inventory.setStackInSlot(i, stack);
-            }
+            this.inventory.setStackInSlot(i, ShipyardRecipes.consumeOneFuel(stack));
 
             this.powerRemained += fuelPower;
             return true;

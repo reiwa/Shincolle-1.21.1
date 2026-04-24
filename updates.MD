@@ -1,3 +1,16 @@
+## v0.7.0(2026/04/24 JST)
+- Implemented equipment items
+- Implemented Large/Small Shipyards
+- Implemented Hostile Mob entities
+- Implemented world-generated ores and blocks
+- Fixed issues related to entity appearance
+- Replaced entity movement logic
+- Added implementation for some items and recipes
+- Fixed an issue where tooltips were not displaying
+- Reduced the text size of the tooltip
+- Other minor fixes
+
+
 ## v0.3.0(2026/04/18 JST)
 - Added implementation for blocks and items
 - Implemented Small/Large Shipyard and construction system

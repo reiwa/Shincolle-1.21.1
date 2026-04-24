@@ -15,6 +15,19 @@ import java.util.Objects;
 
 public class EntityCarrierKaga extends EntityShipBase {
 
+    public static final String EQUIP_EAR01 = "equip_ear01";
+    public static final String EQUIP_EAR02 = "equip_ear02";
+    public static final String EQUIP_EQUIPABASE = "equip_equipabase";
+    public static final String EQUIP_EQUIPB01 = "equip_equipb01";
+    public static final String EQUIP_EQUIPC01 = "equip_equipc01";
+    public static final String EQUIP_EQUIPD01 = "equip_equipd01";
+    public static final String EQUIP_EQUIPE01 = "equip_equipe01";
+    public static final String EQUIP_EQUIPGLOVE = "equip_equipglove";
+    public static final String EQUIP_EQUIPS01 = "equip_equips01";
+    public static final String EQUIP_EQUIPSL01 = "equip_equipsl01";
+    public static final String EQUIP_EQUIPSR01 = "equip_equipsr01";
+    public static final String EQUIP_TAIL01 = "equip_tail01";
+
     public EntityCarrierKaga(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 20, 0, 40});
@@ -24,7 +37,19 @@ public class EntityCarrierKaga extends EntityShipBase {
         setStateMinor(STATE_MINOR_RARITY, 8);
         setStateGuiBtn1(false);
         setStateGuiBtn2(false);
-    }
+            setEquipFlag(EQUIP_EAR01, true);
+        setEquipFlag(EQUIP_EAR02, true);
+        setEquipFlag(EQUIP_EQUIPABASE, true);
+        setEquipFlag(EQUIP_EQUIPB01, true);
+        setEquipFlag(EQUIP_EQUIPC01, true);
+        setEquipFlag(EQUIP_EQUIPD01, true);
+        setEquipFlag(EQUIP_EQUIPE01, true);
+        setEquipFlag(EQUIP_EQUIPGLOVE, true);
+        setEquipFlag(EQUIP_EQUIPS01, true);
+        setEquipFlag(EQUIP_EQUIPSL01, true);
+        setEquipFlag(EQUIP_EQUIPSR01, true);
+        setEquipFlag(EQUIP_TAIL01, true);
+}
 
     @Override
     protected void tickAliveLogic() {
@@ -87,6 +112,24 @@ public class EntityCarrierKaga extends EntityShipBase {
     @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.CARRIER_KAGA_SPAWN_EGG.get();
+    }
+
+    @Override
+    public List<EquipOption> getEquipOptions() {
+        return List.of(
+                new EquipOption(EQUIP_EAR01, "gui.shincolle.equip.ear01"),
+                new EquipOption(EQUIP_EAR02, "gui.shincolle.equip.ear02"),
+                new EquipOption(EQUIP_EQUIPABASE, "gui.shincolle.equip.equipabase"),
+                new EquipOption(EQUIP_EQUIPB01, "gui.shincolle.equip.equipb01"),
+                new EquipOption(EQUIP_EQUIPC01, "gui.shincolle.equip.equipc01"),
+                new EquipOption(EQUIP_EQUIPD01, "gui.shincolle.equip.equipd01"),
+                new EquipOption(EQUIP_EQUIPE01, "gui.shincolle.equip.equipe01"),
+                new EquipOption(EQUIP_EQUIPGLOVE, "gui.shincolle.equip.equipglove"),
+                new EquipOption(EQUIP_EQUIPS01, "gui.shincolle.equip.equips01"),
+                new EquipOption(EQUIP_EQUIPSL01, "gui.shincolle.equip.equipsl01"),
+                new EquipOption(EQUIP_EQUIPSR01, "gui.shincolle.equip.equipsr01"),
+                new EquipOption(EQUIP_TAIL01, "gui.shincolle.equip.tail01")
+        );
     }
 }
 

@@ -5,16 +5,22 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.item.GrudgeItem;
+import org.trp.shincolle.item.CombatRationItem;
+import org.trp.shincolle.item.LegacyEquipItem;
+import org.trp.shincolle.item.PointerItem;
 import org.trp.shincolle.item.RandomShipSpawnEggItem;
 import org.trp.shincolle.item.ShipClass;
+import org.trp.shincolle.item.ShipTankItem;
 import org.trp.shincolle.item.ShipSpawnEggItem;
 import org.trp.shincolle.item.SmallShipyardBlockItem;
+import org.trp.shincolle.item.TrainingBookItem;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Shincolle.MODID);
@@ -24,6 +30,23 @@ public class ModItems {
             .saturationModifier(0.0F)
             .alwaysEdible()
             .build();
+
+        private static final int[] EQUIP_AIRPLANE_TYPES = new int[]{6, 6, 6, 7, 8, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 9, 11, 9, 11, 11, 9};
+        private static final int[] EQUIP_AIRPLANE_MODELS = new int[]{0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 0, 1, 2, 1, 2, 2, 1};
+        private static final int[] EQUIP_AMMO_TYPES = new int[]{28, 29, 28, 29, 29, 29, 29, 29, 29};
+        private static final int[] EQUIP_ARMOR_TYPES = new int[]{18, 19, 18, 18, 19, 18, 19};
+        private static final int[] EQUIP_CANNON_TYPES = new int[]{0, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 1, 3, 3};
+        private static final int[] EQUIP_CANNON_MODELS = new int[]{0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 0, 1, 2, 2};
+        private static final int[] EQUIP_CATAPULT_TYPES = new int[]{22, 22, 23, 23};
+        private static final int[] EQUIP_COMPASS_TYPES = new int[]{25};
+        private static final int[] EQUIP_DRUM_TYPES = new int[]{24, 24, 24};
+        private static final int[] EQUIP_DRUM_MODELS = new int[]{0, 1, 2};
+        private static final int[] EQUIP_FLARE_TYPES = new int[]{26};
+        private static final int[] EQUIP_MACHINEGUN_TYPES = new int[]{20, 20, 20, 20, 21, 21, 21};
+        private static final int[] EQUIP_RADAR_TYPES = new int[]{14, 14, 14, 14, 14, 15, 15, 15, 15};
+        private static final int[] EQUIP_SEARCHLIGHT_TYPES = new int[]{27};
+        private static final int[] EQUIP_TORPEDO_TYPES = new int[]{4, 4, 4, 5, 5, 5, 5};
+        private static final int[] EQUIP_TURBINE_TYPES = new int[]{16, 16, 17, 17, 17};
 
     public static final DeferredItem<Item> SHIPSPAWNEGGS = ITEMS.register("shipspawneggs",
             () -> new RandomShipSpawnEggItem(ModEntities.DESTROYER_I, ShipClass.DESTROYER, false,
@@ -169,11 +192,14 @@ public class ModItems {
             () -> new ShipSpawnEggItem(ModEntities.SUBM_RO500, ShipClass.SUBMARINE, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
     public static final DeferredItem<Item> POINTER_ITEM = ITEMS.register("pointer_item",
-            () -> new Item(new Item.Properties().attributes(
+            () -> new PointerItem(new Item.Properties().attributes(
                     ItemAttributeModifiers.builder()
                             .add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "pointer_reach"), 100.0D, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                             .build()
             )));
+
+    public static final DeferredItem<Item> COMBAT_RATION = ITEMS.register("combatration",
+            () -> new CombatRationItem(new Item.Properties().stacksTo(16)));
 
     public static final DeferredItem<Item> INSTANT_CON_MAT = ITEMS.register("instantconmat",
             () -> new Item(new Item.Properties()));
@@ -184,8 +210,50 @@ public class ModItems {
     public static final DeferredItem<Item> MARRIAGE_RING = ITEMS.register("marriagering",
             () -> new Item(new Item.Properties().stacksTo(1)));
 
+    public static final DeferredItem<Item> EQUIP_AIRPLANE = ITEMS.register("equipairplane",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipAirplane", EQUIP_AIRPLANE_TYPES, EQUIP_AIRPLANE_MODELS));
+
+    public static final DeferredItem<Item> EQUIP_AMMO = ITEMS.register("equipammo",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipAmmo", EQUIP_AMMO_TYPES));
+
+    public static final DeferredItem<Item> EQUIP_ARMOR = ITEMS.register("equiparmor",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipArmor", EQUIP_ARMOR_TYPES));
+
+    public static final DeferredItem<Item> EQUIP_CANNON = ITEMS.register("equipcannon",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipCannon", EQUIP_CANNON_TYPES, EQUIP_CANNON_MODELS));
+
+    public static final DeferredItem<Item> EQUIP_CATAPULT = ITEMS.register("equipcatapult",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipCatapult", EQUIP_CATAPULT_TYPES));
+
+    public static final DeferredItem<Item> EQUIP_COMPASS = ITEMS.register("equipcompass",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipCompass", EQUIP_COMPASS_TYPES));
+
+    public static final DeferredItem<Item> EQUIP_DRUM = ITEMS.register("equipdrum",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipDrum", EQUIP_DRUM_TYPES, EQUIP_DRUM_MODELS));
+
+    public static final DeferredItem<Item> SHIP_TANK = ITEMS.register("shiptank",
+            () -> new ShipTankItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<Item> EQUIP_FLARE = ITEMS.register("equipflare",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipFlare", EQUIP_FLARE_TYPES));
+
+    public static final DeferredItem<Item> EQUIP_MACHINEGUN = ITEMS.register("equipmachinegun",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipMachinegun", EQUIP_MACHINEGUN_TYPES));
+
+    public static final DeferredItem<Item> EQUIP_RADAR = ITEMS.register("equipradar",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipRadar", EQUIP_RADAR_TYPES));
+
+    public static final DeferredItem<Item> EQUIP_SEARCHLIGHT = ITEMS.register("equipsearchlight",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipSearchlight", EQUIP_SEARCHLIGHT_TYPES));
+
+    public static final DeferredItem<Item> EQUIP_TORPEDO = ITEMS.register("equiptorpedo",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipTorpedo", EQUIP_TORPEDO_TYPES));
+
+    public static final DeferredItem<Item> EQUIP_TURBINE = ITEMS.register("equipturbine",
+            () -> new LegacyEquipItem(new Item.Properties(), "EquipTurbine", EQUIP_TURBINE_TYPES));
+
     public static final DeferredItem<Item> TRAINING_BOOK = ITEMS.register("trainingbook",
-            () -> new Item(new Item.Properties()));
+            () -> new TrainingBookItem(new Item.Properties()));
 
     public static final DeferredItem<Item> AMMO_LIGHT = ITEMS.register("ammo",
             () -> new Item(new Item.Properties()));
@@ -228,4 +296,34 @@ public class ModItems {
 
     public static final DeferredItem<Item> SMALL_SHIPYARD = ITEMS.register("small_shipyard",
             () -> new SmallShipyardBlockItem(ModBlocks.SMALL_SHIPYARD.get(), new Item.Properties()));
+
+        public static void addLegacyEquipVariants(CreativeModeTab.Output output, DeferredItem<Item> item) {
+                Item resolved = item.get();
+                if (resolved instanceof LegacyEquipItem legacyEquipItem) {
+                        legacyEquipItem.addAllVariantsToCreativeTab(output);
+                        return;
+                }
+
+                output.accept(resolved);
+        }
+
+        public static void addShipTankVariants(CreativeModeTab.Output output) {
+                Item resolved = SHIP_TANK.get();
+                if (resolved instanceof ShipTankItem shipTankItem) {
+                        shipTankItem.addAllVariantsToCreativeTab(output);
+                        return;
+                }
+
+                output.accept(resolved);
+        }
+
+        public static void addCombatRationVariants(CreativeModeTab.Output output) {
+                Item resolved = COMBAT_RATION.get();
+                if (resolved instanceof CombatRationItem combatRationItem) {
+                        combatRationItem.addAllVariantsToCreativeTab(output);
+                        return;
+                }
+
+                output.accept(resolved);
+        }
 }

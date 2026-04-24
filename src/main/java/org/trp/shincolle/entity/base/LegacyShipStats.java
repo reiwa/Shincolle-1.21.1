@@ -131,7 +131,7 @@ public class LegacyShipStats {
         return false;
     }
 
-    public void recalculate(int shipClass, int level) {
+    public void recalculate(int shipClass, int level, float[] equipBonuses) {
         float[] base = SHIP_ATTR_MAP.getOrDefault(shipClass, DEFAULT_BASE);
         float[] type = new float[]{base[6], base[7], base[8], base[9], base[10], base[11]};
 
@@ -157,6 +157,13 @@ public class LegacyShipStats {
         raw[18] = 1.0F;
         raw[19] = 1.0F;
         raw[20] = safeLevel * 0.005F;
+
+        if (equipBonuses != null) {
+            int len = Math.min(raw.length, equipBonuses.length);
+            for (int i = 0; i < len; i++) {
+                raw[i] += equipBonuses[i];
+            }
+        }
 
         System.arraycopy(raw, 0, buffed, 0, raw.length);
         applyLimits(buffed);
@@ -240,5 +247,12 @@ public class LegacyShipStats {
             return (int) (BASE_ATTACK_SPEED[type] / safe) + FIXED_ATTACK_DELAY[type];
         }
         return 40;
+    }
+
+    public float getBuffedAttr(int index) {
+        if (index < 0 || index >= this.buffed.length) {
+            return 0.0F;
+        }
+        return this.buffed[index];
     }
 }

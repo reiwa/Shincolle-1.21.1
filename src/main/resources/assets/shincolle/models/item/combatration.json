@@ -1,0 +1,38 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "shincolle:item/combatration0"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 1.0
+      },
+      "model": "shincolle:item/combatration1"
+    },
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 2.0
+      },
+      "model": "shincolle:item/combatration2"
+    },
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 3.0
+      },
+      "model": "shincolle:item/combatration3"
+    },
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 4.0
+      },
+      "model": "shincolle:item/combatration4"
+    },
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 5.0
+      },
+      "model": "shincolle:item/combatration5"
+    }
+  ]
+}

@@ -373,7 +373,7 @@ public class ModelCarrierKaga<T extends EntityShipBase> extends ShipModelHumanoi
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.resetOffsets();
-        this.applyEquipVisibility();
+        this.applyEquipVisibility(entity);
         this.applyFaceAndMouth(entity);
 
         if (entity != null && entity.isInDeadPose()) {
@@ -406,19 +406,32 @@ public class ModelCarrierKaga<T extends EntityShipBase> extends ShipModelHumanoi
         this.EquipD02.y = this.equipD02DefaultY;
     }
 
-    private void applyEquipVisibility() {
-        this.EquipE01.visible = true;
-        this.EquipGlove.visible = true;
-        this.EquipABase.visible = true;
-        this.EquipD01.visible = true;
-        this.EquipC01.visible = true;
-        this.EquipB01.visible = true;
-        this.EquipS01.visible = true;
-        this.Ear01.visible = true;
-        this.Ear02.visible = true;
-        this.Tail01.visible = true;
-        this.EquipSL01.visible = true;
-        this.EquipSR01.visible = true;
+        private void applyEquipVisibility(EntityShipBase entity) {
+        if (entity == null) return;
+        boolean show_Ear01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_EAR01);
+        this.Ear01.visible = show_Ear01;
+        boolean show_Ear02 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_EAR02);
+        this.Ear02.visible = show_Ear02;
+        boolean show_EquipABase = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_EQUIPABASE);
+        this.EquipABase.visible = show_EquipABase;
+        boolean show_EquipB01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_EQUIPB01);
+        this.EquipB01.visible = show_EquipB01;
+        boolean show_EquipC01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_EQUIPC01);
+        this.EquipC01.visible = show_EquipC01;
+        boolean show_EquipD01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_EQUIPD01);
+        this.EquipD01.visible = show_EquipD01;
+        boolean show_EquipE01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_EQUIPE01);
+        this.EquipE01.visible = show_EquipE01;
+        boolean show_EquipGlove = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_EQUIPGLOVE);
+        this.EquipGlove.visible = show_EquipGlove;
+        boolean show_EquipS01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_EQUIPS01);
+        this.EquipS01.visible = show_EquipS01;
+        boolean show_EquipSL01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_EQUIPSL01);
+        this.EquipSL01.visible = show_EquipSL01;
+        boolean show_EquipSR01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_EQUIPSR01);
+        this.EquipSR01.visible = show_EquipSR01;
+        boolean show_Tail01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_TAIL01);
+        this.Tail01.visible = show_Tail01;
     }
 
     private void applyDeadPose() {
@@ -542,7 +555,7 @@ public class ModelCarrierKaga<T extends EntityShipBase> extends ShipModelHumanoi
 
         int state = entity != null ? entity.getStateEmotion(0) : 0;
         boolean hasBag = (state & (1 << 3)) != 0;
-        boolean hasTail = (state & (1 << 6)) != 0;
+        boolean hasTail = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierKaga.EQUIP_TAIL01);
         if (hasBag) {
             this.ArmRight01.zRot += 0.15F;
         }

@@ -1,4 +1,18 @@
 {
   "replace": false,
-  "values": []
+  "values": [
+    "shincolle:equipairplane",
+    "shincolle:equipammo",
+    "shincolle:equiparmor",
+    "shincolle:equipcannon",
+    "shincolle:equipcatapult",
+    "shincolle:equipcompass",
+    "shincolle:equipdrum",
+    "shincolle:equipflare",
+    "shincolle:equipmachinegun",
+    "shincolle:equipradar",
+    "shincolle:equipsearchlight",
+    "shincolle:equiptorpedo",
+    "shincolle:equipturbine"
+  ]
 }

@@ -18,6 +18,7 @@ import org.trp.shincolle.client.particle.ParticleTeam;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.init.ModParticles;
+import org.trp.shincolle.item.PointerItem;
 
 import java.util.HashSet;
 import java.util.List;
@@ -42,10 +43,13 @@ public final class ClientPointerItemParticles {
             return;
         }
 
-        if (!isHoldingPointerItem(player)) {
+        ItemStack pointerStack = getPointerStack(player);
+        if (pointerStack.isEmpty()) {
             ParticleTeam.clearAllFollowParticles();
             return;
         }
+
+        int pointerMode = getPointerMode(pointerStack);
 
         if (level.getGameTime() % PARTICLE_INTERVAL_TICKS != 0) {
             return;
@@ -62,7 +66,7 @@ public final class ClientPointerItemParticles {
         Set<Integer> activeShipIds = new HashSet<>();
         for (EntityShipBase ship : ships) {
             activeShipIds.add(ship.getId());
-            spawnShipMarker(level, ship);
+            spawnShipMarker(level, ship, pointerMode);
         }
 
         ParticleTeam.clearFollowParticles(ParticleTeam.FollowKind.SHIP_MARKER, activeShipIds);
@@ -84,20 +88,43 @@ public final class ClientPointerItemParticles {
     }
 
     private static boolean isHoldingPointerItem(Player player) {
-        return isPointerItem(player.getMainHandItem()) || isPointerItem(player.getOffhandItem());
+        return !getPointerStack(player).isEmpty();
+    }
+
+    private static ItemStack getPointerStack(Player player) {
+        ItemStack main = player.getMainHandItem();
+        if (isPointerItem(main)) {
+            return main;
+        }
+        ItemStack off = player.getOffhandItem();
+        if (isPointerItem(off)) {
+            return off;
+        }
+        return ItemStack.EMPTY;
     }
 
     private static boolean isPointerItem(ItemStack stack) {
         return !stack.isEmpty() && stack.is(ModItems.POINTER_ITEM.get());
     }
 
-    private static void spawnShipMarker(Level level, EntityShipBase ship) {
+    private static int getPointerMode(ItemStack stack) {
+        if (stack.getItem() instanceof PointerItem pointerItem) {
+            return pointerItem.getMode(stack);
+        }
+        return PointerItem.MODE_SINGLE;
+    }
+
+    private static void spawnShipMarker(Level level, EntityShipBase ship, int pointerMode) {
         double baseX = ship.getX();
         double baseY = ship.getY();
         double baseZ = ship.getZ();
 
+        boolean groupMode = pointerMode == PointerItem.MODE_GROUP;
+        ParticleTeam.RenderStyle selectedStyle = groupMode
+                ? ParticleTeam.RenderStyle.SELECTED_RED
+                : ParticleTeam.RenderStyle.DEFAULT_BLUE;
         ParticleTeam.RenderStyle desiredStyle = ship.isPointerSelected()
-                ? ParticleTeam.RenderStyle.DEFAULT_BLUE
+                ? selectedStyle
                 : ParticleTeam.RenderStyle.DEFAULT_GREEN;
         ParticleTeam existing = ParticleTeam.getFollowParticle(ParticleTeam.FollowKind.SHIP_MARKER, ship.getId());
         if (existing != null) {
@@ -108,7 +135,7 @@ public final class ClientPointerItemParticles {
         }
 
         if (ship.isPointerSelected()) {
-            level.addParticle(ModParticles.PARTICLE_TEAM_SELECTED.get(), baseX, baseY, baseZ,
+            level.addParticle(groupMode ? ModParticles.PARTICLE_TEAM_SELECTED_RED.get() : ModParticles.PARTICLE_TEAM_SELECTED.get(), baseX, baseY, baseZ,
                     ship.getBbHeight(), ship.getId(), ParticleTeam.FollowKind.SHIP_MARKER.getMarkerId());
         } else {
             level.addParticle(ModParticles.PARTICLE_TEAM.get(), baseX, baseY, baseZ,

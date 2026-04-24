@@ -99,7 +99,7 @@ public final class ClientShipTrailParticles {
 
         for (int i = 0; i < maxParticles; i++) {
             double ox = (random.nextDouble() - 0.5D) * width;
-            double oy = (random.nextDouble() - 0.5D) * width * WATER_TRAIL_SPREAD_Y;
+            double oy = (random.nextDouble() - 0.5D) * width * WATER_TRAIL_SPREAD_Y - 0.1F;
             double oz = (random.nextDouble() - 0.5D) * width;
             level.addParticle(ParticleTypes.CLOUD, px + ox, py + oy, pz + oz, velX, 0.0D, velZ);
         }

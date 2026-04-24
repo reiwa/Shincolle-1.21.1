@@ -9,11 +9,20 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
+import org.trp.shincolle.item.LegacyEquipItem;
+import org.trp.shincolle.item.LegacyEquipStats;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class ShipyardRecipes {
@@ -28,6 +37,12 @@ public final class ShipyardRecipes {
     private static final int LARGE_BASE_TOTAL = 400;
 
     private static final float NORMAL_FLOOR = 0.2F;
+    private static final float SMALL_MATS_SCALE = 15.625F;
+    private static final float SMALL_EQUIP_RATE_DENOMINATOR = 128.0F;
+    private static final float MIN_RANDOM_THRESHOLD = 0.0125F;
+
+    private static final int LAVA_FUEL_MB = 1000;
+    private static final int LAVA_FUEL_VALUE = 20000;
 
     private static final List<Candidate> SMALL_SHIP_CANDIDATES = List.of(
             new Candidate(0, 80, 0),
@@ -59,6 +74,42 @@ public final class ShipyardRecipes {
             new Candidate(26, 4600, 2),
             new Candidate(30, 4800, 1),
             new Candidate(33, 5000, 3)
+    );
+
+    private static final List<Candidate> SMALL_EQUIP_TYPE_CANDIDATES = List.of(
+            new Candidate(18, 80, 1),
+            new Candidate(26, 80, 2),
+            new Candidate(27, 80, 0),
+            new Candidate(25, 90, 0),
+            new Candidate(20, 100, 2),
+            new Candidate(24, 120, 1),
+            new Candidate(28, 120, 2),
+            new Candidate(0, 128, 2),
+            new Candidate(4, 160, 2),
+            new Candidate(14, 200, 0),
+            new Candidate(12, 256, 3),
+            new Candidate(1, 320, 2)
+    );
+
+    private static final List<Candidate> LARGE_EQUIP_TYPE_CANDIDATES = List.of(
+            new Candidate(19, 500, 1),
+            new Candidate(21, 800, 2),
+            new Candidate(29, 1000, 2),
+            new Candidate(13, 1000, 3),
+            new Candidate(5, 1200, 2),
+            new Candidate(16, 1400, 0),
+            new Candidate(2, 1600, 2),
+            new Candidate(15, 2000, 0),
+            new Candidate(6, 2400, 3),
+            new Candidate(8, 2400, 3),
+            new Candidate(10, 2400, 3),
+            new Candidate(22, 2800, 3),
+            new Candidate(17, 3200, 0),
+            new Candidate(7, 3800, 3),
+            new Candidate(9, 3800, 3),
+            new Candidate(11, 3800, 3),
+            new Candidate(3, 4400, 2),
+            new Candidate(23, 5000, 3)
     );
 
     private ShipyardRecipes() {
@@ -96,10 +147,59 @@ public final class ShipyardRecipes {
             return 0;
         }
         if (stack.is(Items.LAVA_BUCKET)) {
-            return 20000;
+            return LAVA_FUEL_VALUE;
         }
-        Integer burn = AbstractFurnaceBlockEntity.getFuel().get(stack.getItem());
-        return burn == null ? 0 : burn;
+        int burn = stack.getBurnTime(RecipeType.SMELTING);
+        if (burn > 0) {
+            return burn;
+        }
+        return canDrainLavaFuel(stack) ? LAVA_FUEL_VALUE : 0;
+    }
+
+    public static ItemStack consumeOneFuel(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        if (stack.is(Items.LAVA_BUCKET)) {
+            return new ItemStack(Items.BUCKET);
+        }
+
+        if (stack.getCount() == 1) {
+            Optional<IFluidHandlerItem> handlerOptional = FluidUtil.getFluidHandler(stack.copyWithCount(1));
+            if (handlerOptional.isPresent()) {
+                IFluidHandlerItem handler = handlerOptional.get();
+                FluidStack drained = handler.drain(new FluidStack(Fluids.LAVA, LAVA_FUEL_MB), IFluidHandler.FluidAction.EXECUTE);
+                if (isLavaFuelStack(drained)) {
+                    return handler.getContainer();
+                }
+            }
+        }
+
+        ItemStack remaining = stack.copy();
+        remaining.shrink(1);
+        return remaining;
+    }
+
+    private static boolean canDrainLavaFuel(ItemStack stack) {
+        if (stack.isEmpty() || stack.getCount() != 1) {
+            return false;
+        }
+
+        Optional<IFluidHandlerItem> handlerOptional = FluidUtil.getFluidHandler(stack.copyWithCount(1));
+        if (handlerOptional.isEmpty()) {
+            return false;
+        }
+
+        IFluidHandlerItem handler = handlerOptional.get();
+        FluidStack drained = handler.drain(new FluidStack(Fluids.LAVA, LAVA_FUEL_MB), IFluidHandler.FluidAction.SIMULATE);
+        return isLavaFuelStack(drained);
+    }
+
+    private static boolean isLavaFuelStack(FluidStack stack) {
+        return !stack.isEmpty()
+                && stack.getAmount() == LAVA_FUEL_MB
+                && (stack.getFluid() == Fluids.LAVA || stack.getFluid() == Fluids.FLOWING_LAVA);
     }
 
     public static boolean canSmallBuild(int[] mats) {
@@ -145,31 +245,36 @@ public final class ShipyardRecipes {
     }
 
     public static ItemStack createSmallEquipResult(int[] mats) {
-        int total = mats[0] + mats[1] + mats[2] + mats[3];
-        if (total >= 128) {
-            return new ItemStack(ModItems.AMMO_HEAVY_CONTAINER.get(), 2);
+        int totalMats = sumMats(mats);
+        float equipRate = Math.min(totalMats / SMALL_EQUIP_RATE_DENOMINATOR, 1.0F);
+
+        if (ThreadLocalRandom.current().nextFloat() < equipRate) {
+            int rollType = rollEquipType(false, mats);
+            ItemStack equip = rollEquipOfType(rollType, totalMats, false);
+            if (!equip.isEmpty()) {
+                return equip;
+            }
         }
-        if (total >= 96) {
-            return new ItemStack(ModItems.AMMO_HEAVY.get(), 8);
+
+        if (ThreadLocalRandom.current().nextBoolean()) {
+            return new ItemStack(ModItems.AMMO_LIGHT_CONTAINER.get(), 11 + ThreadLocalRandom.current().nextInt(11));
         }
-        if (total >= 64) {
-            return new ItemStack(ModItems.AMMO_LIGHT_CONTAINER.get(), 4);
-        }
-        return new ItemStack(ModItems.AMMO_LIGHT.get(), 16);
+        return new ItemStack(ModItems.AMMO_HEAVY_CONTAINER.get(), 2 + ThreadLocalRandom.current().nextInt(2));
     }
 
     public static ItemStack createLargeEquipResult(int[] mats) {
-        int total = mats[0] + mats[1] + mats[2] + mats[3];
-        if (total >= 2000) {
-            return new ItemStack(ModItems.AMMO_HEAVY_CONTAINER.get(), 16);
+        int totalMats = sumMats(mats);
+        int rollType = rollEquipType(true, mats);
+        ItemStack equip = rollEquipOfType(rollType, totalMats, true);
+        if (!equip.isEmpty()) {
+            return equip;
         }
-        if (total >= 1000) {
-            return new ItemStack(ModItems.AMMO_HEAVY_CONTAINER.get(), 8);
+
+        Item fallback = ModItems.EQUIP_CANNON.get();
+        if (fallback instanceof LegacyEquipItem legacyEquipItem) {
+            return legacyEquipItem.createVariantStack(0);
         }
-        if (total >= 600) {
-            return new ItemStack(ModItems.AMMO_LIGHT_CONTAINER.get(), 16);
-        }
-        return new ItemStack(ModItems.AMMO_LIGHT_CONTAINER.get(), 8);
+        return new ItemStack(fallback);
     }
 
     public static EntityType<? extends Mob> rollShipEntityType(boolean largeShipyard, ItemStack stack) {
@@ -362,7 +467,7 @@ public final class ShipyardRecipes {
 
     private static int rollShipType(boolean largeShipyard, int[] mats) {
         List<Candidate> candidates = largeShipyard ? LARGE_SHIP_CANDIDATES : SMALL_SHIP_CANDIDATES;
-        int totalMats = mats[0] + mats[1] + mats[2] + mats[3];
+        int totalMats = sumMats(mats);
 
         float[] probs = new float[candidates.size()];
         float totalProb = 0.0F;
@@ -373,7 +478,7 @@ public final class ShipyardRecipes {
                     : candidate.mean;
             int meanDist = Math.abs(totalMats - meanNew);
             if (!largeShipyard) {
-                meanDist = (int) (meanDist * 15.625F);
+                meanDist = (int) (meanDist * SMALL_MATS_SCALE);
             }
             float prob = getNormDist(meanDist);
             probs[i] = prob;
@@ -381,31 +486,153 @@ public final class ShipyardRecipes {
         }
 
         if (totalProb <= 0.0F) {
-            return candidates.get(0).id;
+            return candidates.getFirst().id;
         }
 
         float random = ThreadLocalRandom.current().nextFloat() * totalProb;
-        float sum = 0.0125F;
+        float sum = MIN_RANDOM_THRESHOLD;
         for (int i = 0; i < probs.length; i++) {
             sum += probs[i];
             if (sum > random) {
                 return candidates.get(i).id;
             }
         }
-        return candidates.get(candidates.size() - 1).id;
+        return candidates.getLast().id;
+    }
+
+    private static int rollEquipType(boolean largeShipyard, int[] mats) {
+        List<Candidate> candidates = largeShipyard ? LARGE_EQUIP_TYPE_CANDIDATES : SMALL_EQUIP_TYPE_CANDIDATES;
+        int totalMats = sumMats(mats);
+
+        float[] probs = new float[candidates.size()];
+        float totalProb = 0.0F;
+        for (int i = 0; i < candidates.size(); i++) {
+            Candidate candidate = candidates.get(i);
+            int meanNew = candidate.preferredMaterial >= 0 && candidate.preferredMaterial <= 3
+                    ? candidate.mean - mats[candidate.preferredMaterial]
+                    : candidate.mean;
+            int meanDist = Math.abs(totalMats - meanNew);
+            if (!largeShipyard) {
+                meanDist = (int) (meanDist * SMALL_MATS_SCALE);
+            }
+
+            float prob = getNormDist(meanDist);
+            probs[i] = prob;
+            totalProb += prob;
+        }
+
+        if (totalProb <= 0.0F) {
+            return -1;
+        }
+
+        float random = ThreadLocalRandom.current().nextFloat() * totalProb;
+        float sum = MIN_RANDOM_THRESHOLD;
+        for (int i = 0; i < probs.length; i++) {
+            sum += probs[i];
+            if (sum > random) {
+                return candidates.get(i).id;
+            }
+        }
+
+        return candidates.getLast().id;
+    }
+
+    private static ItemStack rollEquipOfType(int type, int totalMats, boolean largeShipyard) {
+        if (type < 0) {
+            return ItemStack.EMPTY;
+        }
+
+        int scaledMats = largeShipyard ? totalMats : (int) (totalMats * SMALL_MATS_SCALE);
+        Map<Integer, int[]> miscAttrs = LegacyEquipStats.getAllMiscAttrs();
+        int[] equipIds = new int[miscAttrs.size()];
+        float[] probs = new float[miscAttrs.size()];
+
+        int count = 0;
+        float totalProb = 0.0F;
+        for (Map.Entry<Integer, int[]> entry : miscAttrs.entrySet()) {
+            int equipId = entry.getKey();
+            int[] misc = entry.getValue();
+            if (misc.length < 3 || misc[1] != type) {
+                continue;
+            }
+
+            int meanDist = Math.abs(scaledMats - misc[2]);
+            float prob = getNormDist(meanDist);
+            equipIds[count] = equipId;
+            probs[count] = prob;
+            totalProb += prob;
+            count++;
+        }
+
+        if (count == 0 || totalProb <= 0.0F) {
+            return ItemStack.EMPTY;
+        }
+
+        float random = ThreadLocalRandom.current().nextFloat() * totalProb;
+        float sum = 0.0F;
+        for (int i = 0; i < count; i++) {
+            sum += probs[i];
+            if (sum > random) {
+                return createEquipStackFromEquipId(equipIds[i]);
+            }
+        }
+
+        return createEquipStackFromEquipId(equipIds[count - 1]);
+    }
+
+    private static ItemStack createEquipStackFromEquipId(int equipId) {
+        if (equipId < 0) {
+            return ItemStack.EMPTY;
+        }
+
+        int itemType = equipId % 100;
+        int variant = equipId / 100;
+        Item equipItem = resolveEquipItemByType(itemType);
+        if (equipItem == null) {
+            return ItemStack.EMPTY;
+        }
+
+        if (equipItem instanceof LegacyEquipItem legacyEquipItem) {
+            return legacyEquipItem.createVariantStack(variant);
+        }
+
+        return new ItemStack(equipItem);
+    }
+
+    private static Item resolveEquipItemByType(int itemType) {
+        return switch (itemType) {
+            case 0, 1, 2, 3 -> ModItems.EQUIP_CANNON.get();
+            case 4, 5 -> ModItems.EQUIP_TORPEDO.get();
+            case 6, 7, 8, 9, 10, 11, 12, 13 -> ModItems.EQUIP_AIRPLANE.get();
+            case 14, 15 -> ModItems.EQUIP_RADAR.get();
+            case 16, 17 -> ModItems.EQUIP_TURBINE.get();
+            case 18, 19 -> ModItems.EQUIP_ARMOR.get();
+            case 20, 21 -> ModItems.EQUIP_MACHINEGUN.get();
+            case 22, 23 -> ModItems.EQUIP_CATAPULT.get();
+            case 24 -> ModItems.EQUIP_DRUM.get();
+            case 25 -> ModItems.EQUIP_COMPASS.get();
+            case 26 -> ModItems.EQUIP_FLARE.get();
+            case 27 -> ModItems.EQUIP_SEARCHLIGHT.get();
+            case 28, 29 -> ModItems.EQUIP_AMMO.get();
+            default -> null;
+        };
+    }
+
+    private static int sumMats(int[] mats) {
+        return mats[0] + mats[1] + mats[2] + mats[3];
     }
 
     private static float getNormDist(int x) {
-        float value = calcNormalDist(0.5F - x * 2.5E-4F, 0.5F, 0.2F) * 0.50132567F;
+        float value = calcNormalDist(0.5F - x * 2.5E-4F) * 0.50132567F;
         return Math.max(value, NORMAL_FLOOR);
     }
 
-    private static float calcNormalDist(float x, float mean, float sd) {
+    private static float calcNormalDist(float x) {
         float s1 = 2.5066283F;
-        float s2 = 1.0F / (sd * s1);
-        float s3 = x - mean;
+        float s2 = 1.0F / ((float) 0.2 * s1);
+        float s3 = x - (float) 0.5;
         float s4 = -(s3 * s3);
-        float s5 = 2.0F * sd * sd;
+        float s5 = 2.0F * (float) 0.2 * (float) 0.2;
         return (float) (s2 * Math.exp(s4 / s5));
     }
 

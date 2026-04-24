@@ -136,6 +136,13 @@ class EntityShipBasePointer {
         this.pointerTargetUntil = 0L;
         this.pointerTargetEntityId = target.getUUID();
         this.pointerTargetEntityUntil = this.ship.level().getGameTime() + Math.max(0L, durationTicks);
+
+        int aimDelay = Math.max(5, (int) (20.0F * (150 - this.ship.getLevel()) / 150.0F) + 10);
+        this.pointerTargetEntityAttackTick = this.ship.tickCount + aimDelay;
+        this.pointerTargetEntityLightShotTick = this.ship.tickCount + aimDelay;
+        this.pointerTargetEntityHeavyShotTick = this.ship.tickCount + aimDelay;
+        this.pointerTargetEntityPathTick = 0;
+        this.ship.getCombat().resetAircraftLaunchDelay();
     }
 
     boolean hasPointerTargetEntity() {
@@ -177,46 +184,57 @@ class EntityShipBasePointer {
                 ? desiredRangeSqr + POINTER_ENTITY_PATH_REFRESH_DISTANCE_SQR
                 : desiredRangeSqr;
 
-        if (distanceSqr > stopRangeSqr) {
+        boolean onSight = this.ship.hasLineOfSight(target);
+
+        // At close range (within half the desired range), ignore line-of-sight
+        // to prevent partial blocks (water surface, slabs) from blocking attacks.
+        boolean needsCloser = distanceSqr > stopRangeSqr;
+        boolean cannotSee = !onSight && distanceSqr > desiredRangeSqr * 0.5D;
+
+        if (needsCloser || cannotSee) {
             if (this.pointerTargetEntityPathTick-- <= 0) {
                 this.pointerTargetEntityPathTick = POINTER_ENTITY_PATH_RECALC_INTERVAL;
-                this.ship.getNavigation().moveTo(target, POINTER_ENTITY_MOVE_SPEED);
+                if (!this.ship.getNavigation().moveTo(target, POINTER_ENTITY_MOVE_SPEED)) {
+                    // Retry sooner if pathfinding failed (e.g. entity airborne)
+                    this.pointerTargetEntityPathTick = 2;
+                }
             }
             return;
         }
 
         this.ship.getNavigation().stop();
+        // Also reset MoveControl to prevent 1-tick inertia overshoot
+        this.ship.getMoveControl().setWantedPosition(
+                this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
 
         if (this.ship.getCombat().hasAircraftAttackEnabled()) {
-            if (this.ship.getCombat().tryPerformAircraftCycle(target)) {
-                return;
-            }
+            this.ship.getCombat().tryPerformAircraftCycle(target);
         }
 
         if (this.ship.getCombat().canUseLightAmmo()) {
-            int lightInterval = this.ship.getLegacyShipStats().getLightDelay();
+            int lightInterval = Math.max(1, this.ship.getLegacyShipStats().getLightDelay());
             if ((this.ship.tickCount - this.pointerTargetEntityLightShotTick) >= lightInterval) {
                 this.pointerTargetEntityLightShotTick = this.ship.tickCount;
                 this.ship.performLightAttack(target);
             }
-            return;
         }
 
         if (this.ship.getCombat().canUseHeavyAmmo()) {
-            int heavyInterval = this.ship.getLegacyShipStats().getHeavyDelay();
+            int heavyInterval = Math.max(1, this.ship.getLegacyShipStats().getHeavyDelay());
             if ((this.ship.tickCount - this.pointerTargetEntityHeavyShotTick) >= heavyInterval) {
-                this.pointerTargetEntityHeavyShotTick = this.ship.tickCount;
                 if (this.ship.performHeavyAttack(target)) {
-                    return;
+                    this.pointerTargetEntityHeavyShotTick = this.ship.tickCount;
                 }
             }
         }
 
         if (this.ship.getCombat().canUseMeleeAttack()
-                && distanceSqr <= getPointerTargetEntityAttackRangeSqr(target)
-                && (this.ship.tickCount - this.pointerTargetEntityAttackTick) >= this.ship.getLegacyShipStats().getMeleeDelay()) {
-            this.pointerTargetEntityAttackTick = this.ship.tickCount;
-            this.ship.doHurtTarget(target);
+                && distanceSqr <= getPointerTargetEntityAttackRangeSqr(target)) {
+            int meleeInterval = Math.max(1, this.ship.getLegacyShipStats().getMeleeDelay());
+            if ((this.ship.tickCount - this.pointerTargetEntityAttackTick) >= meleeInterval) {
+                this.pointerTargetEntityAttackTick = this.ship.tickCount;
+                this.ship.doHurtTarget(target);
+            }
         }
     }
 
@@ -225,14 +243,14 @@ class EntityShipBasePointer {
         boolean canAmmo = this.ship.getCombat().canUseLightAmmo() || this.ship.getCombat().canUseHeavyAmmo();
         boolean canAir = this.ship.getCombat().hasAircraftAttackEnabled();
 
-        if (canMelee) {
-            return getPointerTargetEntityAttackRangeSqr(target);
-        } else if (canAmmo) {
+        if (canAmmo) {
             double range = Math.max(2.0D, this.ship.getLegacyShipStats().getAttackRange());
             return range * range;
         } else if (canAir) {
             double range = Math.max(24.0D, this.ship.getLegacyShipStats().getAttackRange() * 1.5D);
             return range * range;
+        } else if (canMelee) {
+            return getPointerTargetEntityAttackRangeSqr(target);
         }
 
         return getPointerTargetEntityAttackRangeSqr(target);

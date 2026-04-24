@@ -1,0 +1,26 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "shincolle:item/shiptank0"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 1.0
+      },
+      "model": "shincolle:item/shiptank1"
+    },
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 2.0
+      },
+      "model": "shincolle:item/shiptank2"
+    },
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 3.0
+      },
+      "model": "shincolle:item/shiptank3"
+    }
+  ]
+}
