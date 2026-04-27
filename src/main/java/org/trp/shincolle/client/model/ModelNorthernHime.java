@@ -13,7 +13,9 @@ import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.EntityNorthernHime;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public class ModelNorthernHime<T extends EntityNorthernHime> extends ShipModelHumanoidBase<T> {
+import org.trp.shincolle.client.model.IGlowableModel;
+
+public class ModelNorthernHime<T extends EntityNorthernHime> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "northern_hime"), "main");
     private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelNorthernHime");
     private static final float SIT_HEAD_YAW_SCALE = 0.25F;
@@ -597,8 +599,21 @@ public class ModelNorthernHime<T extends EntityNorthernHime> extends ShipModelHu
             this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
 
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = this.poseTranslateY != 0.0F || this.poseTranslateZ != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, this.poseTranslateY, this.poseTranslateZ);
+        }
+
         if (this.GlowBodyMain != null) {
-            this.GlowBodyMain.render(poseStack, vertexConsumer, LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
+            this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
 
         if (usePoseTranslate) {

@@ -1,3 +1,6 @@
+## v0.7.5(2026/04/28 JST)
+- Fixed issues related to entity appearance
+
 ## v0.7.0(2026/04/24 JST)
 - Implemented equipment items
 - Implemented Large/Small Shipyards

@@ -16,7 +16,9 @@ import net.minecraft.world.entity.Entity;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public class ModelDestroyerI<T extends Entity> extends EntityModel<T> {
+import org.trp.shincolle.client.model.IGlowableModel;
+
+public class ModelDestroyerI<T extends Entity> extends EntityModel<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "destroyer_i"), "main");
     private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelDestroyerI");
     private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelDestroyerI");
@@ -332,6 +334,20 @@ public class ModelDestroyerI<T extends Entity> extends EntityModel<T> {
         }
 
         PBack.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = poseTranslateY != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, poseTranslateY, 0.0F);
+        }
+
         GlowPBack.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
 
         if (usePoseTranslate) {

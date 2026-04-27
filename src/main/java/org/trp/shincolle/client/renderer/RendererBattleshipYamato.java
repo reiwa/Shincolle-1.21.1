@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelBattleshipYamato;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityBattleshipYamato;
 
 public class RendererBattleshipYamato extends MobRenderer<EntityBattleshipYamato, ModelBattleshipYamato<EntityBattleshipYamato>> {
@@ -14,6 +15,7 @@ public class RendererBattleshipYamato extends MobRenderer<EntityBattleshipYamato
 
     public RendererBattleshipYamato(EntityRendererProvider.Context context) {
         super(context, new ModelBattleshipYamato<>(context.bakeLayer(ModelBattleshipYamato.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

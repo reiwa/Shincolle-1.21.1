@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelBattleshipRu;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityBattleshipRu;
 
 public class RendererBattleshipRu extends MobRenderer<EntityBattleshipRu, ModelBattleshipRu<EntityBattleshipRu>> {
@@ -14,6 +15,8 @@ public class RendererBattleshipRu extends MobRenderer<EntityBattleshipRu, ModelB
 
     public RendererBattleshipRu(EntityRendererProvider.Context context) {
         super(context, new ModelBattleshipRu<>(context.bakeLayer(ModelBattleshipRu.LAYER_LOCATION)), 0.5f);
+
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

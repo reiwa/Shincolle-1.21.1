@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelHarbourHime;
 import org.trp.shincolle.entity.EntityHarbourHime;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 
 public class RendererHarbourHime extends MobRenderer<EntityHarbourHime, ModelHarbourHime<EntityHarbourHime>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/harbour_hime.png");
@@ -14,6 +15,7 @@ public class RendererHarbourHime extends MobRenderer<EntityHarbourHime, ModelHar
 
     public RendererHarbourHime(EntityRendererProvider.Context context) {
         super(context, new ModelHarbourHime<>(context.bakeLayer(ModelHarbourHime.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

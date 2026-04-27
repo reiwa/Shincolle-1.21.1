@@ -138,7 +138,10 @@ public final class LegacyPoseOffsets {
     public static float sittingAltY(String modelName) {
         return switch (modelName) {
             case "ModelCruiserTenryuu" -> 0.41F;
+            case "ModelBBHaruna" -> 0.69F * 3.0F;
             case "ModelBBHiei" -> 0.69F * 2.7F;
+            case "ModelBBKirishima" -> 0.55F * 3;
+            case "ModelBBKongou" -> 0.69F * 2.5F;
             default -> 0.0F;
         };
     }

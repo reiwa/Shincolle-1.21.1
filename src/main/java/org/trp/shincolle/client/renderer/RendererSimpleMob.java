@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Mob;
+import org.trp.shincolle.client.model.IGlowableModel;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
 public class RendererSimpleMob<T extends Mob, M extends EntityModel<T>> extends MobRenderer<T, M> {
@@ -16,6 +18,10 @@ public class RendererSimpleMob<T extends Mob, M extends EntityModel<T>> extends 
         super(context, model, shadowSize);
         this.texture = texture;
         this.modelScale = modelScale;
+
+        if (model instanceof IGlowableModel) {
+            this.addLayer(new GenericGlowLayer(this, texture));
+        }
     }
 
     @Override

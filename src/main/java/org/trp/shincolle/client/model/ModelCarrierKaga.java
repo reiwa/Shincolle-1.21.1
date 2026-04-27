@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public class ModelCarrierKaga<T extends EntityShipBase> extends ShipModelHumanoidBase<T> {
+public class ModelCarrierKaga<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "carrier_kaga"), "main");
 
     private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelCarrierKaga");
@@ -807,8 +807,22 @@ public class ModelCarrierKaga<T extends EntityShipBase> extends ShipModelHumanoi
         }
 
         this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = this.poseTranslateY != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, this.poseTranslateY, 0.0F);
+        }
+
         if (this.GlowBodyMain != null) {
-            this.GlowBodyMain.render(poseStack, vertexConsumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
+            this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
 
         if (usePoseTranslate) {

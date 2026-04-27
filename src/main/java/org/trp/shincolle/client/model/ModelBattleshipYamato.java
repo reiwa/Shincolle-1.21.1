@@ -11,7 +11,7 @@ import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public class ModelBattleshipYamato<T extends EntityShipBase> extends ShipModelHumanoidBase<T> {
+public class ModelBattleshipYamato<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "battleship_yamato"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
@@ -1194,8 +1194,21 @@ public class ModelBattleshipYamato<T extends EntityShipBase> extends ShipModelHu
 
         BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
 
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = this.poseTranslateY != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, this.poseTranslateY, 0.0F);
+        }
+
         if (GlowBodyMain != null) {
-            GlowBodyMain.render(poseStack, vertexConsumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
+            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
 
         if (usePoseTranslate) {

@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelDestroyerI;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityDestroyerI;
 
 public class RendererDestroyerI extends MobRenderer<EntityDestroyerI, ModelDestroyerI<EntityDestroyerI>> {
@@ -14,6 +15,8 @@ public class RendererDestroyerI extends MobRenderer<EntityDestroyerI, ModelDestr
 
     public RendererDestroyerI(EntityRendererProvider.Context context) {
         super(context, new ModelDestroyerI<>(context.bakeLayer(ModelDestroyerI.LAYER_LOCATION)), 0.5f);
+
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

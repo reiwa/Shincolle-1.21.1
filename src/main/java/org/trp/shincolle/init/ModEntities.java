@@ -17,227 +17,227 @@ public class ModEntities {
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityDestroyerI>> DESTROYER_I = ENTITY_TYPES.register("destroyer_i",
             () -> EntityType.Builder.of(EntityDestroyerI::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("destroyer_i"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityDestroyerRo>> DESTROYER_RO = ENTITY_TYPES.register("destroyer_ro",
             () -> EntityType.Builder.of(EntityDestroyerRo::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("destroyer_ro"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityDestroyerHa>> DESTROYER_HA = ENTITY_TYPES.register("destroyer_ha",
             () -> EntityType.Builder.of(EntityDestroyerHa::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("destroyer_ha"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityDestroyerNi>> DESTROYER_NI = ENTITY_TYPES.register("destroyer_ni",
             () -> EntityType.Builder.of(EntityDestroyerNi::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("destroyer_ni"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityHeavyCruiserRi>> HEAVY_CRUISER_RI = ENTITY_TYPES.register("heavy_cruiser_ri",
             () -> EntityType.Builder.of(EntityHeavyCruiserRi::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("heavy_cruiser_ri"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityHeavyCruiserNe>> HEAVY_CRUISER_NE = ENTITY_TYPES.register("heavy_cruiser_ne",
             () -> EntityType.Builder.of(EntityHeavyCruiserNe::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("heavy_cruiser_ne"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityCarrierWo>> CARRIER_WO = ENTITY_TYPES.register("carrier_wo",
             () -> EntityType.Builder.of(EntityCarrierWo::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("carrier_wo"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityBattleshipRu>> BATTLESHIP_RU = ENTITY_TYPES.register("battleship_ru",
             () -> EntityType.Builder.of(EntityBattleshipRu::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("battleship_ru"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityBattleshipTa>> BATTLESHIP_TA = ENTITY_TYPES.register("battleship_ta",
             () -> EntityType.Builder.of(EntityBattleshipTa::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("battleship_ta"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityBattleshipRe>> BATTLESHIP_RE = ENTITY_TYPES.register("battleship_re",
             () -> EntityType.Builder.of(EntityBattleshipRe::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("battleship_re"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityTransportWa>> TRANSPORT_WA = ENTITY_TYPES.register("transport_wa",
             () -> EntityType.Builder.of(EntityTransportWa::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("transport_wa"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntitySubmKa>> SUBM_KA = ENTITY_TYPES.register("subm_ka",
             () -> EntityType.Builder.of(EntitySubmKa::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("subm_ka"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntitySubmYo>> SUBM_YO = ENTITY_TYPES.register("subm_yo",
             () -> EntityType.Builder.of(EntitySubmYo::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("subm_yo"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntitySubmSo>> SUBM_SO = ENTITY_TYPES.register("subm_so",
             () -> EntityType.Builder.of(EntitySubmSo::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("subm_so"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityDestroyerHime>> DESTROYER_HIME = ENTITY_TYPES.register("destroyer_hime",
             () -> EntityType.Builder.of(EntityDestroyerHime::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("destroyer_hime"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityCAHime>> CA_HIME = ENTITY_TYPES.register("ca_hime",
             () -> EntityType.Builder.of(EntityCAHime::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("ca_hime"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityAirfieldHime>> AIRFIELD_HIME = ENTITY_TYPES.register("airfield_hime",
             () -> EntityType.Builder.of(EntityAirfieldHime::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("airfield_hime"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityBattleshipHime>> BATTLESHIP_HIME = ENTITY_TYPES.register("battleship_hime",
             () -> EntityType.Builder.of(EntityBattleshipHime::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("battleship_hime"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityCarrierHime>> CARRIER_HIME = ENTITY_TYPES.register("carrier_hime",
             () -> EntityType.Builder.of(EntityCarrierHime::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("carrier_hime"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityHarbourHime>> HARBOUR_HIME = ENTITY_TYPES.register("harbour_hime",
             () -> EntityType.Builder.of(EntityHarbourHime::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("harbour_hime"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityIsolatedHime>> ISOLATED_HIME = ENTITY_TYPES.register("isolated_hime",
             () -> EntityType.Builder.of(EntityIsolatedHime::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("isolated_hime"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityMidwayHime>> MIDWAY_HIME = ENTITY_TYPES.register("midway_hime",
             () -> EntityType.Builder.of(EntityMidwayHime::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("midway_hime"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityNorthernHime>> NORTHERN_HIME = ENTITY_TYPES.register("northern_hime",
             () -> EntityType.Builder.of(EntityNorthernHime::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("northern_hime"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntitySubmHime>> SUBM_HIME = ENTITY_TYPES.register("subm_hime",
             () -> EntityType.Builder.of(EntitySubmHime::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("subm_hime"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntitySSNH>> SSNH = ENTITY_TYPES.register("ssnh",
             () -> EntityType.Builder.of(EntitySSNH::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("ssnh"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityCarrierWDemon>> CARRIER_W_DEMON = ENTITY_TYPES.register("carrier_w_demon",
             () -> EntityType.Builder.of(EntityCarrierWDemon::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("carrier_w_demon"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityDestroyerAkatsuki>> DESTROYER_AKATSUKI = ENTITY_TYPES.register("destroyer_akatsuki",
             () -> EntityType.Builder.of(EntityDestroyerAkatsuki::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("destroyer_akatsuki"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityDestroyerHibiki>> DESTROYER_HIBIKI = ENTITY_TYPES.register("destroyer_hibiki",
             () -> EntityType.Builder.of(EntityDestroyerHibiki::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("destroyer_hibiki"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityDestroyerIkazuchi>> DESTROYER_IKAZUCHI = ENTITY_TYPES.register("destroyer_ikazuchi",
             () -> EntityType.Builder.of(EntityDestroyerIkazuchi::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("destroyer_ikazuchi"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityDestroyerInazuma>> DESTROYER_INAZUMA = ENTITY_TYPES.register("destroyer_inazuma",
             () -> EntityType.Builder.of(EntityDestroyerInazuma::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("destroyer_inazuma"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityDestroyerShimakaze>> DESTROYER_SHIMAKAZE = ENTITY_TYPES.register("destroyer_shimakaze",
             () -> EntityType.Builder.of(EntityDestroyerShimakaze::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("destroyer_shimakaze"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityCruiserTenryuu>> CRUISER_TENRYUU = ENTITY_TYPES.register("cruiser_tenryuu",
             () -> EntityType.Builder.of(EntityCruiserTenryuu::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("cruiser_tenryuu"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityCruiserTatsuta>> CRUISER_TATSUTA = ENTITY_TYPES.register("cruiser_tatsuta",
             () -> EntityType.Builder.of(EntityCruiserTatsuta::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("cruiser_tatsuta"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityCruiserTakao>> CRUISER_TAKAO = ENTITY_TYPES.register("cruiser_takao",
             () -> EntityType.Builder.of(EntityCruiserTakao::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("cruiser_takao"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityCruiserAtago>> CRUISER_ATAGO = ENTITY_TYPES.register("cruiser_atago",
             () -> EntityType.Builder.of(EntityCruiserAtago::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("cruiser_atago"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityCarrierKaga>> CARRIER_KAGA = ENTITY_TYPES.register("carrier_kaga",
             () -> EntityType.Builder.of(EntityCarrierKaga::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("carrier_kaga"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityCarrierAkagi>> CARRIER_AKAGI = ENTITY_TYPES.register("carrier_akagi",
             () -> EntityType.Builder.of(EntityCarrierAkagi::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("carrier_akagi"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityBBKongou>> BB_KONGOU = ENTITY_TYPES.register("bb_kongou",
             () -> EntityType.Builder.of(EntityBBKongou::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("bb_kongou"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityBBHiei>> BB_HIEI = ENTITY_TYPES.register("bb_hiei",
             () -> EntityType.Builder.of(EntityBBHiei::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("bb_hiei"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityBBHaruna>> BB_HARUNA = ENTITY_TYPES.register("bb_haruna",
             () -> EntityType.Builder.of(EntityBBHaruna::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("bb_haruna"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityBBKirishima>> BB_KIRISHIMA = ENTITY_TYPES.register("bb_kirishima",
             () -> EntityType.Builder.of(EntityBBKirishima::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("bb_kirishima"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityBattleshipNagato>> BATTLESHIP_NAGATO = ENTITY_TYPES.register("battleship_nagato",
             () -> EntityType.Builder.of(EntityBattleshipNagato::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("battleship_nagato"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityBattleshipYamato>> BATTLESHIP_YAMATO = ENTITY_TYPES.register("battleship_yamato",
             () -> EntityType.Builder.of(EntityBattleshipYamato::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("battleship_yamato"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntitySubmU511>> SUBM_U511 = ENTITY_TYPES.register("subm_u511",
             () -> EntityType.Builder.of(EntitySubmU511::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("subm_u511"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntitySubmRo500>> SUBM_RO500 = ENTITY_TYPES.register("subm_ro500",
             () -> EntityType.Builder.of(EntitySubmRo500::new, MobCategory.MISC)
-                    .sized(0.5f, 0.9f)
+                    .sized(0.0f, 1.5f)
                     .build("subm_ro500"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityAbyssMissile>> ABYSS_MISSILE = ENTITY_TYPES.register("abyss_missile",

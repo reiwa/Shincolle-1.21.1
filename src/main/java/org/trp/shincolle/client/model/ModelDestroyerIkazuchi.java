@@ -16,7 +16,7 @@ import org.trp.shincolle.entity.EntityDestroyerIkazuchi;
 import org.trp.shincolle.entity.EntityDestroyerInazuma;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public class ModelDestroyerIkazuchi<T extends EntityShipBase> extends ShipModelHumanoidBase<T> {
+public class ModelDestroyerIkazuchi<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "destroyer_ikazuchi"), "main");
     private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelDestroyerIkazuchi");
     private static final float SIT_HEAD_YAW_SCALE = 0.25F;
@@ -759,7 +759,20 @@ public class ModelDestroyerIkazuchi<T extends EntityShipBase> extends ShipModelH
         }
 
         BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
-        GlowBodyMain.render(poseStack, vertexConsumer, LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
+
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = this.poseTranslateY != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, this.poseTranslateY, 0.0F);
+        }
+
+        this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
 
         if (usePoseTranslate) {
             poseStack.popPose();

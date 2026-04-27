@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelBBHaruna;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityBBHaruna;
 
 public class RendererBBHaruna extends MobRenderer<EntityBBHaruna, ModelBBHaruna<EntityBBHaruna>> {
@@ -14,6 +15,7 @@ public class RendererBBHaruna extends MobRenderer<EntityBBHaruna, ModelBBHaruna<
 
     public RendererBBHaruna(EntityRendererProvider.Context context) {
         super(context, new ModelBBHaruna<>(context.bakeLayer(ModelBBHaruna.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

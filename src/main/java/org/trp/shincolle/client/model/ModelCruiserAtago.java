@@ -11,7 +11,7 @@ import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public class ModelCruiserAtago<T extends EntityShipBase> extends ShipModelHumanoidBase<T> {
+public class ModelCruiserAtago<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "cruiser_atago"), "main");
 
     private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelCruiserAtago");
@@ -618,24 +618,24 @@ public class ModelCruiserAtago<T extends EntityShipBase> extends ShipModelHumano
     private void applyBasePose(PoseContext ctx) {
         float angleX = ctx.angleX;
 
-        Ahoke.yRot = angleX * 0.2F + 1.2F;
+        Ahoke.yRot = angleX * 0.15F + 0.65F;  // legacy: 0.15f + 0.65f
         BodyMain.xRot = -0.1047F;
         BodyMain.yRot = 0.0F;
         BodyMain.zRot = 0.0F;
-        Butt.xRot = 0.2618F;
-        Skirt01.xRot = -0.052F;
+        Butt.xRot = 0.35F;  // legacy: 0.35f
+        Skirt01.xRot = -0.07F;  // legacy: -0.07f
         Skirt02.xRot = -0.052F;
         if (Skirt03 != null) Skirt03.xRot = -0.052F;
 
-        ArmLeft01.xRot = 0.1745F;
+        ArmLeft01.xRot = ctx.angleAdd2 * 0.25F + 0.3F;  // legacy: angleAdd2 * 0.25f + 0.3f
         ArmLeft01.yRot = 0.0F;
-        ArmLeft01.zRot = angleX * 0.03F - 0.2618F;
+        ArmLeft01.zRot = angleX * 0.03F - 0.25F;  // legacy: -0.25f
         ArmLeft02.xRot = 0.0F;
         ArmLeft02.zRot = 0.0F;
 
-        ArmRight01.xRot = -0.0523F;
+        ArmRight01.xRot = ctx.angleAdd1 * 0.25F - 0.087F;  // legacy: angleAdd1 * 0.25f - 0.087f
         ArmRight01.yRot = 0.0F;
-        ArmRight01.zRot = -angleX * 0.03F + 0.2618F;
+        ArmRight01.zRot = -angleX * 0.03F + 0.25F;  // legacy: +0.25f
         ArmRight02.xRot = 0.0F;
         ArmRight02.zRot = 0.0F;
 
@@ -861,6 +861,26 @@ public class ModelCruiserAtago<T extends EntityShipBase> extends ShipModelHumano
             }
         }
 
+        // Attack pose: raise both arms (getAttackTick > 30, matching legacy ModelCruiserAtago)
+        if (entity != null && entity.getAttackTick() > 30) {
+            ArmLeft01.xRot = -(float) Math.PI;
+            ArmLeft01.yRot = 0.0F;
+            ArmLeft01.zRot = 0.52F;
+            ArmLeft02.xRot = 0.0F;
+            ArmLeft02.yRot = 0.0F;
+            ArmLeft02.zRot = 0.0F;
+            ArmLeft02.x = armLeft02DefaultX;
+            ArmLeft02.z = armLeft02DefaultZ;
+            ArmRight01.xRot = -(float) Math.PI;
+            ArmRight01.yRot = 0.0F;
+            ArmRight01.zRot = -0.52F;
+            ArmRight02.xRot = 0.0F;
+            ArmRight02.yRot = 0.0F;
+            ArmRight02.zRot = 0.0F;
+            ArmRight02.x = armRight02DefaultX;
+            ArmRight02.z = armRight02DefaultZ;
+        }
+
         LegLeft01.xRot = legLeftX;
         LegRight01.xRot = legRightX;
     }
@@ -928,8 +948,22 @@ public class ModelCruiserAtago<T extends EntityShipBase> extends ShipModelHumano
         }
 
         BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = this.poseTranslateY != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, this.poseTranslateY, 0.0F);
+        }
+
         if (GlowBodyMain != null) {
-            GlowBodyMain.render(poseStack, vertexConsumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
+            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
 
         if (usePoseTranslate) {

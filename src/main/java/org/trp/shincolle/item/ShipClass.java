@@ -7,7 +7,7 @@ public enum ShipClass {
     BATTLESHIP("BB", "shipspawnegg3"),
     AUXILIARY_OILER("AO", "shipspawnegg4"),
     SUBMARINE("SS", "shipspawnegg5"),
-    DESTROYER_ESCORT("DE", "shipspawnegg6"),
+    DEMON("DE", "shipspawnegg6"),
     PRINCESS("PR", "shipspawnegg7"),
     AIRCRAFT_CARRIER("CV", "shipspawnegg8");
 

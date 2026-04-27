@@ -25,7 +25,7 @@ public abstract class ShipModelHumanoidBase<T extends EntityShipBase> extends Sh
     }
 
     protected PoseContext computePoseContext(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float legBaseXRotOffset) {
-        float angleX = (float) Math.cos(ageInTicks * 0.08F);
+        float angleX = (float) Math.cos(ageInTicks * 0.08F + limbSwing * 0.25F);
         float angleAdd1 = (float) Math.cos(limbSwing * 0.7F) * limbSwingAmount;
         float angleAdd2 = (float) Math.cos(limbSwing * 0.7F + (float) Math.PI) * limbSwingAmount;
         float addk1 = angleAdd1 - legBaseXRotOffset;

@@ -132,7 +132,7 @@ public class ModItems {
             () -> new ShipSpawnEggItem(ModEntities.SSNH, ShipClass.SUBMARINE, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
     public static final DeferredItem<Item> CARRIER_W_DEMON_SPAWN_EGG = ITEMS.register("carrier_w_demon_spawn_egg",
-            () -> new ShipSpawnEggItem(ModEntities.CARRIER_W_DEMON, ShipClass.DESTROYER_ESCORT, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
+            () -> new ShipSpawnEggItem(ModEntities.CARRIER_W_DEMON, ShipClass.DEMON, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
     public static final DeferredItem<Item> DESTROYER_AKATSUKI_SPAWN_EGG = ITEMS.register("destroyer_akatsuki_spawn_egg",
             () -> new ShipSpawnEggItem(ModEntities.DESTROYER_AKATSUKI, ShipClass.DESTROYER, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));

@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelCruiserAtago;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityCruiserAtago;
 
 public class RendererCruiserAtago extends MobRenderer<EntityCruiserAtago, ModelCruiserAtago<EntityCruiserAtago>> {
@@ -14,6 +15,7 @@ public class RendererCruiserAtago extends MobRenderer<EntityCruiserAtago, ModelC
 
     public RendererCruiserAtago(EntityRendererProvider.Context context) {
         super(context, new ModelCruiserAtago<>(context.bakeLayer(ModelCruiserAtago.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

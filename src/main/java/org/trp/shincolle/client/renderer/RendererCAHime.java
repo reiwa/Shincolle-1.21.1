@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelCAHime;
 import org.trp.shincolle.entity.EntityCAHime;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 
 public class RendererCAHime extends MobRenderer<EntityCAHime, ModelCAHime<EntityCAHime>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/ca_hime.png");
@@ -14,6 +15,7 @@ public class RendererCAHime extends MobRenderer<EntityCAHime, ModelCAHime<Entity
 
     public RendererCAHime(EntityRendererProvider.Context context) {
         super(context, new ModelCAHime<>(context.bakeLayer(ModelCAHime.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

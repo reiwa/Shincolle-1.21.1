@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelBattleshipHime;
 import org.trp.shincolle.entity.EntityBattleshipHime;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 
 public class RendererBattleshipHime extends MobRenderer<EntityBattleshipHime, ModelBattleshipHime<EntityBattleshipHime>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/battleship_hime.png");
@@ -14,6 +15,7 @@ public class RendererBattleshipHime extends MobRenderer<EntityBattleshipHime, Mo
 
     public RendererBattleshipHime(EntityRendererProvider.Context context) {
         super(context, new ModelBattleshipHime<>(context.bakeLayer(ModelBattleshipHime.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

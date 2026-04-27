@@ -11,12 +11,13 @@ import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public class ModelBBKirishima<T extends EntityShipBase> extends ShipModelHumanoidBase<T> {
+public class ModelBBKirishima<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "bb_kirishima"), "main");
 
     private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelBBKirishima");
     private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelBBKirishima");
     private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelBBKirishima");
+    private static final float SITTING_ALT_TRANSLATE_Y = LegacyPoseOffsets.sittingAltY("ModelBBKirishima");
     private static final float OFFSET_SCALE = 16.0F;
 
     private boolean isDeadPose;
@@ -883,42 +884,18 @@ public class ModelBBKirishima<T extends EntityShipBase> extends ShipModelHumanoi
         float addk2 = ctx.angleAdd2 * 0.3F - 0.21F;
         float addCA031 = 0.0F;
         float addCA032 = 0.0F;
+        boolean spcStand = true;
 
         boolean isPassenger = entity.isPassenger();
         boolean isCrouching = entity.isCrouching();
-        boolean isSprinting = entity.isSprinting();
         boolean isSitting = entity.getIsSitting() || isPassenger;
 
         if (entity.getShipDepth() > 0.0) {
             this.poseTranslateY += (Mth.cos(ageInTicks * 0.08F + limbSwing * 0.25F) * 0.05F + 0.025F);
         }
 
-        if (isSprinting || limbSwingAmount > 0.9F) {
-            if ((entity.tickCount % 256) > 128) {
-                //applyFace(entity, 3);
-                //applyMouth(entity, 5);
-            }
-            BodyMain.xRot = 0.2F;
-            Skirt01.xRot = -0.4F;
-            Skirt02.xRot = -0.1F;
-            SkirtB01.xRot = -0.13F;
-            Cloth02c1.xRot = 1.17F;
-            Cloth02c1_1.xRot = 1.17F;
-            Cloth02c2.xRot = -0.63F;
-            Cloth02c2_1.xRot = -0.63F;
-            ArmLeft01.xRot = ctx.angleAdd2 * 1.2F + 0.5F;
-            ArmRight01.xRot = ctx.angleAdd1 * 1.2F + 0.5F;
-            ArmLeft02.xRot = -1.0F;
-            ArmRight02.xRot = -1.0F;
-            addk1 = ctx.angleAdd1 * 0.7F - 0.48F;
-            addk2 = ctx.angleAdd2 * 0.7F - 0.41F;
-            LegLeft01.zRot = 0.0873F;
-            LegRight01.zRot = -0.0873F;
-        }
-
-        //Head.zRot = entity.getHeadTiltAngle(ctx.partialTicks);
-
         if (isCrouching) {
+            spcStand = false;
             this.poseTranslateY += SNEAK_TRANSLATE_Y;
             Head.xRot -= 0.6283F;
             BodyMain.xRot = 0.8727F;
@@ -941,11 +918,11 @@ public class ModelBBKirishima<T extends EntityShipBase> extends ShipModelHumanoi
         }
 
         if (isSitting) {
+            spcStand = false;
             this.isSittingPose = true;
             int sitTick = entity.tickCount % 512;
             if (sitTick > 256) {
-                this.poseTranslateY += 0.55F * 3;
-                //applyFaceScorn(entity);
+                this.poseTranslateY += SITTING_ALT_TRANSLATE_Y;
                 Head.xRot += 0.1F;
                 BodyMain.xRot = -0.1F;
                 Butt.xRot = -0.4F;
@@ -1021,46 +998,70 @@ public class ModelBBKirishima<T extends EntityShipBase> extends ShipModelHumanoi
             }
         }
 
-		/*boolean isAttacking = entity.getAttackTick() > 20;
-		if (isAttacking) {
-			applyFace(entity, 3);
-			applyMouth(entity, 5);
-			BodyMain.xRot = -0.17F;
-			ArmLeft01.xRot = 0.17F; ArmLeft01.yRot = 0.0F; ArmLeft01.zRot = -0.35F;
-			ArmLeft02.xRot = -1.57F; ArmLeft02.yRot = 0.0F; ArmLeft02.zRot = 0.0F;
-			ArmRight01.xRot = 0.17F; ArmRight01.yRot = 0.0F; ArmRight01.zRot = 0.35F;
-			ArmRight02.xRot = -1.57F; ArmRight02.yRot = 0.0F; ArmRight02.zRot = 0.0F;
-			addk1 += 0.14F; addk2 += 0.07F;
-			LegLeft01.yRot = 0.0F; LegLeft01.zRot = -0.17F;
-			LegRight01.yRot = 0.0F; LegRight01.zRot = 0.17F;
-		}*/
+        if (entity.getAttackTick() > 20) {
+            spcStand = false;
+            Head.yRot *= 0.25F;
+            BodyMain.xRot = -0.17F;
+            ArmLeft01.xRot = -0.35F;
+            ArmLeft01.yRot = 0.0F;
+            ArmLeft01.zRot = 0.2F;
+            ArmLeft02.xRot = 0.0F;
+            ArmLeft02.yRot = 0.0F;
+            ArmLeft02.zRot = 1.3F;
+            ArmRight01.xRot = -0.5462881F;
+            ArmRight01.yRot = -0.2617994F;
+            ArmRight01.zRot = -0.13962634F;
+            ArmRight02.xRot = -2.4F;
+            ArmRight02.zRot = 0.0F;
+            ArmRight02.z = armRight02DefaultZ + (-0.32F * OFFSET_SCALE);
+            ClothA03.yRot = 1.49F;
+            addk1 += 0.14F;
+            addk2 += 0.07F;
+            LegLeft01.yRot = 0.0F;
+            LegLeft01.zRot = -0.1F;
+            LegRight01.yRot = 0.0F;
+            LegRight01.zRot = 0.1F;
+        }
 
-		/*if (!isSprinting && !isCrouching && !isSitting && !isAttacking) {
-			BodyMain.xRot = -0.17F;
-			ArmLeft01.xRot = 0.17F; ArmLeft01.zRot = -0.35F;
-			ArmLeft02.xRot = -1.57F;
-			ArmRight01.xRot = 0.17F; ArmRight01.zRot = 0.35F;
-			ArmRight02.xRot = -1.57F;
-			addk1 += 0.14F; addk2 += 0.07F;
-			LegLeft01.zRot = -0.17F;
-			LegRight01.zRot = 0.17F;
-			if (entity.getStateEmotion(7) == 4) {
-				applyFace(entity, 3);
-				applyMouth(entity, 5);
-			}
-		}
+        if (spcStand) {
+            Head.yRot *= 0.25F;
+            BodyMain.xRot = -0.17F;
+            ArmLeft01.xRot = -0.35F;
+            ArmLeft01.yRot = 0.0F;
+            ArmLeft01.zRot = 0.2F;
+            ArmLeft02.xRot = 0.0F;
+            ArmLeft02.yRot = 0.0F;
+            ArmLeft02.zRot = 1.3F;
+            ArmRight01.xRot = -0.5462881F;
+            ArmRight01.yRot = -0.2617994F;
+            ArmRight01.zRot = -0.13962634F;
+            ArmRight02.xRot = -2.4F;
+            ArmRight02.zRot = 0.0F;
+            ArmRight02.z = armRight02DefaultZ + (-0.32F * OFFSET_SCALE);
+            ClothA03.yRot = 1.49F;
+            addk1 += 0.14F;
+            addk2 += 0.07F;
+            LegLeft01.yRot = 0.0F;
+            LegLeft01.zRot = -0.1F;
+            LegRight01.yRot = 0.0F;
+            LegRight01.zRot = 0.1F;
 
-		float swingProgress = entity.getSwingTime(ctx.partialTicks);
-		if (swingProgress != 0.0F) {
-			float f7 = Mth.sin(swingProgress * swingProgress * (float)Math.PI);
-			float f8 = Mth.sin(Mth.sqrt(swingProgress) * (float)Math.PI);
-			ArmRight01.xRot = -0.4F;
-			ArmRight01.yRot = 0.2F;
-			ArmRight01.zRot = -0.2F;
-			ArmRight01.xRot += -f8 * 80.0F * ((float)Math.PI / 180F);
-			ArmRight01.yRot += -f7 * 20.0F * ((float)Math.PI / 180F);
-			ArmRight01.zRot += -f8 * 20.0F * ((float)Math.PI / 180F);
-		}*/
+            if (entity != null && hasLegacyState(entity, 7, 4)) {
+                setFace(2);
+            }
+        }
+
+        float swingProgress = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);
+        if (swingProgress != 0.0F) {
+            float f7 = Mth.sin(swingProgress * swingProgress * (float)Math.PI);
+            float f8 = Mth.sin(Mth.sqrt(swingProgress) * (float)Math.PI);
+            ArmRight01.xRot = -0.4F;
+            ArmRight01.yRot = 0.0F;
+            ArmRight01.zRot = -0.2F;
+            ArmRight01.xRot += -f8 * 80.0F * ((float)Math.PI / 180F);
+            ArmRight01.yRot += -f7 * 20.0F * ((float)Math.PI / 180F) + 0.2F;
+            ArmRight01.zRot += -f8 * 20.0F * ((float)Math.PI / 180F);
+        }
 
         float handL = BodyMain.xRot + ArmLeft01.xRot + ArmLeft02.xRot;
         float handR = BodyMain.xRot + ArmRight01.xRot + ArmRight02.xRot;
@@ -1104,8 +1105,22 @@ public class ModelBBKirishima<T extends EntityShipBase> extends ShipModelHumanoi
         }
 
         this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = this.poseTranslateY != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, this.poseTranslateY, 0.0F);
+        }
+
         if (this.GlowBodyMain != null) {
-            this.GlowBodyMain.render(poseStack, vertexConsumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
+            this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
 
         if (usePoseTranslate) {

@@ -139,72 +139,22 @@ public class ClientModEventBusEvents {
                 0.5f,
                 DEFAULT_MODEL_SCALE,
                 entityTexture("airplane_zero")));
-        event.registerEntityRenderer(ModEntities.MOUNT_AF_H.get(), context -> new RendererSimpleMob<>(
-                context,
-                new ModelMountAfH<>(context.bakeLayer(ModelMountAfH.LAYER_LOCATION)),
-                0.5f,
-                DEFAULT_MODEL_SCALE,
-                entityTexture("mount_af_h")));
-        event.registerEntityRenderer(ModEntities.MOUNT_BA_H.get(), context -> new RendererSimpleMob<>(
-                context,
-                new ModelMountBaH<>(context.bakeLayer(ModelMountBaH.LAYER_LOCATION)),
-                0.5f,
-                DEFAULT_MODEL_SCALE,
-                entityTexture("mount_ba_h")));
-        event.registerEntityRenderer(ModEntities.MOUNT_CA_H.get(), context -> new RendererSimpleMob<>(
-                context,
-                new ModelMountCaH<>(context.bakeLayer(ModelMountCaH.LAYER_LOCATION)),
-                0.5f,
-                DEFAULT_MODEL_SCALE,
-                entityTexture("mount_ca_h")));
-        event.registerEntityRenderer(ModEntities.MOUNT_CA_WD.get(), context -> new RendererSimpleMob<>(
-                context,
-                new ModelMountCaWD<>(context.bakeLayer(ModelMountCaWD.LAYER_LOCATION)),
-                0.5f,
-                DEFAULT_MODEL_SCALE,
-                entityTexture("mount_ca_wd")));
-        event.registerEntityRenderer(ModEntities.MOUNT_HB_H.get(), context -> new RendererSimpleMob<>(
-                context,
-                new ModelMountHbH<>(context.bakeLayer(ModelMountHbH.LAYER_LOCATION)),
-                0.5f,
-                DEFAULT_MODEL_SCALE,
-                entityTexture("mount_hb_h")));
-        event.registerEntityRenderer(ModEntities.MOUNT_IS_H.get(), context -> new RendererSimpleMob<>(
-                context,
-                new ModelMountIsH<>(context.bakeLayer(ModelMountIsH.LAYER_LOCATION)),
-                0.5f,
-                DEFAULT_MODEL_SCALE,
-                entityTexture("mount_is_h")));
-        event.registerEntityRenderer(ModEntities.MOUNT_MI_H.get(), context -> new RendererSimpleMob<>(
-                context,
-                new ModelMountMiH<>(context.bakeLayer(ModelMountMiH.LAYER_LOCATION)),
-                0.5f,
-                DEFAULT_MODEL_SCALE,
-                entityTexture("mount_mi_h")));
-        event.registerEntityRenderer(ModEntities.MOUNT_SU_H.get(), context -> new RendererSimpleMob<>(
-                context,
-                new ModelMountSuH<>(context.bakeLayer(ModelMountSuH.LAYER_LOCATION)),
-                0.5f,
-                DEFAULT_MODEL_SCALE,
-                entityTexture("mount_su_h")));
+        event.registerEntityRenderer(ModEntities.MOUNT_SU_H.get(), RendererMountSuH::new);
+        event.registerEntityRenderer(ModEntities.MOUNT_MI_H.get(), RendererMountMiH::new);
+        event.registerEntityRenderer(ModEntities.MOUNT_IS_H.get(), RendererMountIsH::new);
+        event.registerEntityRenderer(ModEntities.MOUNT_HB_H.get(), RendererMountHbH::new);
+        event.registerEntityRenderer(ModEntities.MOUNT_CA_WD.get(), RendererMountCaWD::new);
+        event.registerEntityRenderer(ModEntities.MOUNT_AF_H.get(), RendererMountAfH::new);
+        event.registerEntityRenderer(ModEntities.MOUNT_BA_H.get(), RendererMountBaH::new);
+        event.registerEntityRenderer(ModEntities.MOUNT_CA_H.get(), RendererMountCaH::new);
         event.registerEntityRenderer(ModEntities.RENSOUHOU.get(), context -> new RendererSimpleMob<>(
                 context,
                 new ModelRensouhou<>(context.bakeLayer(ModelRensouhou.LAYER_LOCATION)),
                 0.5f,
                 DEFAULT_MODEL_SCALE,
                 entityTexture("rensouhou")));
-        event.registerEntityRenderer(ModEntities.RENSOUHOU_S.get(), context -> new RendererSimpleMob<>(
-                context,
-                new ModelRensouhouS<>(context.bakeLayer(ModelRensouhouS.LAYER_LOCATION)),
-                0.5f,
-                DEFAULT_MODEL_SCALE,
-                entityTexture("rensouhou_s")));
-        event.registerEntityRenderer(ModEntities.TAKOYAKI.get(), context -> new RendererSimpleMob<>(
-                context,
-                new ModelTakoyaki<>(context.bakeLayer(ModelTakoyaki.LAYER_LOCATION)),
-                0.5f,
-                DEFAULT_MODEL_SCALE,
-                entityTexture("takoyaki")));
+        event.registerEntityRenderer(ModEntities.RENSOUHOU_S.get(), RendererRensouhouS::new);
+        event.registerEntityRenderer(ModEntities.TAKOYAKI.get(), RendererTakoyaki::new);
         event.registerEntityRenderer(ModEntities.ABYSS_MISSILE.get(), RendererAbyssMissile::new);
         event.registerEntityRenderer(ModEntities.PROJECTILE_BEAM.get(), RendererProjectileBeam::new);
         event.registerEntityRenderer(ModEntities.SHIP_GRUDGE.get(), RendererShipGrudge::new);

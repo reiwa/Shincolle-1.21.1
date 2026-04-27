@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelSubmHime;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntitySubmHime;
 
 public class RendererSubmHime extends MobRenderer<EntitySubmHime, ModelSubmHime<EntitySubmHime>> {
@@ -14,6 +15,8 @@ public class RendererSubmHime extends MobRenderer<EntitySubmHime, ModelSubmHime<
 
     public RendererSubmHime(EntityRendererProvider.Context context) {
         super(context, new ModelSubmHime<>(context.bakeLayer(ModelSubmHime.LAYER_LOCATION)), 0.5f);
+
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelBBHiei;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityBBHiei;
 
 public class RendererBBHiei extends MobRenderer<EntityBBHiei, ModelBBHiei<EntityBBHiei>> {
@@ -14,6 +15,7 @@ public class RendererBBHiei extends MobRenderer<EntityBBHiei, ModelBBHiei<Entity
 
     public RendererBBHiei(EntityRendererProvider.Context context) {
         super(context, new ModelBBHiei<>(context.bakeLayer(ModelBBHiei.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

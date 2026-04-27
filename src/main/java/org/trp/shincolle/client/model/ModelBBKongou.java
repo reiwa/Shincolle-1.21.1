@@ -11,13 +11,14 @@ import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public class ModelBBKongou<T extends EntityShipBase> extends ShipModelHumanoidBase<T> {
+public class ModelBBKongou<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "bb_kongou"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
     private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelBBKongou");
     private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelBBKongou");
     private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelBBKongou");
+    private static final float SITTING_ALT_TRANSLATE_Y = LegacyPoseOffsets.sittingAltY("ModelBBKongou");
 
     private boolean isDeadPose;
     private boolean isSittingPose;
@@ -1103,7 +1104,7 @@ public class ModelBBKongou<T extends EntityShipBase> extends ShipModelHumanoidBa
             int sitPhase = entity != null ? (entity.tickCount % 512) : 0;
             if (sitPhase > 256) {
                 if (entity != null && hasLegacyState(entity, 1, 4)) {
-                    this.poseTranslateY += 0.69F * 2.2F;
+                    this.poseTranslateY += SITTING_ALT_TRANSLATE_Y;
                     Head.xRot = -0.35F;
                     Head.yRot = 0.0F;
                     BodyMain.xRot = -1.6F;
@@ -1329,8 +1330,21 @@ public class ModelBBKongou<T extends EntityShipBase> extends ShipModelHumanoidBa
 
         BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
 
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = this.poseTranslateY != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, this.poseTranslateY, 0.0F);
+        }
+
         if (GlowBodyMain != null) {
-            GlowBodyMain.render(poseStack, vertexConsumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
+            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         }
 
         if (usePoseTranslate) {

@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelCruiserTenryuu;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityCruiserTenryuu;
 
 public class RendererCruiserTenryuu extends MobRenderer<EntityCruiserTenryuu, ModelCruiserTenryuu<EntityCruiserTenryuu>> {
@@ -14,6 +15,7 @@ public class RendererCruiserTenryuu extends MobRenderer<EntityCruiserTenryuu, Mo
 
     public RendererCruiserTenryuu(EntityRendererProvider.Context context) {
         super(context, new ModelCruiserTenryuu<>(context.bakeLayer(ModelCruiserTenryuu.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

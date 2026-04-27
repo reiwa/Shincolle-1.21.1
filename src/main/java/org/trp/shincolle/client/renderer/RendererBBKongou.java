@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelBBKongou;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityBBKongou;
 
 public class RendererBBKongou extends MobRenderer<EntityBBKongou, ModelBBKongou<EntityBBKongou>> {
@@ -14,6 +15,7 @@ public class RendererBBKongou extends MobRenderer<EntityBBKongou, ModelBBKongou<
 
     public RendererBBKongou(EntityRendererProvider.Context context) {
         super(context, new ModelBBKongou<>(context.bakeLayer(ModelBBKongou.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

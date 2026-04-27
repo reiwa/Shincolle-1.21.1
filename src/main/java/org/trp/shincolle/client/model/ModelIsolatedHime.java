@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public class ModelIsolatedHime<T extends EntityShipBase> extends ShipModelHumanoidBase<T> {
+public class ModelIsolatedHime<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "isolated_hime"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
@@ -270,15 +270,15 @@ public class ModelIsolatedHime<T extends EntityShipBase> extends ShipModelHumano
 
         PartDefinition Hat03 = HatBase.addOrReplaceChild("Hat03", CubeListBuilder.create().texOffs(88, 23).addBox(-8.5F, 0F, -0.5F, 17F, 4F, 3F, new CubeDeformation(0F)), PartPose.offsetAndRotation(10F, 5.5F, 1.3F, 0F, -0.0524F, 1.5708F));
 
-        PartDefinition Hat04f = Hat03.addOrReplaceChild("Hat04f", CubeListBuilder.create().texOffs(30, 6).addBox(-2F, -3F, 0F, 4F, 2F, 7F, new CubeDeformation(0F)), PartPose.offset(-4.3F, -1F, 2.5F));
+        PartDefinition Hat04f = Hat03.addOrReplaceChild("Hat04f", CubeListBuilder.create().texOffs(30, 6).addBox(-2F, -3F, 0F, 4F, 2F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-4.3F, -1F, 2.5F, 0F, -0.034906585F, 2.9670596F));
 
-        PartDefinition Hat04g = Hat03.addOrReplaceChild("Hat04g", CubeListBuilder.create().texOffs(30, 6).addBox(-2F, -3F, 0F, 4F, 2F, 7F, new CubeDeformation(0F)), PartPose.offset(3.5F, -0.6F, 2.2F));
+        PartDefinition Hat04g = Hat03.addOrReplaceChild("Hat04g", CubeListBuilder.create().texOffs(30, 6).addBox(-2F, -3F, 0F, 4F, 2F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(3.5F, -0.6F, 2.2F, -0.0524F, -0.034906585F, -3.0718F));
 
-        PartDefinition Hat04e = Hat03.addOrReplaceChild("Hat04e", CubeListBuilder.create().texOffs(60, 2).addBox(-2F, -3F, 0F, 4F, 3F, 7F, new CubeDeformation(0F)), PartPose.offset(-0.2F, 1.1F, 2.8F));
+        PartDefinition Hat04e = Hat03.addOrReplaceChild("Hat04e", CubeListBuilder.create().texOffs(60, 2).addBox(-2F, -3F, 0F, 4F, 3F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-0.2F, 1.1F, 2.8F, 0.1396F, 0F, 0.034906585F));
 
-        PartDefinition Hat04d = Hat03.addOrReplaceChild("Hat04d", CubeListBuilder.create().texOffs(42, 10).addBox(-2F, -3F, -10F, 4F, 2F, 10F, new CubeDeformation(0F)), PartPose.offset(-4.9F, -1.5F, -0.2F));
+        PartDefinition Hat04d = Hat03.addOrReplaceChild("Hat04d", CubeListBuilder.create().texOffs(42, 10).addBox(-2F, -3F, -10F, 4F, 2F, 10F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-4.9F, -1.5F, -0.2F, 0.017453293F, 0.017453293F, 2.7925267F));
 
-        PartDefinition Hat04a = Hat03.addOrReplaceChild("Hat04a", CubeListBuilder.create().texOffs(60, 15).addBox(-2F, -3F, -10F, 4F, 3F, 10F, new CubeDeformation(0F)), PartPose.offset(-0.5F, 0.5F, -0.5F));
+        PartDefinition Hat04a = Hat03.addOrReplaceChild("Hat04a", CubeListBuilder.create().texOffs(60, 15).addBox(-2F, -3F, -10F, 4F, 3F, 10F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-0.5F, 0.5F, -0.5F, -0.0873F, -0.034906585F, -0.0698F));
 
         PartDefinition Hat04h = Hat03.addOrReplaceChild("Hat04h", CubeListBuilder.create().texOffs(60, 2).addBox(-2F, -3F, 0F, 4F, 3F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(6.9F, 1.2F, 2.4F, 0.0524F, 0.0698F, 0.2967F));
 
@@ -288,19 +288,19 @@ public class ModelIsolatedHime<T extends EntityShipBase> extends ShipModelHumano
 
         PartDefinition Hat01 = HatBase.addOrReplaceChild("Hat01", CubeListBuilder.create().texOffs(88, 23).addBox(-8.5F, 0F, -0.5F, 17F, 4F, 3F, new CubeDeformation(0F)), PartPose.offset(0F, -3.6F, 1F));
 
-        PartDefinition Hat02d = Hat01.addOrReplaceChild("Hat02d", CubeListBuilder.create().texOffs(42, 10).addBox(-2F, -3F, -10F, 4F, 2F, 10F, new CubeDeformation(0F)), PartPose.offset(-4.2F, -0.7F, -0.6F));
+        PartDefinition Hat02d = Hat01.addOrReplaceChild("Hat02d", CubeListBuilder.create().texOffs(42, 10).addBox(-2F, -3F, -10F, 4F, 2F, 10F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-4.2F, -0.7F, -0.6F, -0.0524F, -0.017453293F, 2.9670596F));
 
         PartDefinition Hat02a = Hat01.addOrReplaceChild("Hat02a", CubeListBuilder.create().texOffs(60, 15).addBox(-2F, -3F, -10F, 4F, 3F, 10F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, 1.5F, -0.7F, -0.0698F, 0F, 0F));
 
-        PartDefinition Hat02b = Hat01.addOrReplaceChild("Hat02b", CubeListBuilder.create().texOffs(42, 10).addBox(-2F, -3F, -10F, 4F, 2F, 10F, new CubeDeformation(0F)), PartPose.offset(4.2F, -0.7F, -0.6F));
+        PartDefinition Hat02b = Hat01.addOrReplaceChild("Hat02b", CubeListBuilder.create().texOffs(42, 10).addBox(-2F, -3F, -10F, 4F, 2F, 10F, new CubeDeformation(0F)), PartPose.offsetAndRotation(4.2F, -0.7F, -0.6F, -0.0524F, 0.017453293F, -2.9670596F));
 
         PartDefinition Hat02g = Hat01.addOrReplaceChild("Hat02g", CubeListBuilder.create().texOffs(30, 6).addBox(-2F, -3F, 0F, 4F, 2F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-3.8F, -0.5F, 2.3F, 0.0524F, 0.0524F, 3.1067F));
 
         PartDefinition Hat02h = Hat01.addOrReplaceChild("Hat02h", CubeListBuilder.create().texOffs(60, 2).addBox(-2F, -3F, 0F, 4F, 3F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-7.2F, 2.4F, 2.6F, 0.0873F, -0.0524F, -0.5236F));
 
-        PartDefinition Hat02e = Hat01.addOrReplaceChild("Hat02e", CubeListBuilder.create().texOffs(60, 15).addBox(-2F, -3F, -10F, 4F, 3F, 10F, new CubeDeformation(0F)), PartPose.offset(-7.6F, 2F, -0.6F));
+        PartDefinition Hat02e = Hat01.addOrReplaceChild("Hat02e", CubeListBuilder.create().texOffs(60, 15).addBox(-2F, -3F, -10F, 4F, 3F, 10F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-7.6F, 2F, -0.6F, 0.0524F, 0.034906585F, -0.5760F));
 
-        PartDefinition Hat02c = Hat01.addOrReplaceChild("Hat02c", CubeListBuilder.create().texOffs(60, 15).addBox(-2F, -3F, -10F, 4F, 3F, 10F, new CubeDeformation(0F)), PartPose.offset(7.6F, 2F, -0.6F));
+        PartDefinition Hat02c = Hat01.addOrReplaceChild("Hat02c", CubeListBuilder.create().texOffs(60, 15).addBox(-2F, -3F, -10F, 4F, 3F, 10F, new CubeDeformation(0F)), PartPose.offsetAndRotation(7.6F, 2F, -0.6F, 0.0524F, -0.034906585F, 0.5760F));
 
         PartDefinition Hat02i = Hat01.addOrReplaceChild("Hat02i", CubeListBuilder.create().texOffs(30, 6).addBox(-2F, -3F, 0F, 4F, 2F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(3.8F, -0.5F, 2.3F, 0.0524F, -0.0524F, -3.1067F));
 
@@ -310,19 +310,19 @@ public class ModelIsolatedHime<T extends EntityShipBase> extends ShipModelHumano
 
         PartDefinition Hat05 = HatBase.addOrReplaceChild("Hat05", CubeListBuilder.create().texOffs(88, 23).addBox(-8.5F, 0F, -0.5F, 17F, 4F, 3F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-10F, 5.5F, 1.3F, 0F, 0.0524F, -1.5708F));
 
-        PartDefinition Hat02b_1 = Hat05.addOrReplaceChild("Hat02b_1", CubeListBuilder.create().texOffs(42, 10).addBox(-2F, -3F, -10F, 4F, 2F, 10F, new CubeDeformation(0F)), PartPose.offset(4.9F, -1.5F, -0.2F));
+        PartDefinition Hat02b_1 = Hat05.addOrReplaceChild("Hat02b_1", CubeListBuilder.create().texOffs(42, 10).addBox(-2F, -3F, -10F, 4F, 2F, 10F, new CubeDeformation(0F)), PartPose.offsetAndRotation(4.9F, -1.5F, -0.2F, 0.017453293F, -0.017453293F, -2.7925267F));
 
         PartDefinition Hat02e_1 = Hat05.addOrReplaceChild("Hat02e_1", CubeListBuilder.create().texOffs(60, 15).addBox(-2F, -3F, -10F, 4F, 3F, 10F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-6.4F, 1F, -0.1F, -0.0698F, 0.1396F, -0.2618F));
 
-        PartDefinition Hat06a = Hat05.addOrReplaceChild("Hat06a", CubeListBuilder.create().texOffs(60, 15).addBox(-2F, -3F, -10F, 4F, 3F, 10F, new CubeDeformation(0F)), PartPose.offset(0.5F, 0.5F, -0.5F));
+        PartDefinition Hat06a = Hat05.addOrReplaceChild("Hat06a", CubeListBuilder.create().texOffs(60, 15).addBox(-2F, -3F, -10F, 4F, 3F, 10F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0.5F, 0.5F, -0.5F, -0.0873F, 0.034906585F, 0.0698F));
 
-        PartDefinition Hat02g_1 = Hat05.addOrReplaceChild("Hat02g_1", CubeListBuilder.create().texOffs(30, 6).addBox(-2F, -3F, 0F, 4F, 2F, 7F, new CubeDeformation(0F)), PartPose.offset(-3.5F, -0.6F, 2.2F));
+        PartDefinition Hat02g_1 = Hat05.addOrReplaceChild("Hat02g_1", CubeListBuilder.create().texOffs(30, 6).addBox(-2F, -3F, 0F, 4F, 2F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-3.5F, -0.6F, 2.2F, -0.0524F, 0.034906585F, 3.0718F));
 
-        PartDefinition Hat02i_1 = Hat05.addOrReplaceChild("Hat02i_1", CubeListBuilder.create().texOffs(30, 6).addBox(-2F, -3F, 0F, 4F, 2F, 7F, new CubeDeformation(0F)), PartPose.offset(4.3F, -1F, 2.5F));
+        PartDefinition Hat02i_1 = Hat05.addOrReplaceChild("Hat02i_1", CubeListBuilder.create().texOffs(30, 6).addBox(-2F, -3F, 0F, 4F, 2F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(4.3F, -1F, 2.5F, 0F, 0.034906585F, -2.9670596F));
 
         PartDefinition Hat02h_1 = Hat05.addOrReplaceChild("Hat02h_1", CubeListBuilder.create().texOffs(60, 2).addBox(-2F, -3F, 0F, 4F, 3F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-6.9F, 1.2F, 2.4F, 0.0524F, -0.0698F, -0.2967F));
 
-        PartDefinition Hat02f_1 = Hat05.addOrReplaceChild("Hat02f_1", CubeListBuilder.create().texOffs(60, 2).addBox(-2F, -3F, 0F, 4F, 3F, 7F, new CubeDeformation(0F)), PartPose.offset(0.2F, 1.1F, 2.8F));
+        PartDefinition Hat02f_1 = Hat05.addOrReplaceChild("Hat02f_1", CubeListBuilder.create().texOffs(60, 2).addBox(-2F, -3F, 0F, 4F, 3F, 7F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0.2F, 1.1F, 2.8F, 0.1396F, 0F, 0.034906585F));
 
         PartDefinition Hat02d_1 = Hat05.addOrReplaceChild("Hat02d_1", CubeListBuilder.create().texOffs(42, 10).addBox(-2F, -3F, -10F, 4F, 2F, 10F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-3.2F, -2F, -0.2F, -0.0524F, -0.0873F, 3.0718F));
 
@@ -774,7 +774,21 @@ public class ModelIsolatedHime<T extends EntityShipBase> extends ShipModelHumano
         }
 
         this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
-        this.GlowBodyMain.render(poseStack, vertexConsumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
+
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = this.poseTranslateY != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, this.poseTranslateY, 0.0F);
+        }
+
+        this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
 
         if (usePoseTranslate) {
             poseStack.popPose();

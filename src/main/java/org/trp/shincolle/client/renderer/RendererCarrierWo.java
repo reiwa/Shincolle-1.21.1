@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelCarrierWo;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityCarrierWo;
 
 public class RendererCarrierWo extends MobRenderer<EntityCarrierWo, ModelCarrierWo<EntityCarrierWo>> {
@@ -14,6 +15,8 @@ public class RendererCarrierWo extends MobRenderer<EntityCarrierWo, ModelCarrier
 
     public RendererCarrierWo(EntityRendererProvider.Context context) {
         super(context, new ModelCarrierWo<>(context.bakeLayer(ModelCarrierWo.LAYER_LOCATION)), 0.5f);
+
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

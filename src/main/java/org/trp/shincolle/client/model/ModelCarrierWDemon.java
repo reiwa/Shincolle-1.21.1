@@ -11,7 +11,7 @@ import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
 
-public class ModelCarrierWDemon<T extends EntityShipBase> extends ShipModelHumanoidBase<T> {
+public class ModelCarrierWDemon<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "carrier_w_demon"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
@@ -697,8 +697,22 @@ public class ModelCarrierWDemon<T extends EntityShipBase> extends ShipModelHuman
         this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         this.HeadS02.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         this.HeadS03.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
-        this.GlowBodyMain.render(poseStack, vertexConsumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
-        this.GlowBodyMain2.render(poseStack, vertexConsumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
+
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = this.poseTranslateY != 0.0F || this.poseTranslateZ != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, this.poseTranslateY, this.poseTranslateZ);
+        }
+
+        this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        this.GlowBodyMain2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
 
         if (usePoseTranslate) {
             poseStack.popPose();

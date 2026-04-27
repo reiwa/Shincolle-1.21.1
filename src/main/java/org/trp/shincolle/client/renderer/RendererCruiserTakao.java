@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelCruiserTakao;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityCruiserTakao;
 
 public class RendererCruiserTakao extends MobRenderer<EntityCruiserTakao, ModelCruiserTakao<EntityCruiserTakao>> {
@@ -14,6 +15,7 @@ public class RendererCruiserTakao extends MobRenderer<EntityCruiserTakao, ModelC
 
     public RendererCruiserTakao(EntityRendererProvider.Context context) {
         super(context, new ModelCruiserTakao<>(context.bakeLayer(ModelCruiserTakao.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

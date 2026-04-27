@@ -11,7 +11,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.trp.shincolle.Shincolle;
 
-public class ModelRensouhouS<T extends Entity> extends EntityModel<T> {
+import org.trp.shincolle.client.model.IGlowableModel;
+
+public class ModelRensouhouS<T extends Entity> extends EntityModel<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "rensouhou_s"), "main");
 
     private final ModelPart BodyMain;
@@ -109,6 +111,10 @@ public class ModelRensouhouS<T extends Entity> extends EntityModel<T> {
     @Override
     public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
         BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
         GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 }

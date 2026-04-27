@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelMidwayHime;
 import org.trp.shincolle.entity.EntityMidwayHime;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 
 public class RendererMidwayHime extends MobRenderer<EntityMidwayHime, ModelMidwayHime<EntityMidwayHime>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/midway_hime.png");
@@ -14,6 +15,7 @@ public class RendererMidwayHime extends MobRenderer<EntityMidwayHime, ModelMidwa
 
     public RendererMidwayHime(EntityRendererProvider.Context context) {
         super(context, new ModelMidwayHime<>(context.bakeLayer(ModelMidwayHime.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

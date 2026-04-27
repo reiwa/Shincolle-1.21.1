@@ -11,11 +11,11 @@ import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBase<T> {
+public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "bb_haruna"), "main");
 
     private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelBBHaruna");
-    private static final float SITTING_ALT_TRANSLATE_Y = 0.69F * 3;
+    private static final float SITTING_ALT_TRANSLATE_Y = LegacyPoseOffsets.sittingAltY("ModelBBHaruna");
     private static final float SITTING_IDLE_TRANSLATE_Y = 0.39F * 3;
     private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelBBHaruna");
     private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelBBHaruna");
@@ -1048,8 +1048,10 @@ public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBa
             }
         }
 
-		/*if (entity != null && entity.getAttackTick() > 20) {
+		if (entity != null && entity.getAttackTick() > 20) {
 			spcStand = false;
+			setFace(3);
+			setMouth(5);
 			BodyMain.xRot = -0.17F;
 			ArmLeft01.xRot = 0.2F; ArmLeft01.yRot = 0.5F; ArmLeft01.zRot = 0.1F;
 			ArmLeft02.xRot = -1.9F; ArmLeft02.z = armLeft02DefaultZ + (-0.33F * OFFSET_SCALE);
@@ -1057,9 +1059,9 @@ public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBa
 			ArmRight02.xRot = -1.9F; ArmRight02.z = armRight02DefaultZ + (-0.33F * OFFSET_SCALE);
 			addk1 += 0.14F; addk2 += 0.07F;
 			LegLeft01.zRot = -0.17F; LegRight01.zRot = 0.17F;
-		}*/
+		}
 
-        if (spcStand) {
+        if (spcStand && (entity == null || (entity.tickCount % 512) > 256)) {
             BodyMain.xRot = -0.17F;
             ArmLeft01.xRot = 0.15F;
             ArmLeft01.yRot = 0.55F;
@@ -1073,17 +1075,23 @@ public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBa
             ArmRight02.z = armRight02DefaultZ + (-0.33F * OFFSET_SCALE);
             addk1 += 0.14F;
             addk2 += 0.07F;
+			if (entity != null && hasLegacyState(entity, 7, 4)) {
+				setFace(3);
+				setMouth(5);
+			}
         }
 
-		/*if (entity != null && entity.getSwingTime() != 0.0F) {
-			float swing = entity.getSwingTime();
-			float f7 = Mth.sin(swing * swing * (float) Math.PI);
-			float f8 = Mth.sin(Mth.sqrt(swing) * (float) Math.PI);
-			ArmRight01.xRot = -0.4F; ArmRight01.yRot = 0.0F; ArmRight01.zRot = -0.2F;
-			ArmRight01.xRot += -f8 * 80.0F * ((float) Math.PI / 180.0F);
-			ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180.0F) + 0.2F;
-			ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180.0F);
-		}*/
+		if (entity != null) {
+			float swing = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);
+			if (swing != 0.0F) {
+				float f7 = Mth.sin(swing * swing * (float) Math.PI);
+				float f8 = Mth.sin(Mth.sqrt(swing) * (float) Math.PI);
+				ArmRight01.xRot = -0.4F; ArmRight01.yRot = 0.0F; ArmRight01.zRot = -0.2F;
+				ArmRight01.xRot += -f8 * 80.0F * ((float) Math.PI / 180.0F);
+				ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180.0F) + 0.2F;
+				ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180.0F);
+			}
+		}
 
         float handL = BodyMain.xRot + ArmLeft01.xRot + ArmLeft02.xRot;
         float handR = BodyMain.xRot + ArmRight01.xRot + ArmRight02.xRot;
@@ -1127,7 +1135,23 @@ public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBa
         }
 
         BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
-        GlowBodyMain.render(poseStack, vertexConsumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
+
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = this.poseTranslateY != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, this.poseTranslateY, 0.0F);
+        }
+
+        if (GlowBodyMain != null) {
+            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        }
 
         if (usePoseTranslate) {
             poseStack.popPose();

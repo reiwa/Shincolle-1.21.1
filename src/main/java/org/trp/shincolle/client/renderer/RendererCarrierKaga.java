@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelCarrierKaga;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityCarrierKaga;
 
 public class RendererCarrierKaga extends MobRenderer<EntityCarrierKaga, ModelCarrierKaga<EntityCarrierKaga>> {
@@ -14,6 +15,7 @@ public class RendererCarrierKaga extends MobRenderer<EntityCarrierKaga, ModelCar
 
     public RendererCarrierKaga(EntityRendererProvider.Context context) {
         super(context, new ModelCarrierKaga<>(context.bakeLayer(ModelCarrierKaga.LAYER_LOCATION)), 0.5f);
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

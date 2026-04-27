@@ -11,7 +11,7 @@ import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase<T> {
+public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "bb_hiei"), "main");
 
     private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelBBHiei");
@@ -877,6 +877,7 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
         float addk2 = ctx.angleAdd2 * 0.3F - 0.21F;
         float addCA031 = 0.0F;
         float addCA032 = 0.0F;
+        boolean spcStand = true;
 
         if (entity == null) return;
 
@@ -890,9 +891,10 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
         }
 
         if (isSprinting || limbSwingAmount > 0.9F) {
+            spcStand = false;
             if ((entity.tickCount % 256) > 128) {
-                //applyFace(entity, 3);
-                //applyMouth(entity, 5);
+                setFace(3);
+                setMouth(5);
             }
             BodyMain.xRot = 0.2F;
             Skirt01.xRot = -0.4F;
@@ -912,9 +914,10 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
             LegRight01.zRot = -0.0873F;
         }
 
-        //Head.zRot = entity.getHeadTiltAngle(ctx.partialTicks);
+        Head.zRot = entity.getHeadTiltAngle(ageInTicks);
 
         if (isCrouching) {
+            spcStand = false;
             this.poseTranslateY += SNEAK_TRANSLATE_Y;
             Head.xRot -= 0.6283F;
             BodyMain.xRot = 0.8727F;
@@ -937,6 +940,7 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
         }
 
         if (isSitting) {
+            spcStand = false;
             this.isSittingPose = true;
             int sitTick = entity.tickCount % 512;
             if (sitTick > 256) {
@@ -964,7 +968,8 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
                     EquipBase.visible = false;
                 } else {
                     this.poseTranslateY += SITTING_TRANSLATE_Y;
-                    //applyFaceScorn(entity);
+                    setFace(2);
+                    setMouth(1);
                     Head.xRot += 0.1F;
                     BodyMain.xRot = -0.1F;
                     Butt.xRot = -0.4F;
@@ -1010,7 +1015,8 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
                 }
             } else {
                 this.poseTranslateY += RIDING_TRANSLATE_Y;
-                //applyFaceScorn(entity);
+                setFace(2);
+                setMouth(1);
                 Head.xRot -= 0.1F;
                 BodyMain.xRot = -0.25F;
                 Butt.xRot = -0.2F;
@@ -1053,7 +1059,7 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
                 float parTick = ageInTicks - (int) ageInTicks + (entity.tickCount % 256);
                 if (parTick < 30.0F) {
                     float az = Mth.sin(parTick * 0.033F * 1.5708F);
-                    //applyFace(entity, 3);
+                    setFace(3);
                     ArmLeft01.zRot = 0.1F + az * 1.8F;
                     ArmLeft02.zRot = Math.max(0.0F, 1.0F - az * 2.88F);
                     ArmRight01.zRot = -ArmLeft01.zRot;
@@ -1064,7 +1070,7 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
                     ClothA03a.x = clothA03aDefaultX - (az * 0.73F) * OFFSET_SCALE;
                     addCA032 = az * 0.3F;
                 } else if (parTick < 45.0F) {
-                    //applyFace(entity, 3);
+                    setFace(3);
                     ArmLeft01.zRot = 1.9F;
                     ArmLeft02.zRot = 0.0F;
                     ArmRight01.zRot = -1.9F;
@@ -1089,10 +1095,10 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
             }
         }
 
-		/*boolean isAttacking = entity.getAttackTick() > 20;
-		if (isAttacking) {
-			applyFace(entity, 3);
-			applyMouth(entity, 5);
+		if (entity.getAttackTick() > 20) {
+            spcStand = false;
+			setFace(3);
+			setMouth(5);
 			BodyMain.xRot = -0.17F;
 			ArmLeft01.xRot = 0.17F; ArmLeft01.yRot = 0.0F; ArmLeft01.zRot = -0.35F;
 			ArmLeft02.xRot = -1.57F; ArmLeft02.yRot = 0.0F; ArmLeft02.zRot = 0.0F;
@@ -1101,34 +1107,34 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
 			addk1 += 0.14F; addk2 += 0.07F;
 			LegLeft01.yRot = 0.0F; LegLeft01.zRot = -0.17F;
 			LegRight01.yRot = 0.0F; LegRight01.zRot = 0.17F;
-		}*/
+		}
 
-		/*if (!isSprinting && !isCrouching && !isSitting && !isAttacking) {
+		if (spcStand && (entity == null || (entity.tickCount % 512) > 256)) {
 			BodyMain.xRot = -0.17F;
-			ArmLeft01.xRot = 0.17F; ArmLeft01.zRot = -0.35F;
-			ArmLeft02.xRot = -1.57F;
-			ArmRight01.xRot = 0.17F; ArmRight01.zRot = 0.35F;
-			ArmRight02.xRot = -1.57F;
+			ArmLeft01.xRot = 0.17F; ArmLeft01.yRot = 0.0F; ArmLeft01.zRot = -0.35F;
+			ArmLeft02.xRot = -1.57F; ArmLeft02.yRot = 0.0F; ArmLeft02.zRot = 0.0F;
+			ArmRight01.xRot = 0.17F; ArmRight01.yRot = 0.0F; ArmRight01.zRot = 0.35F;
+			ArmRight02.xRot = -1.57F; ArmRight02.yRot = 0.0F; ArmRight02.zRot = 0.0F;
 			addk1 += 0.14F; addk2 += 0.07F;
-			LegLeft01.zRot = -0.17F;
-			LegRight01.zRot = 0.17F;
-			if (entity.getStateEmotion(7) == 4) {
-				applyFace(entity, 3);
-				applyMouth(entity, 5);
+			LegLeft01.yRot = 0.0F; LegLeft01.zRot = -0.17F;
+			LegRight01.yRot = 0.0F; LegRight01.zRot = 0.17F;
+			if (entity != null && hasLegacyState(entity, 7, 4)) {
+				setFace(3);
+				setMouth(5);
 			}
-		}*/
+		}
 
-		/*float swingProgress = entity.getSwingTime(ctx.partialTicks);
-		if (swingProgress != 0.0F) {
-			float f7 = Mth.sin(swingProgress * swingProgress * (float)Math.PI);
-			float f8 = Mth.sin(Mth.sqrt(swingProgress) * (float)Math.PI);
-			ArmRight01.xRot = -0.4F;
-			ArmRight01.yRot = 0.2F;
-			ArmRight01.zRot = -0.2F;
-			ArmRight01.xRot += -f8 * 80.0F * ((float)Math.PI / 180F);
-			ArmRight01.yRot += -f7 * 20.0F * ((float)Math.PI / 180F);
-			ArmRight01.zRot += -f8 * 20.0F * ((float)Math.PI / 180F);
-		}*/
+        float swingProgress = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);
+        if (swingProgress != 0.0F) {
+            float f7 = Mth.sin(swingProgress * swingProgress * (float) Math.PI);
+            float f8 = Mth.sin(Mth.sqrt(swingProgress) * (float) Math.PI);
+            ArmRight01.xRot = -0.4F;
+            ArmRight01.yRot = 0.0F;
+            ArmRight01.zRot = -0.2F;
+            ArmRight01.xRot += -f8 * 80.0F * ((float) Math.PI / 180F);
+            ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180F) + 0.2F;
+            ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180F);
+        }
 
         float handL = BodyMain.xRot + ArmLeft01.xRot + ArmLeft02.xRot;
         float handR = BodyMain.xRot + ArmRight01.xRot + ArmRight02.xRot;
@@ -1172,7 +1178,23 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
         }
 
         BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
-        GlowBodyMain.render(poseStack, vertexConsumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, packedOverlay, 0xFFFFFFFF);
+
+        if (usePoseTranslate) {
+            poseStack.popPose();
+        }
+    }
+
+    @Override
+    public void renderGlow(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        boolean usePoseTranslate = this.poseTranslateY != 0.0F;
+        if (usePoseTranslate) {
+            poseStack.pushPose();
+            poseStack.translate(0.0F, this.poseTranslateY, 0.0F);
+        }
+
+        if (GlowBodyMain != null) {
+            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        }
 
         if (usePoseTranslate) {
             poseStack.popPose();

@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelHeavyCruiserRi;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityHeavyCruiserRi;
 
 public class RendererHeavyCruiserRi extends MobRenderer<EntityHeavyCruiserRi, ModelHeavyCruiserRi<EntityHeavyCruiserRi>> {
@@ -14,6 +15,8 @@ public class RendererHeavyCruiserRi extends MobRenderer<EntityHeavyCruiserRi, Mo
 
     public RendererHeavyCruiserRi(EntityRendererProvider.Context context) {
         super(context, new ModelHeavyCruiserRi<>(context.bakeLayer(ModelHeavyCruiserRi.LAYER_LOCATION)), 0.5f);
+
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

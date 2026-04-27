@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelSSNH;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntitySSNH;
 
 public class RendererSSNH extends MobRenderer<EntitySSNH, ModelSSNH<EntitySSNH>> {
@@ -14,6 +15,8 @@ public class RendererSSNH extends MobRenderer<EntitySSNH, ModelSSNH<EntitySSNH>>
 
     public RendererSSNH(EntityRendererProvider.Context context) {
         super(context, new ModelSSNH<>(context.bakeLayer(ModelSSNH.LAYER_LOCATION)), 0.5f);
+
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

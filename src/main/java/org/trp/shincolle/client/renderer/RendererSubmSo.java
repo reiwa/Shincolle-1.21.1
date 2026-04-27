@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelSubmSo;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntitySubmSo;
 
 public class RendererSubmSo extends MobRenderer<EntitySubmSo, ModelSubmSo<EntitySubmSo>> {
@@ -14,6 +15,8 @@ public class RendererSubmSo extends MobRenderer<EntitySubmSo, ModelSubmSo<Entity
 
     public RendererSubmSo(EntityRendererProvider.Context context) {
         super(context, new ModelSubmSo<>(context.bakeLayer(ModelSubmSo.LAYER_LOCATION)), 0.5f);
+
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override

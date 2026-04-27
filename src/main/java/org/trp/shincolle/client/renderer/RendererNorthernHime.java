@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelNorthernHime;
+import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
 import org.trp.shincolle.entity.EntityNorthernHime;
 
 public class RendererNorthernHime extends MobRenderer<EntityNorthernHime, ModelNorthernHime<EntityNorthernHime>> {
@@ -14,6 +15,8 @@ public class RendererNorthernHime extends MobRenderer<EntityNorthernHime, ModelN
 
     public RendererNorthernHime(EntityRendererProvider.Context context) {
         super(context, new ModelNorthernHime<>(context.bakeLayer(ModelNorthernHime.LAYER_LOCATION)), 0.5f);
+
+        this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 
     @Override
