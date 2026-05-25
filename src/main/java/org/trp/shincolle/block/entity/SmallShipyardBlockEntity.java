@@ -186,7 +186,7 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("tile.shincolle:BlockSmallShipyard.name");
+        return Component.translatable("block.shincolle.small_shipyard");
     }
 
     @Override

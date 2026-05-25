@@ -338,14 +338,20 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
             for (int i = 0; i < 6; i++) {
                 int rowY = 5 + i * 27;
                 if (yClick >= rowY && yClick < rowY + 27) {
-                    if (this.selectedSlot == i) {
-                        if (ships[i] != null) {
-                            sendAction(8, i, 0, "", Optional.empty());
+                    if (button == 1) {
+                        sendAction(3, i, 0, "", Optional.empty());
+                        sendAction(7, 0, 0, "", Optional.empty());
+                        return true;
+                    } else if (button == 0) {
+                        if (this.selectedSlot == i) {
+                            if (ships[i] != null) {
+                                sendAction(8, i, 0, "", Optional.empty());
+                            }
+                        } else {
+                            this.selectedSlot = i;
                         }
-                    } else {
-                        this.selectedSlot = i;
+                        return true;
                     }
-                    return true;
                 }
             }
         }

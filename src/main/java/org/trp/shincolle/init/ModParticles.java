@@ -79,6 +79,9 @@ public class ModParticles {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_BEAM =
             PARTICLES.register("particle_beam", () -> new SimpleParticleType(false));
 
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_SPHERE_LIGHT =
+            PARTICLES.register("particle_sphere_light", () -> new SimpleParticleType(false));
+
     private ModParticles() {
     }
 }

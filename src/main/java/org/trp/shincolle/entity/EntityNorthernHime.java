@@ -1,20 +1,27 @@
 package org.trp.shincolle.entity;
 
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.damagesource.DamageSource;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModItems;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 
 public class EntityNorthernHime extends EntityShipBase {
 
@@ -24,6 +31,10 @@ public class EntityNorthernHime extends EntityShipBase {
     public static final String EQUIP_UMBRELLA = "equip_umbrella";
     public static final String EQUIP_SHOES = "equip_shoes";
 
+    private int goRidingTicks;
+    private boolean goRiding;
+    private Entity goRideEntity;
+
     public EntityNorthernHime(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{-6, 25, 0, 40});
@@ -32,6 +43,7 @@ public class EntityNorthernHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 5);
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBBV);
+        setStateCanRide(true);
     }
 
     @Override
@@ -83,6 +95,98 @@ public class EntityNorthernHime extends EntityShipBase {
         setEquipFlag(EQUIP_SANTA_HAT, santa);
         setEquipFlag(EQUIP_UMBRELLA, (stateFlags & (1 << 2)) != 0);
         setEquipFlag(EQUIP_SHOES, (stateFlags & (1 << 3)) != 0);
+    }
+
+    @Override
+    protected void tickAliveLogic() {
+        super.tickAliveLogic();
+
+        if ((this.tickCount % 64) == 0) {
+            handlePeriodicEffects();
+        }
+        updateServerRidingLogic();
+    }
+
+    private void handlePeriodicEffects() {
+        if (this.getStateMinor(6) > 0 && this.getHealth() < this.getMaxHealth()) {
+            this.heal(this.getMaxHealth() * 0.03f + 1.0f);
+        }
+
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 25) {
+            healNearbyAllies();
+        }
+
+        if (this.isPassenger() && this.getMorale() < 7650) {
+            this.addMorale(150);
+        }
+
+        if ((this.tickCount % 256) == 0 && this.getRandom().nextInt(3) == 0) {
+            checkRiding();
+        }
+    }
+
+    private void healNearbyAllies() {
+        int remainingHeals = Math.max(1, this.getLevel() / 25 + 1);
+
+        List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class,
+                this.getBoundingBox().inflate(8.0D, 8.0D, 8.0D));
+
+        for (LivingEntity target : targets) {
+            if (remainingHeals <= 0) {
+                break;
+            }
+
+            if (target == this) {
+                continue;
+            }
+
+            boolean isAlly = false;
+            if (target instanceof Player player) {
+                if (Objects.equals(player.getUUID(), this.getOwnerUUID())) {
+                    isAlly = true;
+                }
+            } else if (target instanceof EntityShipBase ship) {
+                if (Objects.equals(ship.getOwnerUUID(), this.getOwnerUUID())) {
+                    isAlly = true;
+                }
+            }
+
+            if (!isAlly) {
+                continue;
+            }
+
+            if (target.getHealth() / target.getMaxHealth() >= 0.98f) {
+                continue;
+            }
+
+            float healAmount;
+            if (target instanceof Player) {
+                healAmount = 1.0f + target.getMaxHealth() * 0.02f + this.getLevel() * 0.02f;
+            } else {
+                healAmount = 1.0f + target.getMaxHealth() * 0.02f + this.getLevel() * 0.1f;
+            }
+
+            target.heal(healAmount);
+            spawnHealParticles(target);
+            this.decrGrudgeNum(25);
+
+            remainingHeals--;
+        }
+    }
+
+    private void spawnHealParticles(LivingEntity target) {
+        if (!(this.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        double y = target.getY() + target.getBbHeight() * 0.6D;
+        serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                target.getX(), y, target.getZ(),
+                4, 0.3D, 0.2D, 0.3D, 0.01D);
+    }
+
+    private void decrGrudgeNum(int amount) {
+        int next = Math.max(0, this.getStateMinor(6) - amount);
+        this.setStateMinor(6, next);
     }
 
     @Override
@@ -181,5 +285,93 @@ public class EntityNorthernHime extends EntityShipBase {
         }
     }
 
+    private void updateServerRidingLogic() {
+        if (this.goRiding) {
+            updateGoRidingState();
+        }
+        if (this.isPassenger()) {
+            Entity vehicle = this.getVehicle();
+            if (vehicle instanceof LivingEntity living && living.isCrouching()) {
+                this.stopRiding();
+            }
+        }
+    }
+
+    private void updateGoRidingState() {
+        this.goRidingTicks++;
+        if (this.goRidingTicks > 200 || this.goRideEntity == null || !this.goRideEntity.isAlive()) {
+            cancelGoRiding();
+            return;
+        }
+        float distRiding = this.distanceTo(this.goRideEntity);
+        if (distRiding <= 2.0f && !this.goRideEntity.isPassenger() && this.getPassengers().isEmpty() && this.goRideEntity.getPassengers().isEmpty()) {
+            this.startRiding(this.goRideEntity, true);
+            this.getNavigation().stop();
+            cancelGoRiding();
+        } else if ((this.tickCount % 32) == 0 && distRiding > 2.0f) {
+            this.getNavigation().moveTo(this.goRideEntity, 1.0);
+        }
+    }
+
+    private void cancelGoRiding() {
+        this.goRidingTicks = 0;
+        this.goRideEntity = null;
+        this.goRiding = false;
+    }
+
+    private void checkRiding() {
+        cancelGoRiding();
+        if (this.getIsSitting() || this.isLeashed() || this.isStateNoEquip()) {
+            return;
+        }
+        if (this.isPassenger()) {
+            if (this.getRandom().nextInt(2) == 0) {
+                this.stopRiding();
+            }
+            return;
+        }
+
+        AABB range = this.getBoundingBox().inflate(6.0D, 4.0D, 6.0D);
+        List<LivingEntity> hitList = this.level().getEntitiesOfClass(LivingEntity.class, range);
+        hitList.removeIf(target -> !isRideable(target));
+        if (!hitList.isEmpty()) {
+            this.goRideEntity = hitList.get(this.getRandom().nextInt(hitList.size()));
+            this.goRidingTicks = 0;
+            this.goRiding = true;
+        }
+    }
+
+    private boolean isRideable(Entity target) {
+        if (!(target instanceof Player || target instanceof EntityShipBase)) {
+            return false;
+        }
+        if (target == this || target.isPassenger() || !target.getPassengers().isEmpty()) {
+            return false;
+        }
+        if (target instanceof EntityShipBase ship) {
+            boolean allowed = Objects.equals(ship.getOwnerUUID(), this.getOwnerUUID());
+            return allowed;
+        }
+        if (target instanceof Player player) {
+            boolean allowed = Objects.equals(player.getUUID(), this.getOwnerUUID());
+            return allowed;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        if (this.isPassenger()) {
+            this.stopRiding();
+        }
+        return super.hurt(source, amount);
+    }
+
+    public double getPassengersRidingOffset() {
+        if (this.getIsSitting()) {
+            return this.getStateEmotion(1) == 4 ? 0.0 : this.getBbHeight() * 0.08f;
+        }
+        return this.getBbHeight() * 0.48f;
+    }
 
 }

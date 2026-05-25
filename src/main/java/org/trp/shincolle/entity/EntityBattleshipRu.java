@@ -171,6 +171,17 @@ public class EntityBattleshipRu extends EntityShipBase {
         }
     }
 
+    @Override
+    protected float[] computeLegacyAuraBuffs() {
+        float[] buffs = new float[21];
+        if (this.level().isDay() && this.isStateRingEffect()) {
+            buffs[9] += 0.05F;
+            buffs[10] += 0.05F;
+            buffs[11] += 0.05F;
+        }
+        return buffs;
+    }
+
     private void updateSkillEffect() {
         if (this.remainAttack > 0) {
             if ((this.tickCount & 3) == 0) {

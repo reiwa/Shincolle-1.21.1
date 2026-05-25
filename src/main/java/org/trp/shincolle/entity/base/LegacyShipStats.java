@@ -131,7 +131,7 @@ public class LegacyShipStats {
         return false;
     }
 
-    public void recalculate(int shipClass, int level, float[] equipBonuses, float[] formationBuffs, float[] moraleBuffs) {
+    public void recalculate(int shipClass, int level, float[] equipBonuses, float[] formationBuffs, float[] moraleBuffs, float[] potionBuffs) {
         float[] base = SHIP_ATTR_MAP.getOrDefault(shipClass, DEFAULT_BASE);
         float[] type = new float[]{base[6], base[7], base[8], base[9], base[10], base[11]};
 
@@ -166,6 +166,13 @@ public class LegacyShipStats {
         }
 
         System.arraycopy(raw, 0, buffed, 0, raw.length);
+
+        if (potionBuffs != null) {
+            int len = Math.min(buffed.length, potionBuffs.length);
+            for (int i = 0; i < len; i++) {
+                buffed[i] += potionBuffs[i];
+            }
+        }
 
         if (formationBuffs != null) {
             int len = Math.min(buffed.length, formationBuffs.length);

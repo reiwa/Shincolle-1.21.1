@@ -194,13 +194,14 @@ final class EntityShipBasePassiveCombat {
     }
 
     void clearTarget(boolean stopNavigation) {
-        if (this.ship.getTarget() != null) {
+        boolean hadTarget = this.ship.getTarget() != null;
+        if (hadTarget) {
             this.ship.setTarget(null);
         }
         this.passiveTargetSightTick = 0;
         this.passiveTargetPathTick = 0;
         this.isFirstEngagementWaiting = false;
-        if (stopNavigation) {
+        if (stopNavigation && hadTarget) {
             this.ship.getNavigation().stop();
         }
     }
@@ -376,6 +377,9 @@ final class EntityShipBasePassiveCombat {
 
     private boolean canAttackTarget(@Nullable LivingEntity target, boolean revengeContext, boolean commandContext) {
         if (target == null) return false;
+        if (isGlobalUnattackable(target)) {
+            return false;
+        }
         if (!isAttackAllowed(target, revengeContext, commandContext)) {
             return false;
         }
@@ -419,7 +423,13 @@ final class EntityShipBasePassiveCombat {
             if (target instanceof EntityShipBase shipTarget && shipTarget.getOwnerUUID() == null) {
                 return true;
             }
-            return isPlayerOrShip(target) && pvpEnabled;
+            if (isPlayerOrShip(target)) {
+                return pvpEnabled;
+            }
+            if (checkPlayerCustomTarget(target)) {
+                return true;
+            }
+            return false;
         }
 
         if (target instanceof EntityShipBase shipTarget && shipTarget.getOwnerUUID() == null) {
@@ -439,6 +449,30 @@ final class EntityShipBasePassiveCombat {
         }
 
         return revengeContext;
+    }
+
+    private boolean isGlobalUnattackable(LivingEntity target) {
+        if (target == null) return false;
+        if (this.ship.level().isClientSide) return false;
+
+        java.util.HashSet<String> unatk = this.ship.level().getData(org.trp.shincolle.init.ModDataAttachments.UNATTACKABLE_TARGETS);
+        if (unatk != null) {
+            String className = target.getClass().getSimpleName();
+            return unatk.contains(className);
+        }
+        return false;
+    }
+
+    private boolean checkPlayerCustomTarget(LivingEntity target) {
+        Player owner = this.ship.getOwnerPlayer();
+        if (owner == null) return false;
+
+        org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+        if (data != null) {
+            String targetName = target.getClass().getSimpleName();
+            return data.getCustomTargetClasses().contains(targetName);
+        }
+        return false;
     }
 
     private boolean isFriendlyTarget(@Nullable Entity target) {
@@ -520,7 +554,7 @@ final class EntityShipBasePassiveCombat {
     }
 
     private boolean canFight() {
-        if (shouldRetreatForLowHealth() || this.ship.getIsSitting() ||
+        if (shouldRetreatForLowHealth() || this.ship.isCombatSuppressed() ||
                 this.ship.isInDeadPose() || this.ship.isPassenger() || this.ship.isVehicle()) {
             return false;
         }

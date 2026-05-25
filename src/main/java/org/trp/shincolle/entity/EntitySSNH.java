@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity;
 
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -22,6 +23,10 @@ public class EntitySSNH extends EntityShipBase {
     public static final String EQUIP_RING_BASE = "equip_ring_base";
     public static final String EQUIP_TORPEDO = "equip_torpedo";
 
+    private int goRidingTicks;
+    private boolean goRiding;
+    private Entity goRideEntity;
+
     public EntitySSNH(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{-6, 8, 0, 50});
@@ -42,7 +47,10 @@ public class EntitySSNH extends EntityShipBase {
         if ((this.tickCount % 128) == 0) {
             updateServerLogic();
         }
-        updateRidingState();
+        if ((this.tickCount % 256) == 0 && this.getRandom().nextInt(3) == 0) {
+            checkRiding();
+        }
+        updateServerRidingLogic();
     }
 
     private void updateServerLogic() {
@@ -64,47 +72,88 @@ public class EntitySSNH extends EntityShipBase {
         return list;
     }
 
-    private void updateRidingState() {
+    private void updateServerRidingLogic() {
+        if (this.goRiding) {
+            updateGoRidingState();
+        }
         if (this.isPassenger()) {
             Entity vehicle = this.getVehicle();
             if (vehicle instanceof LivingEntity living && living.isCrouching()) {
                 this.stopRiding();
-                return;
-            }
-            if ((this.tickCount % 40) == 0) {
+            } else if ((this.tickCount % 40) == 0) {
                 this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 60, 0, false, false));
+            }
+        }
+    }
+
+    private void updateGoRidingState() {
+        this.goRidingTicks++;
+        if (this.goRidingTicks > 200 || this.goRideEntity == null || !this.goRideEntity.isAlive()) {
+            cancelGoRiding();
+            return;
+        }
+        float distRiding = this.distanceTo(this.goRideEntity);
+        if (distRiding <= 2.0f && !this.goRideEntity.isPassenger() && this.getPassengers().isEmpty() && this.goRideEntity.getPassengers().isEmpty()) {
+            this.startRiding(this.goRideEntity, true);
+            this.getNavigation().stop();
+            cancelGoRiding();
+        } else if ((this.tickCount % 32) == 0 && distRiding > 2.0f) {
+            this.getNavigation().moveTo(this.goRideEntity, 1.0);
+        }
+    }
+
+    private void cancelGoRiding() {
+        this.goRidingTicks = 0;
+        this.goRideEntity = null;
+        this.goRiding = false;
+    }
+
+    private void checkRiding() {
+        cancelGoRiding();
+        if (this.getIsSitting() || this.isLeashed() || this.isStateNoEquip()) {
+            return;
+        }
+        if (this.isPassenger()) {
+            if (this.getRandom().nextInt(2) == 0) {
+                this.stopRiding();
             }
             return;
         }
 
-        boolean canFindTarget = (this.tickCount & 0x7F) == 0 && this.getRandom().nextInt(4) == 0;
-        boolean isActionBlocked = this.getIsSitting() || this.isStateNoEquip() || this.isLeashed();
-        if (canFindTarget && !isActionBlocked) {
-            findRideTarget();
-        }
-    }
-
-    private void findRideTarget() {
         AABB range = this.getBoundingBox().inflate(6.0D, 4.0D, 6.0D);
-        List<Entity> candidates = this.level().getEntities(this, range,
-                ent -> ent.isAlive() && ent.canBeCollidedWith() && canRideEntity(ent));
-        if (!candidates.isEmpty()) {
-            Entity target = candidates.get(this.getRandom().nextInt(candidates.size()));
-            this.startRiding(target, true);
+        List<LivingEntity> hitList = this.level().getEntitiesOfClass(LivingEntity.class, range);
+        hitList.removeIf(target -> !isRideable(target));
+        if (!hitList.isEmpty()) {
+            this.goRideEntity = hitList.get(this.getRandom().nextInt(hitList.size()));
+            this.goRidingTicks = 0;
+            this.goRiding = true;
         }
     }
 
-    private boolean canRideEntity(Entity target) {
-        if (target == this) {
+    private boolean isRideable(Entity target) {
+        if (!(target instanceof Player || target instanceof EntityShipBase)) {
+            return false;
+        }
+        if (target == this || target.isPassenger() || !target.getPassengers().isEmpty()) {
             return false;
         }
         if (target instanceof EntityShipBase ship) {
-            return Objects.equals(ship.getOwnerUUID(), this.getOwnerUUID());
+            boolean allowed = Objects.equals(ship.getOwnerUUID(), this.getOwnerUUID());
+            return allowed;
         }
         if (target instanceof Player player) {
-            return Objects.equals(player.getUUID(), this.getOwnerUUID());
+            boolean allowed = Objects.equals(player.getUUID(), this.getOwnerUUID());
+            return allowed;
         }
         return false;
+    }
+
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        if (this.isPassenger()) {
+            this.stopRiding();
+        }
+        return super.hurt(source, amount);
     }
 
     @Override
@@ -119,6 +168,11 @@ public class EntitySSNH extends EntityShipBase {
     @Override
     public boolean isSubmarine() {
         return true;
+    }
+
+    @Override
+    protected float getInvisibleDodgeBonus() {
+        return 0.35F;
     }
 }
 

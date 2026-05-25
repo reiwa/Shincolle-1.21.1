@@ -53,5 +53,14 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> CRANE = BLOCKS.register("blockcrane",
             CraneBlock::new);
+
+    public static final DeferredBlock<Block> FRAME = BLOCKS.register("blockframe",
+            FrameBlock::new);
+
+    public static final DeferredBlock<Block> GRUDGE_XP_BLOCK = BLOCKS.register("grudge_xp_block",
+            GrudgeXPBlock::new);
+
+    public static final DeferredBlock<Block> GRUDGE_HEAVY_DECO_BLOCK = BLOCKS.register("grudge_heavy_deco_block",
+            GrudgeHeavyDecoBlock::new);
 }
 

@@ -97,7 +97,9 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
                 blockEntity.finishBuild();
                 stateChanged = true;
             }
-        } else if (blockEntity.powerConsumed != 0) {
+        }
+
+        if (!blockEntity.canBuild() && blockEntity.powerConsumed != 0) {
             blockEntity.powerConsumed = 0;
             stateChanged = true;
         }

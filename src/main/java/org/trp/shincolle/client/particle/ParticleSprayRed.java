@@ -39,7 +39,7 @@ public class ParticleSprayRed extends TextureSheetParticle {
         if (speed > 0.25D) {
             this.maxQuadSize = 1.5F;
         } else {
-            this.maxQuadSize = 0.3F;
+            this.maxQuadSize = 0.9F;
         }
         this.quadSize = 0.0F;
 

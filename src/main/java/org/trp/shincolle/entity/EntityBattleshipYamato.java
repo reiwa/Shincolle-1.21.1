@@ -23,7 +23,7 @@ public class EntityBattleshipYamato extends EntityShipBase {
 
     public static final String EQUIP_BELT = "equip_belt";
     public static final String EQUIP_HEAD_BASE = "equip_head_base";
-    public static final String EQUIP_UPPER = "equip_upper";
+    public static final String EQUIP_UMBRELLA = "equip_umbrella";
     public static final String EQUIP_LEG = "equip_leg";
 
     private static final int EMOTION_ATTACK_PHASE = 5;
@@ -82,7 +82,7 @@ public class EntityBattleshipYamato extends EntityShipBase {
         list.addAll(List.of(
                 new EquipOption(EQUIP_BELT, "gui.shincolle.equip.belt"),
                 new EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"),
-                new EquipOption(EQUIP_UPPER, "gui.shincolle.equip.upper"),
+                new EquipOption(EQUIP_UMBRELLA, "gui.shincolle.equip.umbrella"),
                 new EquipOption(EQUIP_LEG, "gui.shincolle.equip.leg")
         ));
         return list;

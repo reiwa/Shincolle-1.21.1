@@ -18,6 +18,7 @@ public class AdmiralData {
     private final String[] teamNames = new String[TEAM_COUNT];
     private int currentTeamID = 0;
     private boolean hasReceivedBook = false;
+    private final java.util.Set<String> customTargetClasses = new java.util.HashSet<>();
 
     public AdmiralData() {
         for (int i = 0; i < TEAM_COUNT; i++) {
@@ -143,6 +144,13 @@ public class AdmiralData {
         nbt.put("Teams", teamsList);
         nbt.putInt("CurrentTeam", currentTeamID);
         nbt.putBoolean("HasReceivedBook", hasReceivedBook);
+
+        ListTag customTargetsList = new ListTag();
+        for (String targetClass : customTargetClasses) {
+            customTargetsList.add(net.minecraft.nbt.StringTag.valueOf(targetClass));
+        }
+        nbt.put("CustomTargetClasses", customTargetsList);
+
         return nbt;
     }
 
@@ -169,6 +177,28 @@ public class AdmiralData {
         }
         currentTeamID = nbt.getInt("CurrentTeam");
         hasReceivedBook = nbt.getBoolean("HasReceivedBook");
+
+        customTargetClasses.clear();
+        if (nbt.contains("CustomTargetClasses", Tag.TAG_LIST)) {
+            ListTag customTargetsList = nbt.getList("CustomTargetClasses", Tag.TAG_STRING);
+            for (int i = 0; i < customTargetsList.size(); i++) {
+                customTargetClasses.add(customTargetsList.getString(i));
+            }
+        }
+    }
+
+    public java.util.Set<String> getCustomTargetClasses() {
+        return customTargetClasses;
+    }
+
+    public boolean toggleCustomTargetClass(String targetClass) {
+        if (customTargetClasses.contains(targetClass)) {
+            customTargetClasses.remove(targetClass);
+            return false;
+        } else {
+            customTargetClasses.add(targetClass);
+            return true;
+        }
     }
 
     public static AdmiralData read(CompoundTag nbt, IAttachmentHolder holder) {

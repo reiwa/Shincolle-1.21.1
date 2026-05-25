@@ -17,6 +17,7 @@ public final class ModDataAttachments {
             DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, Shincolle.MODID);
 
     private static final Codec<HashSet<Integer>> SET_CODEC = Codec.INT.listOf().xmap(HashSet::new, ArrayList::new);
+    private static final Codec<HashSet<String>> SET_STRING_CODEC = Codec.STRING.listOf().xmap(HashSet::new, ArrayList::new);
     private static final Codec<AdmiralData> ADMIRAL_CODEC = CompoundTag.CODEC.xmap(
             tag -> {
                 AdmiralData data = new AdmiralData();
@@ -30,6 +31,11 @@ public final class ModDataAttachments {
             ATTACHMENT_TYPES.register("collected_ships", () -> AttachmentType.builder(() -> new HashSet<Integer>())
                     .serialize(SET_CODEC)
                     .copyOnDeath()
+                    .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<HashSet<String>>> UNATTACKABLE_TARGETS =
+            ATTACHMENT_TYPES.register("unattackable_targets", () -> AttachmentType.builder(() -> new HashSet<String>())
+                    .serialize(SET_STRING_CODEC)
                     .build());
 
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<AdmiralData>> ADMIRAL_DATA =

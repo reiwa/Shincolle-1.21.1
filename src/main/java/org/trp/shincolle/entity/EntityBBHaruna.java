@@ -40,11 +40,9 @@ public class EntityBBHaruna extends EntityShipBase {
     }
 
     @Override
-    protected void tickAliveLogic() {
-        super.tickAliveLogic();
-        if ((this.tickCount % 128) == 0) {
-            applyBuffToNearbyAllies();
-        }
+    protected void calcShipAttributesAddEffect() {
+        super.calcShipAttributesAddEffect();
+        this.attackEffectMap.put(MobEffects.UNLUCK, new int[] {this.getLevel() / 75, 60 + this.getLevel() * 2, 15 + this.getLevel() / 10});
     }
 
     public double getPassengersRidingOffset() {
@@ -79,10 +77,8 @@ public class EntityBBHaruna extends EntityShipBase {
         }
     }
 
-    private void applyBuffToNearbyAllies() {
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
-            return;
-        }
+    @Override
+    protected void applyAuraEffects() {
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
                 this.getBoundingBox().inflate(16.0D, 16.0D, 16.0D));
         if (ships.isEmpty()) {

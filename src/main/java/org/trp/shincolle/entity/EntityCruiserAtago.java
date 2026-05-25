@@ -1,15 +1,19 @@
 package org.trp.shincolle.entity;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.projectile.EntityAbyssMissile;
 import org.trp.shincolle.init.ModItems;
+import org.trp.shincolle.init.ModSounds;
 
 import java.util.List;
 
@@ -39,6 +43,34 @@ public class EntityCruiserAtago extends EntityShipBase {
             }
         }
         return result;
+    }
+
+    @Override
+    protected boolean performHeavyAttack(Entity target) {
+        if (target == null || this.level().isClientSide) {
+            return false;
+        }
+        if (!consumeHeavyAmmo(1)) {
+            return false;
+        }
+        if (!(this.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+
+        float baseDamage = Math.max(4.0F, this.getLegacyShipStats().getFirepower());
+        EntityAbyssMissile missile = new EntityAbyssMissile(serverLevel, this, target,
+                baseDamage * 1.4F, 0.7F, 200, 3.5F);
+        if (this.isStateMarried() && this.isStateRingEffect()) {
+            missile.setSpecialEffectType(EntityAbyssMissile.SPECIAL_EFFECT_PULL_FIELD);
+        }
+        serverLevel.addFreshEntity(missile);
+
+        this.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.getSoundVolume(),
+                this.getRandom().nextFloat() * 0.12F + 0.83F);
+        this.setAttackTick(50);
+        this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
+        this.applyEmotesReaction(3);
+        return true;
     }
 
     @Override

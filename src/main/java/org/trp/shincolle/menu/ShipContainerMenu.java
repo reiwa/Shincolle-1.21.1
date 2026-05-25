@@ -199,6 +199,17 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             ringEffectSynced = value != 0;
         }
     };
+    private final DataSlot marriedData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.isStateMarried() ? 1 : 0;
+        }
+
+        @Override
+        public void set(int value) {
+            marriedSynced = value != 0;
+        }
+    };
     private final DataSlot followMinData = new DataSlot() {
         @Override
         public int get() {
@@ -423,6 +434,72 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             shipTankFluidCapacitySynced = (shipTankFluidCapacitySynced & 0xFFFF) | ((value & 0xFFFF) << 16);
         }
     };
+    private final DataSlot bonusHpData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getAttrBonus(0);
+        }
+
+        @Override
+        public void set(int value) {
+            ship.setAttrBonus(0, value);
+        }
+    };
+    private final DataSlot bonusAtkData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getAttrBonus(1);
+        }
+
+        @Override
+        public void set(int value) {
+            ship.setAttrBonus(1, value);
+        }
+    };
+    private final DataSlot bonusDefData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getAttrBonus(2);
+        }
+
+        @Override
+        public void set(int value) {
+            ship.setAttrBonus(2, value);
+        }
+    };
+    private final DataSlot bonusSpdData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getAttrBonus(3);
+        }
+
+        @Override
+        public void set(int value) {
+            ship.setAttrBonus(3, value);
+        }
+    };
+    private final DataSlot bonusMovData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getAttrBonus(4);
+        }
+
+        @Override
+        public void set(int value) {
+            ship.setAttrBonus(4, value);
+        }
+    };
+    private final DataSlot bonusHitData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getAttrBonus(5);
+        }
+
+        @Override
+        public void set(int value) {
+            ship.setAttrBonus(5, value);
+        }
+    };
     private int inventoryPage = 0;
     private int unlockedStoragePagesSynced;
     private boolean canMeleeSynced;
@@ -431,6 +508,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private boolean lightAircraftAttackSynced;
     private boolean heavyAircraftAttackSynced;
     private boolean ringEffectSynced;
+    private boolean marriedSynced;
     private int followMinSynced;
     private int followMaxSynced;
     private int fleeHpSynced;
@@ -472,6 +550,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.lightAircraftAttackSynced = ship.isStateLightAircraftAttack();
         this.heavyAircraftAttackSynced = ship.isStateHeavyAircraftAttack();
         this.ringEffectSynced = ship.isStateRingEffect();
+        this.marriedSynced = ship.isStateMarried();
         this.followMinSynced = clampFollowMin(ship.getStateMinor(STATE_MINOR_FOLLOW_MIN));
         this.followMaxSynced = clampFollowMax(ship.getStateMinor(STATE_MINOR_FOLLOW_MAX), this.followMinSynced);
         this.fleeHpSynced = clampFleeHp(ship.getStateMinor(STATE_MINOR_FLEE_HP));
@@ -503,6 +582,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.addDataSlot(lightAircraftAttackData);
         this.addDataSlot(heavyAircraftAttackData);
         this.addDataSlot(ringEffectData);
+        this.addDataSlot(marriedData);
         this.addDataSlot(followMinData);
         this.addDataSlot(followMaxData);
         this.addDataSlot(fleeHpData);
@@ -523,6 +603,12 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.addDataSlot(shipTankFluidAmountHighData);
         this.addDataSlot(shipTankFluidCapacityLowData);
         this.addDataSlot(shipTankFluidCapacityHighData);
+        this.addDataSlot(bonusHpData);
+        this.addDataSlot(bonusAtkData);
+        this.addDataSlot(bonusDefData);
+        this.addDataSlot(bonusSpdData);
+        this.addDataSlot(bonusMovData);
+        this.addDataSlot(bonusHitData);
 
         for (int i = 0; i < EQUIP_SLOTS; i++) {
             this.addSlot(new EquipSlot(i, EQUIP_INV_X, EQUIP_INV_Y + i * 18));
@@ -636,6 +722,10 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     public boolean isRingEffectEnabled() {
         return ringEffectSynced;
+    }
+
+    public boolean isMarriedEnabled() {
+        return marriedSynced;
     }
 
     public int getFollowMinDistance() {

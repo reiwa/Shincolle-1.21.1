@@ -31,6 +31,7 @@ import java.util.Set;
 public final class ClientPointerItemParticles {
     private static final int PARTICLE_INTERVAL_TICKS = 10;
     private static final double SEARCH_RADIUS = 100.0;
+    private static int optoolCooldown = 0;
 
     private ClientPointerItemParticles() {
     }
@@ -44,6 +45,36 @@ public final class ClientPointerItemParticles {
 
         if (player == null || level == null) {
             return;
+        }
+
+        if (optoolCooldown > 0) {
+            optoolCooldown--;
+        }
+
+        ItemStack mainHand = player.getMainHandItem();
+        boolean holdingOPTool = !mainHand.isEmpty() && mainHand.is(ModItems.OP_TOOL.get());
+        if (!holdingOPTool) {
+            ItemStack offHand = player.getOffhandItem();
+            holdingOPTool = !offHand.isEmpty() && offHand.is(ModItems.OP_TOOL.get());
+        }
+
+        if (holdingOPTool && minecraft.screen == null) {
+            long window = minecraft.getWindow().getWindow();
+            if (com.mojang.blaze3d.platform.InputConstants.isKeyDown(window, org.lwjgl.glfw.GLFW.GLFW_KEY_KP_1)) {
+                if (optoolCooldown <= 0) {
+                    optoolCooldown = 5;
+                    EntityHitResult hit = getLookTargetEntity(player, 32.0);
+                    if (hit != null && hit.getEntity() != null && !(hit.getEntity() instanceof EntityShipBase)) {
+                        String targetClassName = hit.getEntity().getClass().getSimpleName();
+                        org.trp.shincolle.network.ModNetwork.sendToServer(new org.trp.shincolle.network.C2SOPToolActionPayload(0, java.util.Optional.of(targetClassName)));
+                    }
+                }
+            } else if (com.mojang.blaze3d.platform.InputConstants.isKeyDown(window, org.lwjgl.glfw.GLFW.GLFW_KEY_KP_2)) {
+                if (optoolCooldown <= 0) {
+                    optoolCooldown = 20;
+                    org.trp.shincolle.network.ModNetwork.sendToServer(new org.trp.shincolle.network.C2SOPToolActionPayload(1, java.util.Optional.empty()));
+                }
+            }
         }
 
         ItemStack pointerStack = getPointerStack(player);
@@ -325,5 +356,14 @@ public final class ClientPointerItemParticles {
             return Vec3.atBottomCenterOf(pos).add(0.0, 1.0, 0.0);
         }
         return Vec3.atBottomCenterOf(pos).add(0.0, 1.0, 0.0);
+    }
+
+    private static EntityHitResult getLookTargetEntity(Player player, double range) {
+        Vec3 eyePos = player.getEyePosition();
+        Vec3 look = player.getViewVector(1.0F);
+        Vec3 end = eyePos.add(look.x * range, look.y * range, look.z * range);
+        AABB searchBox = player.getBoundingBox().expandTowards(look.scale(range)).inflate(1.0D);
+        return ProjectileUtil.getEntityHitResult(player.level(), player, eyePos, end, searchBox,
+                entity -> !entity.isSpectator() && entity.isPickable() && entity != player);
     }
 }

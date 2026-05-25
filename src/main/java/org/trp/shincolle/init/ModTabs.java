@@ -63,10 +63,12 @@ public class ModTabs {
                 output.accept(ModItems.SUBM_U511_SPAWN_EGG.get());
                 output.accept(ModItems.SUBM_RO500_SPAWN_EGG.get());
                 output.accept(ModItems.POINTER_ITEM.get());
+                output.accept(ModItems.OP_TOOL.get());
                 output.accept(ModItems.TARGET_WRENCH.get());
                 output.accept(ModItems.RECIPE_PAPER.get());
                 output.accept(ModItems.INSTANT_CON_MAT.get());
                 output.accept(ModItems.KAITAI_HAMMER.get());
+                output.accept(ModItems.MODERN_KIT.get());
                 output.accept(ModItems.MARRIAGE_RING.get());
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_AIRPLANE);
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_AMMO);
@@ -107,6 +109,9 @@ public class ModTabs {
                 output.accept(ModItems.VOL_CORE.get());
                 output.accept(ModItems.WAYPOINT.get());
                 output.accept(ModItems.CRANE.get());
+                output.accept(ModItems.FRAME.get());
+                output.accept(ModItems.GRUDGE_XP.get());
+                output.accept(ModItems.GRUDGE_XP_BLOCK.get());
+                output.accept(ModItems.GRUDGE_HEAVY_DECO_BLOCK.get());
             }).build());
 }
-

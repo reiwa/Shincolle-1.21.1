@@ -2,6 +2,7 @@ package org.trp.shincolle.entity;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.TamableAnimal;
@@ -33,6 +34,17 @@ public class EntityIsolatedHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 8);
         setStateCanRide(true);
+    }
+
+    @Override
+    protected void calcShipAttributesAddEffect() {
+        super.calcShipAttributesAddEffect();
+
+        this.attackEffectMap.put(MobEffects.BLINDNESS, new int[]{0, 100 + this.getLevel(), this.getLevel()});
+
+        if (this.isStateMarried() && this.isStateRingEffect()) {
+            this.attackEffectMap.put(MobEffects.POISON, new int[]{Math.max(0, this.getLevel() / 75), 80 + this.getLevel(), this.getLevel()});
+        }
     }
 
     @Override
@@ -96,4 +108,3 @@ public class EntityIsolatedHime extends EntityShipBase {
         return new EntityMountIsH(org.trp.shincolle.init.ModEntities.MOUNT_IS_H.get(), this.level());
     }
 }
-

@@ -187,7 +187,10 @@ public class EntityProjectileBeam extends Entity {
         DamageSource source = owner instanceof LivingEntity livingOwner
                 ? this.damageSources().mobAttack(livingOwner)
                 : this.damageSources().generic();
-        target.hurt(source, getDamage());
+        boolean hurt = target.hurt(source, getDamage());
+        if (hurt && owner instanceof org.trp.shincolle.entity.base.EntityShipBase ship && target instanceof LivingEntity livingTarget) {
+            ship.applyAttackEffects(livingTarget);
+        }
     }
 
     private void updateRotationFromMovement(Vec3 delta) {

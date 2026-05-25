@@ -36,20 +36,10 @@ public class EntityCarrierKaga extends EntityShipBase {
         setStateGuiBtn2(false);
 }
 
+
+
     @Override
-    protected void tickAliveLogic() {
-        super.tickAliveLogic();
-
-        if ((this.tickCount % 128) == 0) {
-            updateServerLogic();
-        }
-    }
-
-    private void updateServerLogic() {
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
-            return;
-        }
-
+    protected void applyAuraEffects() {
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
                 this.getBoundingBox().inflate(16.0D, 16.0D, 16.0D));
         if (ships.isEmpty()) {

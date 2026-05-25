@@ -191,7 +191,6 @@ protected Item getShipSpawnEggItem() {
             this.addMorale(100);
         }
         if ((this.tickCount % 128) == 0) {
-            applyBuffToPlayer();
             tryRaidenGattai();
         }
     }
@@ -202,13 +201,12 @@ protected Item getShipSpawnEggItem() {
         checkRidingState();
     }
 
-    private void applyBuffToPlayer() {
-        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
-            if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
-                int amp = this.getStateMinor(0) / 50;
-                this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST,
-                        80 + this.getStateMinor(0), amp, false, false));
-            }
+    @Override
+    protected void applyAuraEffects() {
+        if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
+            int amp = this.getStateMinor(0) / 50;
+            this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST,
+                    80 + this.getStateMinor(0), amp, false, false));
         }
     }
 

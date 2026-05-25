@@ -159,7 +159,6 @@ final class EntityShipBaseSerialization {
             legacyState.applyIntArray(legacyState.stateMinor, compound.getIntArray("LegacyStateMinor"));
         }
 
-        // Sync synched data from legacy array or separate tags
         int fuel = compound.contains("Fuel") ? compound.getInt("Fuel") : legacyState.getInt(legacyState.stateMinor, 6);
         this.ship.setFuel(fuel);
         int airLight = compound.contains("AircraftLight") ? compound.getInt("AircraftLight") : legacyState.getInt(legacyState.stateMinor, 7);

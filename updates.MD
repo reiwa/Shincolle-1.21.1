@@ -1,3 +1,13 @@
+## v0.8.7(2026/05/25 JST)
+- Added new blocks, items and recipes
+- Implemented most Aura effects
+- Fixed issues related to entity appearance
+- Implemented actions specific to Nagato, NorthernHime and SSNH
+- Fixed translation issues
+- Fixed an issue where construction times for Large/Small Shipyards were reset when fuel ran out
+- Implemented a dismantling action using the KaitaiHammer
+- Miscellaneous fixes
+
 ## v0.8.6(2026/05/19 JST)
 - Fixed the recipe for creating deskitembooks
 - Implemented Nagato and Yamato's Heavy Attack

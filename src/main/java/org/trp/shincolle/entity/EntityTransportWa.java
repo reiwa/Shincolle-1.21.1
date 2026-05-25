@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModItems;
+import org.trp.shincolle.menu.ShipContainerMenu;
 
 import java.util.List;
 import java.util.Objects;
@@ -187,10 +188,36 @@ public class EntityTransportWa extends EntityShipBase {
     }
 
     @Override
+    public int getStateMinor(int index) {
+        if (index == STATE_MINOR_EQUIP_DRUM) {
+            return 2;
+        }
+        return super.getStateMinor(index);
+    }
+
+    @Override
+    protected boolean hasLiquidDrumEquip() {
+        if (this.isStateMarried() && this.isStateRingEffect()) {
+            return true;
+        }
+        return super.hasLiquidDrumEquip();
+    }
+
+    @Override
+    public boolean getStateFlag(int index) {
+        if (index == ShipContainerMenu.STATE_FLAG_AUTO_PUMP && this.isStateMarried() && this.isStateRingEffect()) {
+            return true;
+        }
+        return super.getStateFlag(index);
+    }
+
+    @Override
     public boolean supportsItemPickup() {
         return true;
     }
-protected Item getShipSpawnEggItem() {
+
+    @Override
+    protected Item getShipSpawnEggItem() {
         return ModItems.TRANSPORT_WA_SPAWN_EGG.get();
     }
 }

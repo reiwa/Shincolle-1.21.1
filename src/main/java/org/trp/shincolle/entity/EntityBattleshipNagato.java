@@ -1,6 +1,7 @@
 package org.trp.shincolle.entity;
 
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -27,6 +28,8 @@ public class EntityBattleshipNagato extends EntityShipBase {
 
     private static final int EMOTION_ATTACK_PHASE = 5;
     private static final int[] LOVE_PARTICLES = {31, 1, 7, 16, 29};
+    private int lastClientAttackTick = -1;
+    private int lastClientAttackPhase = 0;
 
     public EntityBattleshipNagato(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -46,6 +49,7 @@ public class EntityBattleshipNagato extends EntityShipBase {
 
         if (this.level().isClientSide) {
             updateClientParticles();
+            updateClientAttackVisuals();
         }
     }
 
@@ -145,6 +149,27 @@ public class EntityBattleshipNagato extends EntityShipBase {
         }
     }
 
+    private void updateClientAttackVisuals() {
+        int attackTick = this.getAttackTick();
+        int phase = this.getStateEmotion(EMOTION_ATTACK_PHASE);
+        if (attackTick > 0 && this.lastClientAttackTick <= 0 && this.lastClientAttackPhase > 0 && phase == 0) {
+            Entity target = this.getPointerTargetEntity();
+            if (target == null) {
+                target = this.getTarget();
+            }
+            double baseX = target != null ? target.getX() : this.getX();
+            double baseY = (target != null ? target.getY() + target.getBbHeight() * 0.5D : this.getY() + this.getBbHeight() * 0.5D) + 2.5D;
+            double baseZ = target != null ? target.getZ() : this.getZ();
+            if (this.level() instanceof ClientLevel clientLevel) {
+                clientLevel.addParticle(org.trp.shincolle.init.ModParticles.PARTICLE_91TYPE.get(), true,
+                        baseX, baseY, baseZ,
+                        0.6D, 0.0D, 0.0D);
+            }
+        }
+        this.lastClientAttackTick = attackTick;
+        this.lastClientAttackPhase = phase;
+    }
+
     private void applyBuffToNearbyAllies() {
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
                 this.getBoundingBox().inflate(16.0D, 16.0D, 16.0D));
@@ -178,7 +203,7 @@ public class EntityBattleshipNagato extends EntityShipBase {
         if (this.getMorale() < 7650) {
             this.addMorale(150 * nearby.size());
         }
-        if (!this.getIsSitting() && !this.isPassenger() && this.getRandom().nextFloat() > 0.5f) {
+        if (!this.getIsSitting() && !this.isPassenger() && !this.isNoFuel() && this.isOutOfCombat() && this.getRandom().nextFloat() > 0.5f) {
             LivingEntity target = nearby.get(this.getRandom().nextInt(nearby.size()));
             this.getNavigation().moveTo(target, 1.0D);
             int particleId = LOVE_PARTICLES[this.getRandom().nextInt(LOVE_PARTICLES.length)];
@@ -244,10 +269,6 @@ public class EntityBattleshipNagato extends EntityShipBase {
                     tx, ty + 0.3D, tz,
                     0, newPos1[0] * 0.35D, 0.0D, newPos1[1] * 0.35D, 1.0D);
         }
-
-        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_91TYPE.get(),
-                tx, ty + 3.0D, tz,
-                1, 0.6D, 0.0D, 0.0D, 0.0D);
 
         serverLevel.sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY() + 1.0D, this.getZ(),
                 6, 0.2D, 0.2D, 0.2D, 0.0D);

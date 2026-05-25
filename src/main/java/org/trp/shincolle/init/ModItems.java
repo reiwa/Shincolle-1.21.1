@@ -189,6 +189,9 @@ public class ModItems {
                             .build()
             )));
 
+    public static final DeferredItem<Item> OP_TOOL = ITEMS.register("optool",
+            () -> new OPToolItem(new Item.Properties().stacksTo(1)));
+
     public static final DeferredItem<RepairGoddessItem> REPAIR_GODDESS = ITEMS.register("repairgoddess",
             () -> new RepairGoddessItem(new Item.Properties()));
 
@@ -206,6 +209,9 @@ public class ModItems {
 
     public static final DeferredItem<Item> KAITAI_HAMMER = ITEMS.register("kaitaihammer",
             () -> new KaitaiHammerItem(new Item.Properties()));
+
+    public static final DeferredItem<Item> MODERN_KIT = ITEMS.register("modernkit",
+            () -> new ModernKitItem(new Item.Properties()));
 
     public static final DeferredItem<Item> MARRIAGE_RING = ITEMS.register("marriagering",
             () -> new org.trp.shincolle.item.MarriageRingItem(new Item.Properties().stacksTo(1)));
@@ -280,6 +286,9 @@ public class ModItems {
     public static final DeferredItem<Item> GRUDGE = ITEMS.register("grudge",
             () -> new GrudgeItem(new Item.Properties().food(GRUDGE_FOOD)));
 
+    public static final DeferredItem<Item> GRUDGE_XP = ITEMS.register("grudge_xp",
+            () -> new GrudgeItem(new Item.Properties().food(GRUDGE_FOOD)));
+
     public static final DeferredItem<Item> ABYSS_METAL = ITEMS.register("abyss_metal",
             () -> new Item(new Item.Properties()));
 
@@ -318,6 +327,15 @@ public class ModItems {
 
     public static final DeferredItem<Item> CRANE = ITEMS.register("blockcrane",
             () -> new BlockItem(ModBlocks.CRANE.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> FRAME = ITEMS.register("blockframe",
+            () -> new BlockItem(ModBlocks.FRAME.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> GRUDGE_XP_BLOCK = ITEMS.register("grudge_xp_block",
+            () -> new BlockItem(ModBlocks.GRUDGE_XP_BLOCK.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> GRUDGE_HEAVY_DECO_BLOCK = ITEMS.register("grudge_heavy_deco_block",
+            () -> new BlockItem(ModBlocks.GRUDGE_HEAVY_DECO_BLOCK.get(), new Item.Properties()));
 
         public static void addLegacyEquipVariants(CreativeModeTab.Output output, DeferredItem<Item> item) {
                 Item resolved = item.get();

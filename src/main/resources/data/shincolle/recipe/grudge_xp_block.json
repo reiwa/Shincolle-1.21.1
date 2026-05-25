@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "shincolle:grudge_xp"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "shincolle:grudge_xp_block"
+  }
+}

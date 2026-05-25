@@ -427,7 +427,7 @@ public class ModelBattleshipNagato<T extends EntityShipBase> extends ShipModelHu
         this.BoobL.xRot = angleX * 0.06f - 0.7854f;
         this.BoobR.xRot = angleX * 0.06f - 0.7854f;
         this.Ahoke.yRot = angleX * 0.25f + 0.5236f;
-        this.BodyMain.xRot = -0.1f;
+        this.BodyMain.xRot = 0.0f;
         this.HairMidL01.xRot = angleX * 0.06f + 0.2f;
         this.HairMidL02.xRot = -angleX1 * 0.09f - 0.17f;
         this.HairMidL01.zRot = 0.0f;

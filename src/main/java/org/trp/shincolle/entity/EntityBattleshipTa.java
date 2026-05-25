@@ -117,6 +117,16 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
         }
     }
 
+    @Override
+    protected float[] computeLegacyAuraBuffs() {
+        float[] buffs = new float[21];
+        if (this.isStateRingEffect() && this.getStateMinor(6) > 0) {
+            buffs[9] += 0.10F;
+            buffs[12] += 0.10F;
+        }
+        return buffs;
+    }
+
     private void applyBuffToNearbyAllies() {
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
                 this.getBoundingBox().inflate(16.0D, 16.0D, 16.0D));

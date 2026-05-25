@@ -8,6 +8,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.*;
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile;
+import org.trp.shincolle.entity.projectile.EntityProjectileStatic;
 import org.trp.shincolle.entity.projectile.EntityProjectileBeam;
 
 public class ModEntities {
@@ -246,6 +247,13 @@ public class ModEntities {
                     .clientTrackingRange(64)
                     .updateInterval(1)
                     .build("abyss_missile"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<EntityProjectileStatic>> PROJECTILE_STATIC = ENTITY_TYPES.register("projectile_static",
+            () -> EntityType.Builder.<EntityProjectileStatic>of(EntityProjectileStatic::new, MobCategory.MISC)
+                    .sized(0.6f, 0.6f)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build("projectile_static"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EntityAirplane>> AIRPLANE = ENTITY_TYPES.register("airplane",
             () -> EntityType.Builder.of(EntityAirplane::new, MobCategory.MISC)

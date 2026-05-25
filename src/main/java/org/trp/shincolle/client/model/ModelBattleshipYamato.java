@@ -804,7 +804,7 @@ public class ModelBattleshipYamato<T extends EntityShipBase> extends ShipModelHu
         if (EquipHeadBase != null)
             EquipHeadBase.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityBattleshipYamato.EQUIP_HEAD_BASE);
         if (EquipU01 != null)
-            EquipU01.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityBattleshipYamato.EQUIP_UPPER);
+            EquipU01.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityBattleshipYamato.EQUIP_UMBRELLA);
         boolean showLeg = entity.getEquipFlag(org.trp.shincolle.entity.EntityBattleshipYamato.EQUIP_LEG);
         if (EquipLegR01 != null) EquipLegR01.visible = showLeg;
         if (EquipLegL01 != null) EquipLegL01.visible = showLeg;
@@ -876,11 +876,20 @@ public class ModelBattleshipYamato<T extends EntityShipBase> extends ShipModelHu
         ArmLeft01.zRot = angleX * 0.03F - 0.26F;
         ArmLeft02.xRot = 0.0F;
 
-        ArmRight01.xRot = ctx.angleAdd1 * 0.25F + 0.18F;
-        ArmRight01.yRot = 0.0F;
-        ArmRight01.zRot = -angleX * 0.03F + 0.26F;
-        ArmRight02.xRot = 0.0F;
-        ArmRight02.zRot = 0.0F;
+        boolean showUmbrella = EquipU01 != null && EquipU01.visible;
+        if (showUmbrella) {
+            ArmRight01.xRot = -limbSwingAmount * 0.4F + 0.1745F;
+            ArmRight01.yRot = 0.0F;
+            ArmRight01.zRot = 0.1571F;
+            ArmRight02.xRot = -1.4835F;
+            ArmRight02.zRot = 0.0F;
+        } else {
+            ArmRight01.xRot = ctx.angleAdd1 * 0.25F + 0.18F;
+            ArmRight01.yRot = 0.0F;
+            ArmRight01.zRot = -angleX * 0.03F + 0.26F;
+            ArmRight02.xRot = 0.0F;
+            ArmRight02.zRot = 0.0F;
+        }
 
         if (EquipU01 != null) EquipU01.yRot = 2.4F;
 
@@ -928,7 +937,7 @@ public class ModelBattleshipYamato<T extends EntityShipBase> extends ShipModelHu
         float legAddLeft = ctx.angleAdd1 * 0.5F - 0.2793F;
         float legAddRight = ctx.angleAdd2 * 0.5F - 0.1396F;
         boolean showCannon = entity != null && entity.getEquipFlag(org.trp.shincolle.entity.EntityBattleshipYamato.EQUIP_BELT);
-        boolean showUmbrella = entity != null && entity.getEquipFlag(org.trp.shincolle.entity.EntityBattleshipYamato.EQUIP_UPPER);
+        boolean showUmbrella = entity != null && entity.getEquipFlag(org.trp.shincolle.entity.EntityBattleshipYamato.EQUIP_UMBRELLA);
 
         if (entity != null && entity.getShipDepth() > 0.0) {
             this.poseTranslateY += ctx.angleX * 0.05F + 0.025F;

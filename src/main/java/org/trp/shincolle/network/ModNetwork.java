@@ -65,6 +65,11 @@ public class ModNetwork {
                 C2SDeskSummonPayload.STREAM_CODEC,
                 ModNetwork::handleDeskSummon
         );
+        registrar.playToServer(
+                C2SOPToolActionPayload.TYPE,
+                C2SOPToolActionPayload.STREAM_CODEC,
+                ModNetwork::handleOPToolAction
+        );
         registrar.playToClient(
                 S2CAdmiralDataSyncPayload.TYPE,
                 S2CAdmiralDataSyncPayload.STREAM_CODEC,
@@ -488,6 +493,46 @@ public class ModNetwork {
         context.enqueueWork(() -> {
             Player player = context.player();
             org.trp.shincolle.utility.FormationHelper.applySummonShipsToDesk(player, payload.deskPos(), payload.shipUuids());
+        });
+    }
+
+    private static void handleOPToolAction(final C2SOPToolActionPayload payload, final IPayloadContext context) {
+        context.enqueueWork(() -> {
+            Player player = context.player();
+            if (player == null) return;
+
+            if (payload.action() == 0) {
+                if (!player.hasPermissions(2)) {
+                    player.displayClientMessage(Component.translatable("chat.shincolle.command.notop"), false);
+                    return;
+                }
+                payload.targetClassName().ifPresent(className -> {
+                    java.util.HashSet<String> unatk = new java.util.HashSet<>(player.level().getData(ModDataAttachments.UNATTACKABLE_TARGETS));
+                    boolean added;
+                    if (unatk.contains(className)) {
+                        unatk.remove(className);
+                        added = false;
+                    } else {
+                        unatk.add(className);
+                        added = true;
+                    }
+                    player.level().setData(ModDataAttachments.UNATTACKABLE_TARGETS, unatk);
+
+                    if (added) {
+                        player.displayClientMessage(Component.translatable("chat.shincolle.optool.add").append(" " + className), false);
+                    } else {
+                        player.displayClientMessage(Component.translatable("chat.shincolle.optool.remove").append(" " + className), false);
+                    }
+                });
+            } else if (payload.action() == 1) {
+                java.util.HashSet<String> unatk = player.level().getData(ModDataAttachments.UNATTACKABLE_TARGETS);
+                player.displayClientMessage(Component.translatable("chat.shincolle.optool.show").withStyle(net.minecraft.ChatFormatting.GOLD), false);
+                if (unatk != null) {
+                    for (String name : unatk) {
+                        player.displayClientMessage(Component.literal(name).withStyle(net.minecraft.ChatFormatting.AQUA), false);
+                    }
+                }
+            }
         });
     }
 }

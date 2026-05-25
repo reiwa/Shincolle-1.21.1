@@ -72,6 +72,15 @@ public class EntityHeavyCruiserNe extends EntityShipBase {
         }
     }
 
+    @Override
+    protected float[] computeLegacyAuraBuffs() {
+        float[] buffs = new float[21];
+        if (!this.level().isDay() && this.isStateRingEffect()) {
+            buffs[9] += 0.30F;
+        }
+        return buffs;
+    }
+
     private void updatePushingState() {
         this.tickPush++;
         if (this.tickPush > PUSH_MAX_TICKS || this.targetPush == null || !this.targetPush.isAlive() || this.isInDeadPose()) {

@@ -57,6 +57,16 @@ public class EntityHeavyCruiserRi extends EntityShipBase {
     }
 
     @Override
+    protected float[] computeLegacyAuraBuffs() {
+        float[] buffs = new float[21];
+        if (!this.level().isDay() && this.isStateRingEffect()) {
+            buffs[9] += 0.15F;
+            buffs[12] += 0.15F;
+        }
+        return buffs;
+    }
+
+    @Override
     public List<EquipOption> getEquipOptions() {
         List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
         list.add(new EquipOption(EQUIP_LEFT, "gui.shincolle.equip.left"));

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "xxx",
+    "xgx",
+    "xxx"
+  ],
+  "key": {
+    "x": {
+      "item": "minecraft:experience_bottle"
+    },
+    "g": {
+      "item": "shincolle:grudge"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "shincolle:grudge_xp"
+  }
+}

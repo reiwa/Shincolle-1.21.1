@@ -178,7 +178,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             drawValueRight(guiGraphics, String.format("%.1f", this.menu.getShipRange()), 135, 114, getModernizationColor(this.menu.getShip().getAttrBonus(5)));
         } else {
             drawLabel(guiGraphics, tr("gui.shincolle.marriage"), 75, 20);
-            drawValueRight(guiGraphics, this.menu.getShip().getStateFlag(EntityShipBase.STATE_FLAG_MARRIED) ? tr("gui.shincolle.married") : tr("gui.shincolle.unmarried"), 135, 30, 0xFFFF00);
+            drawValueRight(guiGraphics, this.menu.isMarriedEnabled() ? tr("gui.shincolle.married") : tr("gui.shincolle.unmarried"), 135, 30, 0xFFFF00);
 
             drawLabel(guiGraphics, tr("gui.shincolle.formation.formation"), 75, 41);
             drawValueRight(guiGraphics, tr("gui.shincolle.formation.format0"), 135, 51, 0xFFFFFF);
@@ -798,6 +798,29 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             return;
         }
 
+        if (this.activeDetailTab == DETAIL_TAB_STATUS) {
+            if (isHovering(mouseX, mouseY, 75, 20, 60, 18)) {
+                renderModernizationTooltip(guiGraphics, 1, mouseX, mouseY);
+                return;
+            }
+            if (isHovering(mouseX, mouseY, 75, 41, 60, 18)) {
+                renderModernizationTooltip(guiGraphics, 2, mouseX, mouseY);
+                return;
+            }
+            if (isHovering(mouseX, mouseY, 75, 62, 60, 18)) {
+                renderModernizationTooltip(guiGraphics, 3, mouseX, mouseY);
+                return;
+            }
+            if (isHovering(mouseX, mouseY, 75, 83, 60, 18)) {
+                renderModernizationTooltip(guiGraphics, 4, mouseX, mouseY);
+                return;
+            }
+            if (isHovering(mouseX, mouseY, 75, 104, 60, 18)) {
+                renderModernizationTooltip(guiGraphics, 5, mouseX, mouseY);
+                return;
+            }
+        }
+
         if (this.activeSettingsTab == SETTINGS_TAB_7) {
             renderAIPage7Tooltips(guiGraphics, mouseX, mouseY);
             return;
@@ -931,6 +954,13 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         List<Component> lines = new ArrayList<>();
         lines.add(Component.literal(tr("gui.shincolle.modernlevel") + " " + hpBonus));
         guiGraphics.renderComponentTooltip(this.font, lines, this.leftPos + 145, this.topPos + 32);
+    }
+
+    private void renderModernizationTooltip(GuiGraphics guiGraphics, int index, int mouseX, int mouseY) {
+        int bonus = this.menu.getShip().getAttrBonus(index);
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.literal(tr("gui.shincolle.modernlevel") + " " + bonus));
+        guiGraphics.renderComponentTooltip(this.font, lines, mouseX, mouseY);
     }
 
     private void drawLabel(GuiGraphics guiGraphics, String text, int x, int y) {

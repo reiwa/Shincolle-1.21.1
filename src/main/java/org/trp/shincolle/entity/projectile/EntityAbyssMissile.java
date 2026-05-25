@@ -13,6 +13,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -22,6 +23,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.projectile.EntityProjectileStatic;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModSounds;
 
@@ -30,6 +33,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpawn {
+    public static final int SPECIAL_EFFECT_NONE = 0;
+    public static final int SPECIAL_EFFECT_PULL_FIELD = 5;
+
     private static final double MIN_DIST_FOR_ARC = 4.0D;
     private static final double ARC_ACCEL_LIMIT = 0.15D;
     private static final double TORPEDO_VEL_MULTIPLIER = 0.85D;
@@ -61,6 +67,7 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
 
     private int age;
     private MoveType moveType = MoveType.DIRECT;
+    private int specialEffectType;
     private double velX;
     private double velY;
     private double velZ;
@@ -91,6 +98,7 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         this.setSpeed(speed);
         this.setLife(life);
         this.setExplosionRadius(explosionRadius);
+        this.specialEffectType = SPECIAL_EFFECT_NONE;
         initializeMovement(MoveType.DIRECT, speed, 1.04F, 1.04F, null);
     }
 
@@ -110,6 +118,7 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         this.setSpeed(vel0);
         this.setLife(life);
         this.setExplosionRadius(explosionRadius);
+        this.specialEffectType = SPECIAL_EFFECT_NONE;
         initializeMovement(moveType, vel0, accY1, accY2, presetVelocity);
     }
 
@@ -129,6 +138,7 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         this.setSpeed(vel0);
         this.setLife(life);
         this.setExplosionRadius(explosionRadius);
+        this.specialEffectType = SPECIAL_EFFECT_NONE;
         initializeMovement(moveType, vel0, accY1, accY2, presetVelocity);
     }
 
@@ -154,6 +164,7 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         this.entityData.set(SPEED, tag.getFloat("Speed"));
         this.entityData.set(LIFE, tag.getInt("Life"));
         this.entityData.set(EXPLOSION_RADIUS, tag.getFloat("ExplosionRadius"));
+        this.specialEffectType = tag.getInt("SpecialEffectType");
         this.moveType = MoveType.fromId(tag.getInt("MoveType"));
         this.velX = tag.getDouble("VelX");
         this.velY = tag.getDouble("VelY");
@@ -178,6 +189,7 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         tag.putFloat("Speed", getSpeed());
         tag.putInt("Life", getLife());
         tag.putFloat("ExplosionRadius", getExplosionRadius());
+        tag.putInt("SpecialEffectType", this.specialEffectType);
         tag.putInt("MoveType", this.moveType.ordinal());
         tag.putDouble("VelX", this.velX);
         tag.putDouble("VelY", this.velY);
@@ -489,7 +501,29 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         this.playSound(ModSounds.SHIP_EXPLODE.get(), 0.7F,
                 this.getRandom().nextFloat() * 0.12F + 0.98F);
         applyExplosionDamage(serverLevel, hit);
+        spawnSpecialEffect(serverLevel);
         this.discard();
+    }
+
+    private void spawnSpecialEffect(ServerLevel serverLevel) {
+        if (this.specialEffectType != SPECIAL_EFFECT_PULL_FIELD) {
+            return;
+        }
+
+        Entity owner = getOwnerEntity();
+        if (owner == null) {
+            return;
+        }
+
+        int level = owner instanceof EntityShipBase ship ? ship.getLevel() : 0;
+        int life = Math.max(1, (int) (20.0F + level * 0.125F));
+        float pullForce = 0.12F + level * 7.5E-4F;
+        float range = 4.0F + level * 0.035F;
+
+        EntityProjectileStatic effect = new EntityProjectileStatic(serverLevel);
+        effect.initAttrs(owner, this.specialEffectType, life, pullForce, range);
+        effect.setPos(this.getX(), this.getY(), this.getZ());
+        serverLevel.addFreshEntity(effect);
     }
 
     private void spawnImpactParticles(ServerLevel serverLevel) {
@@ -518,10 +552,16 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         List<Entity> targets = serverLevel.getEntities(this, this.getBoundingBox().inflate(radius),
                 entity -> entity.isAlive() && entity.isPickable() && !(entity instanceof EntityAbyssMissile) && !isFriendlyTarget(owner, entity));
         for (Entity entity : targets) {
-            entity.hurt(source, damage);
+            boolean hurt = entity.hurt(source, damage);
+            if (hurt && owner instanceof org.trp.shincolle.entity.base.EntityShipBase ship && entity instanceof LivingEntity livingTarget) {
+                ship.applyAttackEffects(livingTarget);
+            }
         }
         if (directHit != null && directHit.isAlive() && !isFriendlyTarget(owner, directHit)) {
-            directHit.hurt(source, damage);
+            boolean hurt = directHit.hurt(source, damage);
+            if (hurt && owner instanceof org.trp.shincolle.entity.base.EntityShipBase ship && directHit instanceof LivingEntity livingTarget) {
+                ship.applyAttackEffects(livingTarget);
+            }
         }
     }
 
@@ -629,6 +669,14 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
 
     public float getExplosionRadius() {
         return this.entityData.get(EXPLOSION_RADIUS);
+    }
+
+    public void setSpecialEffectType(int specialEffectType) {
+        this.specialEffectType = specialEffectType;
+    }
+
+    public int getSpecialEffectType() {
+        return this.specialEffectType;
     }
 
     @Override

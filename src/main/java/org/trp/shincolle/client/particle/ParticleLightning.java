@@ -338,7 +338,6 @@ public class ParticleLightning extends Particle {
                 buffer.addVertex(v2x, currentY, v2z).setColor(this.rCol, this.gCol, this.bCol, this.alpha);
             }
         } else {
-            // First pass: front to back
             for (int i = this.numStem - 1; i >= 0; i--) {
                 float v1x = px + (float) this.prevShape[i][0];
                 float v1y = py + (float) this.prevShape[i][1];
@@ -350,7 +349,6 @@ public class ParticleLightning extends Particle {
                 buffer.addVertex(v1x, v1y, v1z).setColor(this.rCol, this.gCol, this.bCol, this.alpha);
                 buffer.addVertex(v2x, v2y, v2z).setColor(this.rCol, this.gCol, this.bCol, this.alpha);
             }
-            // Second pass: back to front (ensures visibility from all angles in TRIANGLE_STRIP mode)
             for (int i = this.numStem - 1; i >= 0; i--) {
                 float v1x = px + (float) this.prevShape[i][3];
                 float v1y = py + (float) this.prevShape[i][4];

@@ -105,6 +105,10 @@ class EntityShipBasePointer {
             this.ship.getNavigation().stop();
             return;
         }
+        if (this.ship.isCombatSuppressed()) {
+            this.ship.getNavigation().stop();
+            return;
+        }
         Entity target = getPointerTargetEntity();
         if (target == null || !target.isAlive()) {
             clearPointerTargetEntity();
@@ -309,7 +313,7 @@ class EntityShipBasePointer {
     }
 
     private void handlePointerTargetEntityCombat(Entity target) {
-        if (this.ship.isInDeadPose() || target == null || !target.isAlive()) {
+        if (this.ship.isCombatSuppressed() || this.ship.isInDeadPose() || target == null || !target.isAlive()) {
             return;
         }
 

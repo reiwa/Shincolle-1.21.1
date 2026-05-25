@@ -42,11 +42,9 @@ public class EntityBBKongou extends EntityShipBase {
     }
 
     @Override
-    protected void tickAliveLogic() {
-        super.tickAliveLogic();
-        if ((this.tickCount % 128) == 0) {
-            applyBuffToNearbyAllies();
-        }
+    protected void calcShipAttributesAddEffect() {
+        super.calcShipAttributesAddEffect();
+        this.attackEffectMap.put(MobEffects.WEAKNESS, new int[] {this.getLevel() / 75, 60 + this.getLevel() * 2, 15 + this.getLevel() / 10});
     }
 
     public double getPassengersRidingOffset() {
@@ -76,23 +74,21 @@ public class EntityBBKongou extends EntityShipBase {
         if (this.tickCount % 4 == 0 && !this.getIsSitting() && this.getEquipFlag(EQUIP_RIGGING) && !this.isInDeadPose()) {
             float[] partPos = rotateXZByAxis(-0.7f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f);
             for (int i = 0; i < 3; i++) {
-            this.level().addParticle(ParticleTypes.SMOKE,
-                this.getX() + partPos[1], this.getY() + 1.17D + i * 0.1D, this.getZ() + partPos[0],
-                0.0D, 0.0D, 0.0D);
+                this.level().addParticle(ParticleTypes.SMOKE,
+                    this.getX() + partPos[1], this.getY() + 1.17D + i * 0.1D, this.getZ() + partPos[0],
+                    0.0D, 0.0D, 0.0D);
             }
             partPos = rotateXZByAxis(-0.45f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f);
             for (int i = 0; i < 3; i++) {
-            this.level().addParticle(ParticleTypes.SMOKE,
-                this.getX() + partPos[1], this.getY() + 1.32D + i * 0.1D, this.getZ() + partPos[0],
-                0.0D, 0.0D, 0.0D);
+                this.level().addParticle(ParticleTypes.SMOKE,
+                    this.getX() + partPos[1], this.getY() + 1.32D + i * 0.1D, this.getZ() + partPos[0],
+                    0.0D, 0.0D, 0.0D);
             }
         }
     }
 
-    private void applyBuffToNearbyAllies() {
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
-            return;
-        }
+    @Override
+    protected void applyAuraEffects() {
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
                 this.getBoundingBox().inflate(16.0D, 16.0D, 16.0D));
         if (ships.isEmpty()) {

@@ -57,6 +57,16 @@ public class EntityBattleshipRe extends EntityShipBase {
         }
     }
 
+    @Override
+    protected float[] computeLegacyAuraBuffs() {
+        float[] buffs = new float[21];
+        if (this.isStateRingEffect()) {
+            buffs[10] += 0.10F;
+            buffs[11] += 0.10F;
+        }
+        return buffs;
+    }
+
     public double getPassengersRidingOffset() {
         if (this.getIsSitting()) {
             return this.getStateEmotion(1) == 4 ? this.getBbHeight() * 0.35f : 0.0f;

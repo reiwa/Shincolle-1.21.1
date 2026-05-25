@@ -111,6 +111,7 @@ public class ClientModEventBusEvents {
         event.registerEntityRenderer(ModEntities.CRUISER_TATSUTA.get(), RendererCruiserTatsuta::new);
         event.registerEntityRenderer(ModEntities.CRUISER_TAKAO.get(), RendererCruiserTakao::new);
         event.registerEntityRenderer(ModEntities.CRUISER_ATAGO.get(), RendererCruiserAtago::new);
+        event.registerEntityRenderer(ModEntities.PROJECTILE_STATIC.get(), RendererProjectileStatic::new);
         event.registerEntityRenderer(ModEntities.CARRIER_KAGA.get(), RendererCarrierKaga::new);
         event.registerEntityRenderer(ModEntities.CARRIER_AKAGI.get(), RendererCarrierAkagi::new);
         event.registerEntityRenderer(ModEntities.BB_KONGOU.get(), RendererBBKongou::new);
@@ -294,8 +295,9 @@ public class ClientModEventBusEvents {
         event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get(), new ParticlePointerLine.Provider(1, null));
         event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(), new ParticlePointerLine.Provider(2, null));
         event.registerSpriteSet(ModParticles.PARTICLE_CHI.get(), org.trp.shincolle.client.particle.ParticleChi.Provider::new);
-        event.registerSpriteSet(ModParticles.PARTICLE_91TYPE.get(), org.trp.shincolle.client.particle.Particle91Type.Provider::new);
+        event.registerSpecial(ModParticles.PARTICLE_91TYPE.get(), new org.trp.shincolle.client.particle.Particle91Type.Provider());
         event.registerSpriteSet(ModParticles.PARTICLE_CUBE.get(), org.trp.shincolle.client.particle.ParticleCube.Provider::new);
         event.registerSpecial(ModParticles.PARTICLE_BEAM.get(), new ParticleBeam.Provider());
+        event.registerSpecial(ModParticles.PARTICLE_SPHERE_LIGHT.get(), new ParticleSphereLight.Provider());
     }
 }

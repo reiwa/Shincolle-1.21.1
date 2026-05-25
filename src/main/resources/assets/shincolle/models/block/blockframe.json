@@ -1,0 +1,13 @@
+{
+  "parent": "block/cube",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "shincolle:block/blockframe2",
+    "down":     "shincolle:block/blockframebtm",
+    "up":       "shincolle:block/blockframetop",
+    "north":    "shincolle:block/blockframe2",
+    "south":    "shincolle:block/blockframe4",
+    "west":     "shincolle:block/blockframe5",
+    "east":     "shincolle:block/blockframe3"
+  }
+}

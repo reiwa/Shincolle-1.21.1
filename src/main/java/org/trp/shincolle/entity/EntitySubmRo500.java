@@ -115,5 +115,10 @@ public class EntitySubmRo500 extends EntityShipBase {
     public boolean isSubmarine() {
         return true;
     }
+
+    @Override
+    protected float getInvisibleDodgeBonus() {
+        return 0.35F;
+    }
 }
 

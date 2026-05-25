@@ -31,21 +31,23 @@ public class EntityCruiserTenryuu extends EntityShipBase {
         setStateGuiBtn4(false);
     }
 
-    @Override
-    protected void tickAliveLogic() {
-        super.tickAliveLogic();
 
-        if ((this.tickCount % 128) == 0) {
-            updateServerLogic();
+
+    @Override
+    protected void applyAuraEffects() {
+        if (!this.level().isDay() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
+            this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 150, 0, false, false));
         }
     }
 
-    private void updateServerLogic() {
-        if (!this.level().isDay() && this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
-            if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
-                this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 150, 0, false, false));
-            }
+    @Override
+    protected float[] computeLegacyAuraBuffs() {
+        float[] buffs = new float[21];
+        if (!this.level().isDay() && this.isStateRingEffect()) {
+            buffs[9] += 0.15F;
+            buffs[15] += 0.15F;
         }
+        return buffs;
     }
 
     @Override

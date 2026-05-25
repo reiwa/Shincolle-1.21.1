@@ -69,6 +69,10 @@ class EntityShipBaseCombat {
         return canUseLightAircraft() || canUseHeavyAircraft();
     }
 
+    private boolean isCombatSuppressed() {
+        return this.ship.isCombatSuppressed();
+    }
+
     void tickAircraftRecovery() {
         if (!this.ship.supportsAircraftCombat()) {
             return;
@@ -107,6 +111,9 @@ class EntityShipBaseCombat {
     }
 
     boolean tryPerformAircraftCycle(Entity target) {
+        if (isCombatSuppressed()) {
+            return false;
+        }
         if (!this.ship.supportsAircraftCombat()) {
             return false;
         }
@@ -178,6 +185,9 @@ class EntityShipBaseCombat {
     }
 
     void performLightAttack(Entity target) {
+        if (isCombatSuppressed()) {
+            return;
+        }
         if (!canUseLightAmmo()) {
             return;
         }
@@ -206,6 +216,9 @@ class EntityShipBaseCombat {
     }
 
     boolean performHeavyAttack(Entity target) {
+        if (isCombatSuppressed()) {
+            return false;
+        }
         if (!canUseHeavyAmmo()) {
             return false;
         }
@@ -269,7 +282,11 @@ class EntityShipBaseCombat {
                 }
             }
         }
-        return remaining <= 0;
+        boolean success = remaining <= 0;
+        if (success) {
+            this.ship.setCombatTick(this.ship.tickCount);
+        }
+        return success;
     }
 
     boolean consumeLightAmmo(int amount) {
@@ -305,7 +322,11 @@ class EntityShipBaseCombat {
                 }
             }
         }
-        return remaining <= 0;
+        boolean success = remaining <= 0;
+        if (success) {
+            this.ship.setCombatTick(this.ship.tickCount);
+        }
+        return success;
     }
 
     private boolean isLightAmmo(ItemStack stack) {

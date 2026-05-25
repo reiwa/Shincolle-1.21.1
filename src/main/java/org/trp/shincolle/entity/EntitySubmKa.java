@@ -74,5 +74,10 @@ public class EntitySubmKa extends EntityShipBase {
     public boolean isSubmarine() {
         return true;
     }
+
+    @Override
+    protected float getInvisibleDodgeBonus() {
+        return 0.25F;
+    }
 }
 

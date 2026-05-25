@@ -135,6 +135,14 @@ public class ModEventBusEvents {
     }
 
     @SubscribeEvent
+    public static void onPlayerLogout(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) {
+        Player player = event.getEntity();
+        if (player != null && !player.level().isClientSide) {
+            player.ejectPassengers();
+        }
+    }
+
+    @SubscribeEvent
     public static void onPointerItemAttack(AttackEntityEvent event) {
         Player player = event.getEntity();
         if (player == null) {
@@ -162,6 +170,21 @@ public class ModEventBusEvents {
         event.setCanceled(true);
 
         if (!(event.getTarget() instanceof EntityShipBase ship)) {
+            Entity target = event.getTarget();
+            if (target instanceof net.minecraft.world.entity.LivingEntity && !(target instanceof Player)) {
+                String targetName = target.getClass().getSimpleName();
+                org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+                boolean added = data.toggleCustomTargetClass(targetName);
+                player.displayClientMessage(Component.translatable("chat.shincolle.pointer.settargetclass", "  " + targetName), false);
+                if (added) {
+                    player.displayClientMessage(Component.literal("ADD: ").withStyle(net.minecraft.ChatFormatting.AQUA)
+                            .append(Component.literal(targetName).withStyle(net.minecraft.ChatFormatting.YELLOW)), false);
+                } else {
+                    player.displayClientMessage(Component.literal("REMOVE: ").withStyle(net.minecraft.ChatFormatting.RED)
+                            .append(Component.literal(targetName).withStyle(net.minecraft.ChatFormatting.YELLOW)), false);
+                }
+                net.neoforged.neoforge.network.PacketDistributor.sendToPlayer((net.minecraft.server.level.ServerPlayer) player, new org.trp.shincolle.network.S2CAdmiralDataSyncPayload(data.serializeNBT()));
+            }
             return;
         }
 

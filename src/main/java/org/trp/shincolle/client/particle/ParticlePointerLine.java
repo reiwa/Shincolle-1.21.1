@@ -57,13 +57,11 @@ public class ParticlePointerLine extends Particle {
     private final float vx, vy, vz;
     private final float shotYaw, shotPitch;
 
-    // Type 0 params (Untextured Tube)
     private float scaleOut = 0.05f;
     private float scaleIn = 0.0125f;
     private float alphaOut = 0.1f;
     private float alphaIn = 0.2f;
 
-    // Type 1 params (Textured Plane)
     private float particleScale = 0.5f;
 
     protected ParticlePointerLine(ClientLevel level, double x, double y, double z,
@@ -152,7 +150,6 @@ public class ParticlePointerLine extends Particle {
         int light = LightTexture.FULL_BRIGHT;
 
         if (this.particleType == 0) {
-            // Untextured tube (ParticleLaserNoTexture logic)
             float[] v1 = rotateXYZByYawPitch(1.0f, -1.0f, -1.0f, this.shotYaw, this.shotPitch, this.scaleOut);
             float[] v2 = rotateXYZByYawPitch(1.0f, 1.0f, -1.0f, this.shotYaw, this.shotPitch, this.scaleOut);
             float[] v3 = rotateXYZByYawPitch(-1.0f, 1.0f, -1.0f, this.shotYaw, this.shotPitch, this.scaleOut);
@@ -163,7 +160,6 @@ public class ParticlePointerLine extends Particle {
             float[] v7 = rotateXYZByYawPitch(-1.0f, 1.0f, 0.0f, this.shotYaw, this.shotPitch, this.scaleIn);
             float[] v8 = rotateXYZByYawPitch(-1.0f, -1.0f, 0.0f, this.shotYaw, this.shotPitch, this.scaleIn);
 
-            // Outer Tube
             drawQuad(buffer, tx + v1[0], ty + v1[1], tz + v1[2], tx + v2[0], ty + v2[1], tz + v2[2],
                              hx + v2[0], hy + v2[1], hz + v2[2], hx + v1[0], hy + v1[1], hz + v1[2], this.alphaOut, light);
             drawQuad(buffer, tx + v4[0], ty + v4[1], tz + v4[2], tx + v3[0], ty + v3[1], tz + v3[2],
@@ -173,7 +169,6 @@ public class ParticlePointerLine extends Particle {
             drawQuad(buffer, tx + v2[0], ty + v2[1], tz + v2[2], tx + v3[0], ty + v3[1], tz + v3[2],
                              hx + v3[0], hy + v3[1], hz + v3[2], hx + v2[0], hy + v2[1], hz + v2[2], this.alphaOut, light);
 
-            // Inner Tube
             drawQuad(buffer, tx + v5[0], ty + v5[1], tz + v5[2], tx + v6[0], ty + v6[1], tz + v6[2],
                              hx + v6[0], hy + v6[1], hz + v6[2], hx + v5[0], hy + v5[1], hz + v5[2], this.alphaIn, light);
             drawQuad(buffer, tx + v8[0], ty + v8[1], tz + v8[2], tx + v7[0], ty + v7[1], tz + v7[2],
@@ -184,7 +179,6 @@ public class ParticlePointerLine extends Particle {
                              hx + v7[0], hy + v7[1], hz + v7[2], hx + v6[0], hy + v6[1], hz + v6[2], this.alphaIn, light);
 
         } else {
-            // Textured Plane (ParticleLaser logic)
             float minU = 0.0f;
             float maxU = (float) this.random.nextInt(32) + 32;
             float minV = (this.age % 12) / 12.0f;

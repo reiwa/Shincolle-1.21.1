@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.EntityNorthernHime;
+import net.minecraft.world.entity.Entity;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
 public class ModelNorthernHime<T extends EntityNorthernHime> extends ShipModelHumanoidBase<T> implements IGlowableModel {
