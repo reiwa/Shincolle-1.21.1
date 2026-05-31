@@ -1,26 +1,43 @@
 package org.trp.shincolle.entity;
 
+import java.util.List;
+import java.util.Objects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
-
-import java.util.List;
-import java.util.Objects;
 
 public class EntityHarbourHime extends EntityShipBase {
 
-    public EntityHarbourHime(EntityType<? extends TamableAnimal> type, Level level) {
+    public EntityHarbourHime(
+        EntityType<? extends TamableAnimal> type,
+        Level level
+    ) {
         super(type, level);
-        setModelPos(new float[]{-6, 30, 0, 40});
+        setModelPos(new float[] { -6, 30, 0, 40 });
         setStateMinor(STATE_MINOR_FACTION_ID, 10);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 28);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 1);
         setStateCanRide(true);
+    }
+
+    @Override
+    public boolean supportsAircraftCombat() {
+        return true;
+    }
+
+    @Override
+    public EntityType<? extends TamableAnimal> getAttackAircraftType(
+        boolean isLightAircraft
+    ) {
+        return isLightAircraft
+            ? ModEntities.AIRPLANE.get()
+            : ModEntities.TAKOYAKI.get();
     }
 
     @Override
@@ -43,7 +60,10 @@ public class EntityHarbourHime extends EntityShipBase {
         }
 
         AABB range = this.getBoundingBox().inflate(12.0D, 8.0D, 12.0D);
-        List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class, range);
+        List<EntityShipBase> ships = this.level().getEntitiesOfClass(
+            EntityShipBase.class,
+            range
+        );
         for (EntityShipBase ship : ships) {
             if (ship == this || ship.getHealth() >= ship.getMaxHealth()) {
                 continue;
@@ -67,7 +87,9 @@ public class EntityHarbourHime extends EntityShipBase {
 
     @Override
     public org.trp.shincolle.entity.base.EntityMountBase summonMountEntity() {
-        return new EntityMountHbH(org.trp.shincolle.init.ModEntities.MOUNT_HB_H.get(), this.level());
+        return new EntityMountHbH(
+            org.trp.shincolle.init.ModEntities.MOUNT_HB_H.get(),
+            this.level()
+        );
     }
 }
-

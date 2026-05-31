@@ -5,6 +5,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile;
 import org.trp.shincolle.init.ModItems;
@@ -58,9 +59,23 @@ class EntityShipBaseCombat {
                 && this.ship.getAmmoLight() >= AIRCRAFT_LIGHT_AMMO_COST;
     }
 
+    boolean canUseLightAircraftManual() {
+        return !isCombatSuppressed()
+                && this.ship.supportsAircraftCombat()
+                && this.ship.hasAirLight()
+                && this.ship.getAmmoLight() >= AIRCRAFT_LIGHT_AMMO_COST;
+    }
+
     boolean canUseHeavyAircraft() {
         return this.ship.isStateGuiBtn4()
                 && this.ship.isStateHeavyAircraftAttack()
+                && this.ship.hasAirHeavy()
+                && this.ship.getAmmoHeavy() >= AIRCRAFT_HEAVY_AMMO_COST;
+    }
+
+    boolean canUseHeavyAircraftManual() {
+        return !isCombatSuppressed()
+                && this.ship.supportsAircraftCombat()
                 && this.ship.hasAirHeavy()
                 && this.ship.getAmmoHeavy() >= AIRCRAFT_HEAVY_AMMO_COST;
     }
@@ -238,9 +253,119 @@ class EntityShipBaseCombat {
         }
         float missileDamage = damage * HEAVY_MISSILE_DAMAGE_MULTIPLIER;
 
+        float speed = HEAVY_MISSILE_SPEED;
+        int life = HEAVY_MISSILE_LIFE;
+        float radius = HEAVY_MISSILE_EXPLOSION_RADIUS;
+        org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType moveType = org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType.DIRECT;
+        int specialEffect = org.trp.shincolle.entity.projectile.EntityAbyssMissile.SPECIAL_EFFECT_NONE;
+
+        ItemStack ammoStack = ItemStack.EMPTY;
+        int equipSlots = Math.min(
+            org.trp.shincolle.inventory.ShipInventoryHandler.getEquipSlotCount(),
+            this.ship.inventory.getSlots()
+        );
+        for (int slot = 0; slot < equipSlots; slot++) {
+            ItemStack stack = this.ship.inventory.getStackInSlot(slot);
+            if (stack.isEmpty() || !(stack.getItem() instanceof org.trp.shincolle.item.LegacyEquipItem equipItem)) {
+                continue;
+            }
+            int typeId = equipItem.getEquipTypeId(stack);
+            if (typeId == EntityShipBase.EQUIP_TYPE_AMMO || typeId == EntityShipBase.EQUIP_TYPE_AMMO_2) {
+                ammoStack = stack;
+                break;
+            }
+        }
+
+        if (!ammoStack.isEmpty()) {
+            org.trp.shincolle.item.LegacyEquipItem equipItem = (org.trp.shincolle.item.LegacyEquipItem) ammoStack.getItem();
+            int variant = equipItem.getVariant(ammoStack);
+            if (variant == 5) {
+                specialEffect = org.trp.shincolle.entity.projectile.EntityAbyssMissile.SPECIAL_EFFECT_PULL_FIELD;
+            } else if (variant == 8) {
+                specialEffect = org.trp.shincolle.entity.projectile.EntityAbyssMissile.SPECIAL_EFFECT_CLUSTER;
+                moveType = org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType.ARC;
+            }
+        }
+
         EntityAbyssMissile missile = new EntityAbyssMissile(serverLevel, this.ship, target,
-                missileDamage, HEAVY_MISSILE_SPEED, HEAVY_MISSILE_LIFE, HEAVY_MISSILE_EXPLOSION_RADIUS);
+                missileDamage, moveType, speed, 1.04F, 1.04F, null, life, radius);
+        if (specialEffect != org.trp.shincolle.entity.projectile.EntityAbyssMissile.SPECIAL_EFFECT_NONE) {
+            missile.setSpecialEffectType(specialEffect);
+        }
         serverLevel.addFreshEntity(missile);
+
+        this.ship.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.ship.getSoundVolume(),
+                this.ship.getRandom().nextFloat() * 0.12F + 0.83F);
+        this.ship.setAttackTick(50);
+        this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
+        this.ship.applyEmotesReaction(3);
+        return true;
+    }
+
+    boolean performHeavyAttack(Vec3 targetPos) {
+        if (isCombatSuppressed()) {
+            return false;
+        }
+        if (!canUseHeavyAmmo()) {
+            return false;
+        }
+        if (!(this.ship.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        if (targetPos == null) {
+            return false;
+        }
+        if (!consumeHeavyAmmo(1)) {
+            return false;
+        }
+
+        float damage = this.ship.getLegacyShipStats().getFirepower();
+        if (damage <= 0.0F) {
+            damage = 4.0F;
+        }
+        float missileDamage = damage * HEAVY_MISSILE_DAMAGE_MULTIPLIER;
+
+        float speed = HEAVY_MISSILE_SPEED;
+        int life = HEAVY_MISSILE_LIFE;
+        float radius = HEAVY_MISSILE_EXPLOSION_RADIUS;
+        org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType moveType = org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType.DIRECT;
+        int specialEffect = org.trp.shincolle.entity.projectile.EntityAbyssMissile.SPECIAL_EFFECT_NONE;
+
+        ItemStack ammoStack = ItemStack.EMPTY;
+        int equipSlots = Math.min(
+            org.trp.shincolle.inventory.ShipInventoryHandler.getEquipSlotCount(),
+            this.ship.inventory.getSlots()
+        );
+        for (int slot = 0; slot < equipSlots; slot++) {
+            ItemStack stack = this.ship.inventory.getStackInSlot(slot);
+            if (stack.isEmpty() || !(stack.getItem() instanceof org.trp.shincolle.item.LegacyEquipItem equipItem)) {
+                continue;
+            }
+            int typeId = equipItem.getEquipTypeId(stack);
+            if (typeId == EntityShipBase.EQUIP_TYPE_AMMO || typeId == EntityShipBase.EQUIP_TYPE_AMMO_2) {
+                ammoStack = stack;
+                break;
+            }
+        }
+
+        if (!ammoStack.isEmpty()) {
+            org.trp.shincolle.item.LegacyEquipItem equipItem = (org.trp.shincolle.item.LegacyEquipItem) ammoStack.getItem();
+            int variant = equipItem.getVariant(ammoStack);
+            if (variant == 5) {
+                specialEffect = org.trp.shincolle.entity.projectile.EntityAbyssMissile.SPECIAL_EFFECT_PULL_FIELD;
+            } else if (variant == 8) {
+                specialEffect = org.trp.shincolle.entity.projectile.EntityAbyssMissile.SPECIAL_EFFECT_CLUSTER;
+                moveType = org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType.ARC;
+            }
+        }
+
+        EntityAbyssMissile missile = new EntityAbyssMissile(serverLevel, this.ship, null, targetPos,
+                missileDamage, moveType, speed, 1.04F, 1.04F, null, life, radius);
+        if (specialEffect != org.trp.shincolle.entity.projectile.EntityAbyssMissile.SPECIAL_EFFECT_NONE) {
+            missile.setSpecialEffectType(specialEffect);
+        }
+        serverLevel.addFreshEntity(missile);
+
         this.ship.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.ship.getSoundVolume(),
                 this.ship.getRandom().nextFloat() * 0.12F + 0.83F);
         this.ship.setAttackTick(50);
@@ -382,7 +507,7 @@ class EntityShipBaseCombat {
         return 4 + this.ship.getLevel() / 10 + (int) (this.ship.getLevel() * this.ship.getAircraftHeavyLevelBonus());
     }
 
-    private boolean performLightAircraftAttack(Entity target) {
+    boolean performLightAircraftAttack(Entity target) {
         if (!canUseLightAircraft()) {
             return false;
         }
@@ -394,7 +519,20 @@ class EntityShipBaseCombat {
         return spawnAircraft(target, true);
     }
 
-    private boolean performHeavyAircraftAttack(Entity target) {
+    boolean performLightAircraftAttackManual(Entity target) {
+        if (isCombatSuppressed()) return false;
+        if (!this.ship.supportsAircraftCombat()) return false;
+        if (!this.ship.hasAirLight()) return false;
+        if (this.ship.getAmmoLight() < AIRCRAFT_LIGHT_AMMO_COST) return false;
+        if (!consumeLightAmmo(AIRCRAFT_LIGHT_AMMO_COST)) return false;
+        this.ship.setNumAircraftLight(Math.max(0, this.ship.getNumAircraftLight() - 1));
+        this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLightAircraft);
+        boolean spawned = spawnAircraft(target, true);
+        
+        return spawned;
+    }
+
+    boolean performHeavyAircraftAttack(Entity target) {
         if (!canUseHeavyAircraft()) {
             return false;
         }
@@ -406,16 +544,27 @@ class EntityShipBaseCombat {
         return spawnAircraft(target, false);
     }
 
+    boolean performHeavyAircraftAttackManual(Entity target) {
+        if (isCombatSuppressed()) return false;
+        if (!this.ship.supportsAircraftCombat()) return false;
+        if (!this.ship.hasAirHeavy()) return false;
+        if (this.ship.getAmmoHeavy() < AIRCRAFT_HEAVY_AMMO_COST) return false;
+        if (!consumeHeavyAmmo(AIRCRAFT_HEAVY_AMMO_COST)) return false;
+        this.ship.setNumAircraftHeavy(Math.max(0, this.ship.getNumAircraftHeavy() - 1));
+        this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavyAircraft);
+        boolean spawned = spawnAircraft(target, false);
+        
+        return spawned;
+    }
+
     private boolean spawnAircraft(Entity target, boolean lightAircraft) {
         EntityType<? extends net.minecraft.world.entity.TamableAnimal> type = this.ship.getAttackAircraftType(lightAircraft);
-        if (type == null || !(this.ship.level() instanceof ServerLevel serverLevel)) {
-            return false;
-        }
+        if (type == null) return false;
+        if (!(this.ship.level() instanceof ServerLevel serverLevel)) return false;
 
         Entity spawned = type.create(serverLevel);
-        if (!(spawned instanceof EntityAircraftBase aircraft)) {
-            return false;
-        }
+        if (spawned == null) return false;
+        if (!(spawned instanceof EntityAircraftBase aircraft)) return false;
 
         double launchY = this.ship.getY() + this.ship.getAircraftLaunchHeight();
         aircraft.moveTo(this.ship.getX(), launchY, this.ship.getZ(), this.ship.getYRot(), this.ship.getXRot());

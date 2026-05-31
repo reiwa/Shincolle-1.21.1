@@ -19,6 +19,9 @@ import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.LegacyEquipStats;
+import net.minecraft.util.RandomSource;
+import org.trp.shincolle.item.ShipSpawnEggItem;
+import org.trp.shincolle.entity.base.EntityShipBase;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class ShipyardRecipes {
+    private static final int MAT_COUNT = 4;
     private static final int SMALL_BASE_POWER = 57600;
     private static final int SMALL_POWER_PER_MAT = 2100;
     private static final int SMALL_MIN_EACH_MAT = 16;
@@ -287,6 +291,183 @@ public final class ShipyardRecipes {
         return getShipEntityTypeForType(type, largeShipyard);
     }
 
+    public static int getShipClassFromEntityType(EntityType<?> type) {
+        if (type == ModEntities.DESTROYER_I.get()) return 0;
+        if (type == ModEntities.DESTROYER_RO.get()) return 1;
+        if (type == ModEntities.DESTROYER_HA.get()) return 2;
+        if (type == ModEntities.DESTROYER_NI.get()) return 3;
+        if (type == ModEntities.HEAVY_CRUISER_RI.get()) return 9;
+        if (type == ModEntities.HEAVY_CRUISER_NE.get()) return 10;
+        if (type == ModEntities.CARRIER_WO.get()) return 12;
+        if (type == ModEntities.BATTLESHIP_RU.get()) return 13;
+        if (type == ModEntities.BATTLESHIP_TA.get()) return 14;
+        if (type == ModEntities.BATTLESHIP_RE.get()) return 15;
+        if (type == ModEntities.TRANSPORT_WA.get()) return 16;
+        if (type == ModEntities.SUBM_KA.get()) return 17;
+        if (type == ModEntities.SUBM_YO.get()) return 18;
+        if (type == ModEntities.SUBM_SO.get()) return 19;
+        if (type == ModEntities.CARRIER_HIME.get()) return 20;
+        if (type == ModEntities.AIRFIELD_HIME.get()) return 21;
+        if (type == ModEntities.BATTLESHIP_HIME.get()) return 26;
+        if (type == ModEntities.DESTROYER_HIME.get()) return 27;
+        if (type == ModEntities.HARBOUR_HIME.get()) return 28;
+        if (type == ModEntities.ISOLATED_HIME.get()) return 29;
+        if (type == ModEntities.MIDWAY_HIME.get()) return 30;
+        if (type == ModEntities.NORTHERN_HIME.get()) return 31;
+        if (type == ModEntities.CARRIER_W_DEMON.get()) return 33;
+        if (type == ModEntities.SUBM_HIME.get()) return 44;
+        if (type == ModEntities.CA_HIME.get()) return 49;
+        if (type == ModEntities.SSNH.get()) return 72;
+        if (type == ModEntities.DESTROYER_SHIMAKAZE.get()) return 36;
+        if (type == ModEntities.BB_KONGOU.get()) return 60;
+        if (type == ModEntities.BB_HIEI.get()) return 61;
+        if (type == ModEntities.BB_HARUNA.get()) return 62;
+        if (type == ModEntities.BB_KIRISHIMA.get()) return 63;
+        if (type == ModEntities.BATTLESHIP_NAGATO.get()) return 37;
+        if (type == ModEntities.BATTLESHIP_YAMATO.get()) return 46;
+        if (type == ModEntities.SUBM_U511.get()) return 38;
+        if (type == ModEntities.SUBM_RO500.get()) return 39;
+        if (type == ModEntities.CARRIER_KAGA.get()) return 47;
+        if (type == ModEntities.CARRIER_AKAGI.get()) return 48;
+        if (type == ModEntities.DESTROYER_AKATSUKI.get()) return 51;
+        if (type == ModEntities.DESTROYER_HIBIKI.get()) return 52;
+        if (type == ModEntities.DESTROYER_IKAZUCHI.get()) return 53;
+        if (type == ModEntities.DESTROYER_INAZUMA.get()) return 54;
+        if (type == ModEntities.CRUISER_TENRYUU.get()) return 56;
+        if (type == ModEntities.CRUISER_TATSUTA.get()) return 57;
+        if (type == ModEntities.CRUISER_ATAGO.get()) return 58;
+        if (type == ModEntities.CRUISER_TAKAO.get()) return 59;
+        return -1;
+    }
+
+    public static ItemStack[] getKaitaiDrops(int shipClass, RandomSource random) {
+        switch (shipClass) {
+            case -2:
+                return new ItemStack[] {
+                    new ItemStack(ModItems.GRUDGE.get(), 10 + random.nextInt(8)),
+                    new ItemStack(ModItems.ABYSS_METAL.get(), 10 + random.nextInt(8)),
+                    new ItemStack(ModItems.AMMO_LIGHT.get(), 10 + random.nextInt(8)),
+                    new ItemStack(ModItems.ABYSS_POLYMETAL.get(), 10 + random.nextInt(8))
+                };
+            case -1:
+                return new ItemStack[] {
+                    new ItemStack(ModItems.GRUDGE.get(), 90 + random.nextInt(8)),
+                    new ItemStack(ModItems.ABYSS_METAL.get(), 90 + random.nextInt(8)),
+                    new ItemStack(ModItems.AMMO_LIGHT.get(), 90 + random.nextInt(8)),
+                    new ItemStack(ModItems.ABYSS_POLYMETAL.get(), 90 + random.nextInt(8))
+                };
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 16:
+            case 17:
+            case 18:
+            case 19:
+                return new ItemStack[] {
+                    new ItemStack(ModItems.GRUDGE.get(), 12 + random.nextInt(8)),
+                    new ItemStack(ModItems.ABYSS_METAL.get(), 12 + random.nextInt(8)),
+                    new ItemStack(ModItems.AMMO_LIGHT.get(), 12 + random.nextInt(8)),
+                    new ItemStack(ModItems.ABYSS_POLYMETAL.get(), 12 + random.nextInt(8))
+                };
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+            case 20:
+            case 21:
+            case 22:
+            case 23:
+            case 24:
+            case 25:
+            case 26:
+            case 27:
+            case 28:
+            case 29:
+            case 30:
+            case 31:
+            case 32:
+            case 33:
+            case 34:
+            case 40:
+            case 41:
+            case 42:
+            case 43:
+            case 44:
+            case 45:
+            case 49:
+            case 50:
+            case 72:
+                if (random.nextBoolean()) {
+                    return new ItemStack[] {
+                        new ItemStack(ModItems.GRUDGE_BLOCK.get(), 1),
+                        new ItemStack(ModItems.ABYSSIUM.get(), 1),
+                        new ItemStack(ModItems.AMMO_HEAVY.get(), 1),
+                        new ItemStack(ModItems.POLYMETAL.get(), 1)
+                    };
+                }
+                return new ItemStack[] {
+                    new ItemStack(ModItems.GRUDGE_BLOCK.get(), 10 + random.nextInt(3)),
+                    new ItemStack(ModItems.ABYSSIUM.get(), 10 + random.nextInt(3)),
+                    new ItemStack(ModItems.AMMO_HEAVY.get(), 10 + random.nextInt(3)),
+                    new ItemStack(ModItems.POLYMETAL.get(), 10 + random.nextInt(3))
+                };
+            case 36:
+            case 38:
+            case 39:
+            case 51:
+            case 52:
+            case 53:
+            case 54:
+            case 55:
+                return new ItemStack[] {
+                    new ItemStack(ModItems.GRUDGE.get(), EntityShipBase.KAITAI_AMOUNT_SMALL + random.nextInt((int) (EntityShipBase.KAITAI_AMOUNT_SMALL * 0.25F) + 1)),
+                    new ItemStack(ModItems.ABYSS_METAL.get(), EntityShipBase.KAITAI_AMOUNT_SMALL + random.nextInt((int) (EntityShipBase.KAITAI_AMOUNT_SMALL * 0.25F) + 1)),
+                    new ItemStack(ModItems.AMMO_LIGHT.get(), EntityShipBase.KAITAI_AMOUNT_SMALL + random.nextInt((int) (EntityShipBase.KAITAI_AMOUNT_SMALL * 0.25F) + 1)),
+                    new ItemStack(ModItems.ABYSS_POLYMETAL.get(), EntityShipBase.KAITAI_AMOUNT_SMALL + random.nextInt((int) (EntityShipBase.KAITAI_AMOUNT_SMALL * 0.25F) + 1))
+                };
+            case 56:
+            case 57:
+            case 58:
+            case 59:
+                return new ItemStack[] {
+                    new ItemStack(ModItems.GRUDGE_BLOCK.get(), EntityShipBase.KAITAI_AMOUNT_LARGE + random.nextInt((int) (EntityShipBase.KAITAI_AMOUNT_LARGE * 0.25F) + 1)),
+                    new ItemStack(ModItems.ABYSSIUM.get(), EntityShipBase.KAITAI_AMOUNT_LARGE + random.nextInt((int) (EntityShipBase.KAITAI_AMOUNT_LARGE * 0.25F) + 1)),
+                    new ItemStack(ModItems.AMMO_HEAVY.get(), EntityShipBase.KAITAI_AMOUNT_LARGE + random.nextInt((int) (EntityShipBase.KAITAI_AMOUNT_LARGE * 0.25F) + 1)),
+                    new ItemStack(ModItems.POLYMETAL.get(), EntityShipBase.KAITAI_AMOUNT_LARGE + random.nextInt((int) (EntityShipBase.KAITAI_AMOUNT_LARGE * 0.25F) + 1))
+                };
+            case 37:
+            case 46:
+            case 47:
+            case 48:
+            case 60:
+            case 61:
+            case 62:
+            case 63:
+                return new ItemStack[] {
+                    new ItemStack(ModItems.GRUDGE_BLOCK.get(), EntityShipBase.KAITAI_AMOUNT_LARGE + random.nextInt(EntityShipBase.KAITAI_AMOUNT_LARGE + 1)),
+                    new ItemStack(ModItems.ABYSSIUM.get(), EntityShipBase.KAITAI_AMOUNT_LARGE + random.nextInt(EntityShipBase.KAITAI_AMOUNT_LARGE + 1)),
+                    new ItemStack(ModItems.AMMO_HEAVY.get(), EntityShipBase.KAITAI_AMOUNT_LARGE + random.nextInt(EntityShipBase.KAITAI_AMOUNT_LARGE + 1)),
+                    new ItemStack(ModItems.POLYMETAL.get(), EntityShipBase.KAITAI_AMOUNT_LARGE + random.nextInt(EntityShipBase.KAITAI_AMOUNT_LARGE + 1))
+                };
+            default:
+                return new ItemStack[] {
+                    ItemStack.EMPTY,
+                    ItemStack.EMPTY,
+                    ItemStack.EMPTY,
+                    ItemStack.EMPTY
+                };
+        }
+    }
+
     public static boolean addLargeMaterialStock(int[] matStock, ItemStack stack) {
         if (stack.isEmpty()) {
             return false;
@@ -336,6 +517,55 @@ public final class ShipyardRecipes {
             matStock[0] += 81;
             return true;
         }
+
+        
+        int shipClass = -3;
+        if (stack.is(ModItems.SHIPSPAWNEGGS.get())) {
+            shipClass = -2;
+        } else if (stack.is(ModItems.SHIPSPAWNEGGL.get())) {
+            shipClass = -1;
+        } else if (stack.getItem() instanceof ShipSpawnEggItem shipEgg) {
+            shipClass = getShipClassFromEntityType(shipEgg.getEntityType());
+        }
+
+        if (shipClass >= -2) {
+            ItemStack[] drops = getKaitaiDrops(shipClass, RandomSource.create());
+            for (ItemStack drop : drops) {
+                if (!drop.isEmpty()) {
+                    ItemStack copy = drop.copy();
+                    while (!copy.isEmpty()) {
+                        addLargeMaterialStock(matStock, copy);
+                        copy.shrink(1);
+                    }
+                }
+            }
+            return true;
+        }
+
+        
+        if (stack.getItem() instanceof LegacyEquipItem legacyEquipItem) {
+            int equipId = legacyEquipItem.getEquipId(stack);
+            int[] misc = LegacyEquipStats.getMiscAttrs(equipId);
+            if (misc != null && misc.length >= 5) {
+                int cost = misc[3];
+                int matType = misc[4];
+                if (matType >= 0 && matType < MAT_COUNT) {
+                    int share = Math.max(1, cost / 20);
+
+                    
+                    for (int i = 0; i < 4; i++) {
+                        int amount = share + ThreadLocalRandom.current().nextInt(Math.max(1, share / 4));
+                        matStock[i] += amount;
+                    }
+
+                    
+                    int extra = share + ThreadLocalRandom.current().nextInt(Math.max(1, share / 4));
+                    matStock[matType] += extra;
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 

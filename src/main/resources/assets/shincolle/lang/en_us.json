@@ -232,6 +232,8 @@
     "tile.shincolle.BlockVolBlock.name": "Abyssal Volcano Block",
     "block.shincolle.blockvolcore": "Abyssal Volcano Core",
     "tile.shincolle.BlockVolCore.name": "Abyssal Volcano Core",
+    "block.shincolle.blockvolblock": "Abyssal Volcano Block",
+    "item.shincolle.blockvolblock": "Abyssal Volcano Block",
     "tile.shincolle.BlockWaypoint.name": "Abyssal Waypoint",
     "item.shincolle.AbyssNugget.name": "Abyssium Nugget",
     "item.shincolle.AbyssNugget1.name": "Polymetallic Nugget",

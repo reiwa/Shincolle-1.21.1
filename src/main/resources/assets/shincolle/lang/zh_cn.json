@@ -27,6 +27,8 @@
     "tile.shincolle.BlockVolBlock.name": "深海火山块",
     "tile.shincolle.BlockVolCore.name": "深海火山核心",
     "block.shincolle.blockvolcore": "深海火山核心",
+    "block.shincolle.blockvolblock": "深海火山块",
+    "item.shincolle.blockvolblock": "深海火山块",
     "tile.shincolle.BlockWaypoint.name": "深海路径点",
     "block.shincolle.blockwaypoint": "深海路径点",
     "item.shincolle.blockwaypoint": "深海路径点",

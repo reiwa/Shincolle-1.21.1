@@ -27,6 +27,8 @@
     "tile.shincolle.BlockVolBlock.name": "深海火山方塊",
     "tile.shincolle.BlockVolCore.name": "深海火山核心",
     "block.shincolle.blockvolcore": "深海火山核心",
+    "block.shincolle.blockvolblock": "深海火山方塊",
+    "item.shincolle.blockvolblock": "深海火山方塊",
     "tile.shincolle.BlockWaypoint.name": "深海路標",
     "item.shincolle.AbyssMetal1.name": "多金屬結核",
     "item.shincolle.AbyssNugget.name": "深海金屬粒",

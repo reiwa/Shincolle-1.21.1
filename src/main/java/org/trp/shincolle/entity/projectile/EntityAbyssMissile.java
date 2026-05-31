@@ -34,6 +34,8 @@ import java.util.UUID;
 
 public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpawn {
     public static final int SPECIAL_EFFECT_NONE = 0;
+    public static final int SPECIAL_EFFECT_CLUSTER = 3;
+    public static final int SPECIAL_EFFECT_SUBMUNITION = 4;
     public static final int SPECIAL_EFFECT_PULL_FIELD = 5;
 
     private static final double MIN_DIST_FOR_ARC = 4.0D;
@@ -216,6 +218,9 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
                 onImpact(null);
                 return;
             }
+            if (this.specialEffectType == SPECIAL_EFFECT_CLUSTER) {
+                spawnSubmunitions();
+            }
         }
 
         updateVelocityByMoveType();
@@ -247,6 +252,7 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
 
     @Override
     public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
+        buffer.writeInt(this.specialEffectType);
         buffer.writeEnum(this.moveType);
         buffer.writeDouble(this.velX);
         buffer.writeDouble(this.velY);
@@ -265,6 +271,7 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
 
     @Override
     public void readSpawnData(RegistryFriendlyByteBuf buffer) {
+        this.specialEffectType = buffer.readInt();
         this.moveType = buffer.readEnum(MoveType.class);
         this.velX = buffer.readDouble();
         this.velY = buffer.readDouble();
@@ -458,7 +465,11 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
             }
             case TORPEDO -> updateTorpedoMovement();
             case PRESET_VELOCITY -> {
-
+                if (this.specialEffectType == SPECIAL_EFFECT_SUBMUNITION) {
+                    this.velX *= 0.95D;
+                    this.velY += this.accY1;
+                    this.velZ *= 0.95D;
+                }
             }
         }
     }
@@ -524,6 +535,25 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         effect.initAttrs(owner, this.specialEffectType, life, pullForce, range);
         effect.setPos(this.getX(), this.getY(), this.getZ());
         serverLevel.addFreshEntity(effect);
+    }
+
+    private void spawnSubmunitions() {
+        boolean canSpawn = this.tickCount > 6 && this.tickCount < 41 && (this.tickCount & 7) == 0;
+        if (!canSpawn) {
+            return;
+        }
+        Entity owner = getOwnerEntity();
+        Entity target = getTargetEntity();
+        Vec3 presetVel = this.getDeltaMovement();
+        
+        EntityAbyssMissile subMissile = new EntityAbyssMissile(
+            this.level(), owner, target, this.getDamage() * 0.5F,
+            MoveType.PRESET_VELOCITY, 0.5F, -0.06F, -0.06F, presetVel,
+            140, this.getExplosionRadius() * 0.5F
+        );
+        subMissile.specialEffectType = SPECIAL_EFFECT_SUBMUNITION;
+        subMissile.setPos(this.getX(), this.getY() - 0.65D - Math.abs(presetVel.y), this.getZ());
+        this.level().addFreshEntity(subMissile);
     }
 
     private void spawnImpactParticles(ServerLevel serverLevel) {

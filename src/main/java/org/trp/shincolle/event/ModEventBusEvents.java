@@ -149,7 +149,7 @@ public class ModEventBusEvents {
             return;
         }
 
-        ItemStack pointerStack = getPointerStack(player);
+        ItemStack pointerStack = getPointerStackForLeftClick(player);
         if (pointerStack.isEmpty()) {
             return;
         }
@@ -270,7 +270,7 @@ public class ModEventBusEvents {
     public static void onPointerItemLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         Player player = event.getEntity();
         if (player == null) return;
-        ItemStack pointerStack = getPointerStack(player);
+        ItemStack pointerStack = getPointerStackForLeftClick(player);
         if (pointerStack.isEmpty()) return;
 
         if (player.level().isClientSide) {
@@ -285,8 +285,9 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void onPointerItemRightClickItem(PlayerInteractEvent.RightClickItem event) {
         Player player = event.getEntity();
-        ItemStack pointerStack = player == null ? ItemStack.EMPTY : getPointerStack(player);
-        if (player == null || pointerStack.isEmpty() || player.isShiftKeyDown()) {
+        if (player == null) return;
+        ItemStack pointerStack = event.getItemStack();
+        if (!isPointerItem(pointerStack) || player.isShiftKeyDown()) {
             return;
         }
 
@@ -298,8 +299,9 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void onPointerItemRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();
-        ItemStack pointerStack = player == null ? ItemStack.EMPTY : getPointerStack(player);
-        if (player == null || pointerStack.isEmpty() || player.isShiftKeyDown()) {
+        if (player == null) return;
+        ItemStack pointerStack = event.getItemStack();
+        if (!isPointerItem(pointerStack) || player.isShiftKeyDown()) {
             return;
         }
 
@@ -360,6 +362,18 @@ public class ModEventBusEvents {
         }
         ItemStack off = player.getOffhandItem();
         if (isPointerItem(off)) {
+            return off;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    private static ItemStack getPointerStackForLeftClick(Player player) {
+        ItemStack main = player.getMainHandItem();
+        if (isPointerItem(main)) {
+            return main;
+        }
+        ItemStack off = player.getOffhandItem();
+        if (isPointerItem(off) && main.isEmpty()) {
             return off;
         }
         return ItemStack.EMPTY;

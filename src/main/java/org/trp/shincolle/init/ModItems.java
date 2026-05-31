@@ -322,6 +322,9 @@ public class ModItems {
     public static final DeferredItem<Item> VOL_CORE = ITEMS.register("blockvolcore",
             () -> new BlockItem(ModBlocks.VOL_CORE.get(), new Item.Properties()));
 
+    public static final DeferredItem<Item> VOL_BLOCK = ITEMS.register("blockvolblock",
+            () -> new BlockItem(ModBlocks.VOL_BLOCK.get(), new Item.Properties()));
+
     public static final DeferredItem<Item> WAYPOINT = ITEMS.register("blockwaypoint",
             () -> new BlockItem(ModBlocks.WAYPOINT.get(), new Item.Properties()));
 

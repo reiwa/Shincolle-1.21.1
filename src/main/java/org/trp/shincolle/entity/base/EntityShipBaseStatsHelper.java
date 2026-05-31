@@ -79,6 +79,7 @@ class EntityShipBaseStatsHelper {
         );
 
         this.ship.calcShipAttributesAddEffect();
+        this.applyEquipmentAttackEffects();
 
         if (this.ship.level() != null && !this.ship.level().isClientSide) {
             this.ship.getAttribute(Attributes.MAX_HEALTH).setBaseValue(
@@ -201,6 +202,8 @@ class EntityShipBaseStatsHelper {
         int flareCount = 0;
         int searchlightCount = 0;
 
+        int shipEquipType = this.ship.supportsAircraftCombat() ? 3 : 1;
+
         for (int slot = 0; slot < equipSlots; slot++) {
             ItemStack stack = this.ship.inventory.getStackInSlot(slot);
             if (
@@ -220,16 +223,28 @@ class EntityShipBaseStatsHelper {
                 }
             }
 
-            float[] stats = LegacyEquipStats.getMainAttrs(
-                equipItem.getEquipId(stack)
-            );
+            int equipId = equipItem.getEquipId(stack);
+            int[] misc = LegacyEquipStats.getMiscAttrs(equipId);
+            if (misc != null && misc.length > 0) {
+                int itemEquipType = misc[0];
+                if (shipEquipType != 2 && itemEquipType != 2 && shipEquipType != itemEquipType) {
+                    continue;
+                }
+            }
+
+            float[] stats = LegacyEquipStats.getMainAttrs(equipId);
             if (stats == null) {
                 continue;
             }
 
-            int len = Math.min(equipBonuses.length, stats.length);
+            float[] raw = stats.clone();
+            float[] enchant = org.trp.shincolle.utility.EnchantHelper.calcEnchantEffect(stack);
+            int itemEquipType = (misc != null && misc.length > 0) ? misc[0] : 2;
+            float[] finalStats = calcEquipStatWithEnchant(itemEquipType, raw, enchant);
+
+            int len = Math.min(equipBonuses.length, finalStats.length);
             for (int i = 0; i < len; i++) {
-                equipBonuses[i] += stats[i];
+                equipBonuses[i] += finalStats[i];
             }
         }
 
@@ -239,5 +254,109 @@ class EntityShipBaseStatsHelper {
         this.ship.setStateMinor(EntityShipBase.STATE_MINOR_EQUIP_SEARCHLIGHT, searchlightCount);
 
         return equipBonuses;
+    }
+
+    private static float[] calcEquipStatWithEnchant(int equipType, float[] raw, float[] enchant) {
+        float[] newstat = new float[21];
+        float modTemp;
+        newstat[0] = raw[0] * (1.0f + enchant[0]);
+        modTemp = equipType == 1 ? 1.0f + enchant[1] : 1.0f;
+        newstat[1] = raw[1] * modTemp;
+        newstat[2] = raw[2] * modTemp;
+        newstat[3] = raw[3] * modTemp;
+        newstat[4] = raw[4] * modTemp;
+        modTemp = equipType == 2 ? 1.0f + enchant[5] : 1.0f;
+        newstat[5] = raw[5] * modTemp;
+        newstat[6] = raw[6] * (1.0f + enchant[6]);
+        modTemp = raw[7] < 0.0f ? Math.max(0.0f, 1.0f - enchant[7]) : 1.0f + enchant[7];
+        newstat[7] = raw[7] * modTemp;
+        for (int i = 8; i <= 14; ++i) {
+            newstat[i] = raw[i] * (1.0f + enchant[i]);
+        }
+        modTemp = raw[15] < 0.0f ? Math.max(0.0f, 1.0f - enchant[15]) : 1.0f + enchant[15];
+        newstat[15] = raw[15] * modTemp;
+        newstat[16] = raw[16] + (equipType == 1 ? enchant[16] : 0.0f);
+        newstat[17] = raw[17] + (equipType != 1 ? enchant[17] : 0.0f);
+        newstat[18] = raw[18] + (equipType == 1 ? enchant[18] : 0.0f);
+        newstat[19] = raw[19] + (equipType != 1 ? enchant[19] : 0.0f);
+        newstat[20] = raw[20] + (equipType != 1 ? enchant[20] : 0.0f);
+        return newstat;
+    }
+
+    private void applyEquipmentAttackEffects() {
+        int equipSlots = Math.min(
+            ShipInventoryHandler.getEquipSlotCount(),
+            this.ship.inventory.getSlots()
+        );
+        for (int slot = 0; slot < equipSlots; slot++) {
+            ItemStack stack = this.ship.inventory.getStackInSlot(slot);
+            if (stack.isEmpty() || !(stack.getItem() instanceof LegacyEquipItem equipItem)) {
+                continue;
+            }
+            int typeId = equipItem.getEquipTypeId(stack);
+            if (typeId == EntityShipBase.EQUIP_TYPE_AMMO || typeId == EntityShipBase.EQUIP_TYPE_AMMO_2) {
+                int variant = equipItem.getVariant(stack);
+                switch (variant) {
+                    case 0 -> this.ship.getAttackEffectMap().put(MobEffects.POISON, new int[]{0, 120, 50});
+                    case 1 -> this.ship.getAttackEffectMap().put(MobEffects.POISON, new int[]{1, 120, 70});
+                    case 3 -> this.ship.getAttackEffectMap().put(MobEffects.CONFUSION, new int[]{0, 120, 50});
+                    case 4 -> this.ship.getAttackEffectMap().put(MobEffects.WITHER, new int[]{0, 100, 25});
+                    case 6 -> this.ship.getAttackEffectMap().put(MobEffects.LEVITATION, new int[]{0, 100, 50});
+                    case 7 -> {
+                        net.minecraft.world.item.component.CustomData customData = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+                        if (customData != null) {
+                            net.minecraft.nbt.CompoundTag tag = customData.copyTag();
+                            if (tag.contains("PList", 9)) {
+                                net.minecraft.nbt.ListTag plist = tag.getList("PList", 10);
+                                for (int i = 0; i < plist.size(); i++) {
+                                    net.minecraft.nbt.CompoundTag ptag = plist.getCompound(i);
+                                    int pid = ptag.getInt("PID");
+                                    int plv = ptag.getInt("PLV");
+                                    int ptick = ptag.getInt("PTick");
+                                    int pchance = ptag.getInt("PChance");
+                                    Holder<MobEffect> effHolder = getMobEffectHolderFromOldId(pid);
+                                    if (effHolder != null) {
+                                        this.ship.getAttackEffectMap().put(effHolder, new int[]{plv, ptick, pchance});
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static Holder<MobEffect> getMobEffectHolderFromOldId(int id) {
+        return switch (id) {
+            case 1 -> MobEffects.MOVEMENT_SPEED;
+            case 2 -> MobEffects.MOVEMENT_SLOWDOWN;
+            case 3 -> MobEffects.DIG_SPEED;
+            case 4 -> MobEffects.DIG_SLOWDOWN;
+            case 5 -> MobEffects.DAMAGE_BOOST;
+            case 6 -> MobEffects.HEAL;
+            case 7 -> MobEffects.HARM;
+            case 8 -> MobEffects.JUMP;
+            case 9 -> MobEffects.CONFUSION;
+            case 10 -> MobEffects.REGENERATION;
+            case 11 -> MobEffects.DAMAGE_RESISTANCE;
+            case 12 -> MobEffects.FIRE_RESISTANCE;
+            case 13 -> MobEffects.WATER_BREATHING;
+            case 14 -> MobEffects.INVISIBILITY;
+            case 15 -> MobEffects.BLINDNESS;
+            case 16 -> MobEffects.NIGHT_VISION;
+            case 17 -> MobEffects.HUNGER;
+            case 18 -> MobEffects.WEAKNESS;
+            case 19 -> MobEffects.POISON;
+            case 20 -> MobEffects.WITHER;
+            case 21 -> MobEffects.HEALTH_BOOST;
+            case 22 -> MobEffects.ABSORPTION;
+            case 23 -> MobEffects.SATURATION;
+            case 24 -> MobEffects.GLOWING;
+            case 25 -> MobEffects.LEVITATION;
+            case 26 -> MobEffects.LUCK;
+            case 27 -> MobEffects.UNLUCK;
+            default -> null;
+        };
     }
 }

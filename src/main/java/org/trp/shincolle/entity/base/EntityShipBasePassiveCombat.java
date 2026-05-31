@@ -1,5 +1,9 @@
 package org.trp.shincolle.entity.base;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.FlyingMob;
@@ -10,11 +14,6 @@ import net.minecraft.world.entity.player.Player;
 import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.menu.ShipContainerMenu;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
 final class EntityShipBasePassiveCombat {
 
     private static final int STATE_FLAG_ON_SIGHT = 12;
@@ -23,7 +22,8 @@ final class EntityShipBasePassiveCombat {
     private static final int STATE_FLAG_ANTI_SUB = 20;
     private static final int STATE_FLAG_PASSIVE_ATTACK = 21;
 
-    private static final int STATE_MINOR_FLEE_HP = ShipContainerMenu.STATE_MINOR_FLEE_HP;
+    private static final int STATE_MINOR_FLEE_HP =
+        ShipContainerMenu.STATE_MINOR_FLEE_HP;
 
     private static final int PASSIVE_TARGET_SCAN_INTERVAL = 8;
     private static final int PASSIVE_PATH_RECALC_INTERVAL = 10;
@@ -59,9 +59,13 @@ final class EntityShipBasePassiveCombat {
 
         Entity targetEntity = this.ship.getPointerTargetEntity();
 
-        LivingEntity pointerTarget = targetEntity instanceof LivingEntity ? (LivingEntity) targetEntity : null;
+        LivingEntity pointerTarget = targetEntity instanceof LivingEntity
+            ? (LivingEntity) targetEntity
+            : null;
 
-        if (pointerTarget != null && canAttackTarget(pointerTarget, false, true)) {
+        if (
+            pointerTarget != null && canAttackTarget(pointerTarget, false, true)
+        ) {
             if (this.ship.getTarget() != pointerTarget) {
                 setPassiveCombatTarget(pointerTarget, true);
             }
@@ -69,8 +73,13 @@ final class EntityShipBasePassiveCombat {
 
         LivingEntity currentTarget = this.ship.getTarget();
         if (currentTarget != null) {
-            double maxLostDistance = getPassiveAcquireRangeSqr() * PASSIVE_TARGET_LOST_DISTANCE_MULTIPLIER;
-            if (!isValidPassiveTarget(currentTarget) || this.ship.distanceToSqr(currentTarget) > maxLostDistance) {
+            double maxLostDistance =
+                getPassiveAcquireRangeSqr() *
+                PASSIVE_TARGET_LOST_DISTANCE_MULTIPLIER;
+            if (
+                !isValidPassiveTarget(currentTarget) ||
+                this.ship.distanceToSqr(currentTarget) > maxLostDistance
+            ) {
                 clearTarget(true);
             }
         }
@@ -99,7 +108,8 @@ final class EntityShipBasePassiveCombat {
 
         boolean isRevenge = (target == this.ship.getLastHurtByMob());
         if (!isRevenge && this.ship.getOwner() != null) {
-            isRevenge = (target == this.ship.getOwner().getLastHurtByMob() || target == this.ship.getOwner().getLastHurtMob());
+            isRevenge = (target == this.ship.getOwner().getLastHurtByMob() ||
+                target == this.ship.getOwner().getLastHurtMob());
         }
 
         boolean isCommanded = (target == this.ship.getPointerTargetEntity());
@@ -133,22 +143,33 @@ final class EntityShipBasePassiveCombat {
 
         EntityShipBaseCombat combat = this.ship.getCombat();
         double preferredRangeSqr = getPassivePreferredRangeSqr(target);
-        boolean hasRangedAttack = combat.canUseLightAmmo()
-                || combat.canUseHeavyAmmo()
-                || combat.hasAircraftAttackEnabled();
-        double stopRangeSqr = hasRangedAttack ? preferredRangeSqr + 1.0D : preferredRangeSqr;
+        boolean hasRangedAttack =
+            combat.canUseLightAmmo() ||
+            combat.canUseHeavyAmmo() ||
+            combat.hasAircraftAttackEnabled();
+        double stopRangeSqr = hasRangedAttack
+            ? preferredRangeSqr + 1.0D
+            : preferredRangeSqr;
 
         boolean needsCloser = distanceSqr > stopRangeSqr;
         boolean cannotSee = !onSight && distanceSqr > preferredRangeSqr * 0.5D;
         boolean hasAttackMeans = hasRangedAttack || combat.canUseMeleeAttack();
 
         if (needsCloser || cannotSee) {
-            if (this.ship.shouldFollowOwner() || this.ship.hasPointerTarget() || !hasAttackMeans) {
+            if (
+                this.ship.shouldFollowOwner() ||
+                this.ship.hasPointerTarget() ||
+                !hasAttackMeans
+            ) {
                 return;
             }
             if (this.passiveTargetPathTick-- <= 0) {
                 this.passiveTargetPathTick = PASSIVE_PATH_RECALC_INTERVAL;
-                if (!this.ship.getNavigation().moveTo(target, getPassiveMoveSpeed())) {
+                if (
+                    !this.ship
+                        .getNavigation()
+                        .moveTo(target, getPassiveMoveSpeed())
+                ) {
                     this.passiveTargetPathTick = 2;
                 }
             }
@@ -157,8 +178,14 @@ final class EntityShipBasePassiveCombat {
 
         if (!this.ship.shouldFollowOwner() && !this.ship.hasPointerTarget()) {
             this.ship.getNavigation().stop();
-            this.ship.getMoveControl().setWantedPosition(
-                    this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
+            this.ship
+                .getMoveControl()
+                .setWantedPosition(
+                    this.ship.getX(),
+                    this.ship.getY(),
+                    this.ship.getZ(),
+                    0.0D
+                );
         }
 
         if (!this.isFirstEngagementWaiting) {
@@ -177,19 +204,30 @@ final class EntityShipBasePassiveCombat {
 
         if (combat.canUseLightAmmo() && this.passiveLightCooldownTick <= 0) {
             this.ship.performLightAttack(target);
-            this.passiveLightCooldownTick = Math.max(1, this.ship.getLegacyShipStats().getLightDelay());
+            this.passiveLightCooldownTick = Math.max(
+                1,
+                this.ship.getLegacyShipStats().getLightDelay()
+            );
         }
 
         if (combat.canUseHeavyAmmo() && this.passiveHeavyCooldownTick <= 0) {
             this.ship.performHeavyAttack(target);
-            this.passiveHeavyCooldownTick = Math.max(1, this.ship.getLegacyShipStats().getHeavyDelay());
+            this.passiveHeavyCooldownTick = Math.max(
+                1,
+                this.ship.getLegacyShipStats().getHeavyDelay()
+            );
         }
 
-        if (combat.canUseMeleeAttack()
-                && this.passiveMeleeCooldownTick <= 0
-                && distanceSqr <= getPassiveAttackRangeSqr(target)) {
+        if (
+            combat.canUseMeleeAttack() &&
+            this.passiveMeleeCooldownTick <= 0 &&
+            distanceSqr <= getPassiveAttackRangeSqr(target)
+        ) {
             this.ship.doHurtTarget(target);
-            this.passiveMeleeCooldownTick = Math.max(1, this.ship.getLegacyShipStats().getMeleeDelay());
+            this.passiveMeleeCooldownTick = Math.max(
+                1,
+                this.ship.getLegacyShipStats().getMeleeDelay()
+            );
         }
     }
 
@@ -214,7 +252,9 @@ final class EntityShipBasePassiveCombat {
     private void tryAcquireSelfRevengeTarget() {
         LivingEntity attacker = this.ship.getLastHurtByMob();
         int timestamp = this.ship.getLastHurtByMobTimestamp();
-        if (attacker != null && timestamp != this.passiveLastHurtByMobTimestamp) {
+        if (
+            attacker != null && timestamp != this.passiveLastHurtByMobTimestamp
+        ) {
             this.passiveLastHurtByMobTimestamp = timestamp;
             tryPromoteRevengeTarget(attacker);
         }
@@ -222,20 +262,29 @@ final class EntityShipBasePassiveCombat {
 
     private void tryAcquireOwnerRevengeTarget() {
         LivingEntity owner = this.ship.getOwner();
-        if (owner == null || this.ship.distanceToSqr(owner) > PASSIVE_OWNER_REVENGE_DISTANCE_SQR) {
+        if (
+            owner == null ||
+            this.ship.distanceToSqr(owner) > PASSIVE_OWNER_REVENGE_DISTANCE_SQR
+        ) {
             return;
         }
 
         LivingEntity ownerAttacker = owner.getLastHurtByMob();
         int ownerAttackerTimestamp = owner.getLastHurtByMobTimestamp();
-        if (ownerAttacker != null && ownerAttackerTimestamp != this.passiveLastOwnerHurtByTimestamp) {
+        if (
+            ownerAttacker != null &&
+            ownerAttackerTimestamp != this.passiveLastOwnerHurtByTimestamp
+        ) {
             this.passiveLastOwnerHurtByTimestamp = ownerAttackerTimestamp;
             tryPromoteRevengeTarget(ownerAttacker);
         }
 
         LivingEntity ownerTarget = owner.getLastHurtMob();
         int ownerTargetTimestamp = owner.getLastHurtMobTimestamp();
-        if (ownerTarget != null && ownerTargetTimestamp != this.passiveLastOwnerHurtMobTimestamp) {
+        if (
+            ownerTarget != null &&
+            ownerTargetTimestamp != this.passiveLastOwnerHurtMobTimestamp
+        ) {
             this.passiveLastOwnerHurtMobTimestamp = ownerTargetTimestamp;
             tryPromoteRevengeTarget(ownerTarget);
         }
@@ -252,7 +301,10 @@ final class EntityShipBasePassiveCombat {
             return;
         }
 
-        if (this.ship.distanceToSqr(candidate) < this.ship.distanceToSqr(currentTarget)) {
+        if (
+            this.ship.distanceToSqr(candidate) <
+            this.ship.distanceToSqr(currentTarget)
+        ) {
             setPassiveCombatTarget(candidate, true);
         }
     }
@@ -260,9 +312,13 @@ final class EntityShipBasePassiveCombat {
     private void tryAcquireNearbyCombatTarget() {
         double range = getPassiveAcquireRange();
         double rangeY = range * PASSIVE_TARGET_VERTICAL_RANGE_FACTOR;
-        List<LivingEntity> candidates = this.ship.level().getEntitiesOfClass(LivingEntity.class,
+        List<LivingEntity> candidates = this.ship
+            .level()
+            .getEntitiesOfClass(
+                LivingEntity.class,
                 this.ship.getBoundingBox().inflate(range, rangeY, range),
-                target -> canAttackTarget(target, false, false));
+                target -> canAttackTarget(target, false, false)
+            );
         if (candidates.isEmpty()) {
             return;
         }
@@ -272,8 +328,13 @@ final class EntityShipBasePassiveCombat {
 
         LivingEntity selected;
         if (prioritized.size() > 2) {
-            int pickBound = Math.min(PASSIVE_TARGET_CHOICE_RANDOM_TOP, prioritized.size());
-            selected = prioritized.get(this.ship.getRandom().nextInt(pickBound));
+            int pickBound = Math.min(
+                PASSIVE_TARGET_CHOICE_RANDOM_TOP,
+                prioritized.size()
+            );
+            selected = prioritized.get(
+                this.ship.getRandom().nextInt(pickBound)
+            );
         } else {
             selected = prioritized.get(0);
         }
@@ -281,7 +342,9 @@ final class EntityShipBasePassiveCombat {
         setPassiveCombatTarget(selected, true);
     }
 
-    private List<LivingEntity> pickPrioritizedTargets(List<LivingEntity> candidates) {
+    private List<LivingEntity> pickPrioritizedTargets(
+        List<LivingEntity> candidates
+    ) {
         if (candidates.isEmpty()) {
             return candidates;
         }
@@ -296,7 +359,9 @@ final class EntityShipBasePassiveCombat {
             }
         }
 
-        if (prioritized.isEmpty() && this.ship.getStateFlag(STATE_FLAG_ANTI_SUB)) {
+        if (
+            prioritized.isEmpty() && this.ship.getStateFlag(STATE_FLAG_ANTI_SUB)
+        ) {
             for (LivingEntity target : candidates) {
                 if (isAntiSubTarget(target)) {
                     prioritized.add(target);
@@ -316,17 +381,25 @@ final class EntityShipBasePassiveCombat {
     }
 
     private boolean isAntiAirTarget(LivingEntity target) {
-        return target instanceof EntityAircraftBase || target instanceof FlyingMob;
+        return (
+            target instanceof EntityAircraftBase || target instanceof FlyingMob
+        );
     }
 
     private boolean isAntiSubTarget(LivingEntity target) {
         if (target.isInvisible()) {
             return true;
         }
-        return target instanceof EntityShipBase shipTarget && shipTarget.isInWaterOrBubble();
+        return (
+            target instanceof EntityShipBase shipTarget &&
+            shipTarget.isInWaterOrBubble()
+        );
     }
 
-    private void setPassiveCombatTarget(@Nullable LivingEntity target, boolean resetCooldown) {
+    private void setPassiveCombatTarget(
+        @Nullable LivingEntity target,
+        boolean resetCooldown
+    ) {
         if (target == null) {
             clearTarget(false);
             return;
@@ -345,7 +418,7 @@ final class EntityShipBasePassiveCombat {
     private void resetPassiveCombatCooldowns() {
         int aimTime = getPassiveAimTime();
         this.passiveTargetScanTick = PASSIVE_TARGET_SCAN_INTERVAL;
-        
+
         if (this.passiveMeleeCooldownTick <= 20) {
             this.passiveMeleeCooldownTick = 20;
         }
@@ -355,16 +428,23 @@ final class EntityShipBasePassiveCombat {
         if (this.passiveHeavyCooldownTick <= aimTime * 2) {
             this.passiveHeavyCooldownTick = aimTime * 2;
         }
-        
+
         this.ship.getCombat().resetAircraftLaunchDelay();
     }
 
     private boolean shouldRetreatForLowHealth() {
-        int fleeHp = Mth.clamp(this.ship.getStateMinor(STATE_MINOR_FLEE_HP), 0, 100);
+        int fleeHp = Mth.clamp(
+            this.ship.getStateMinor(STATE_MINOR_FLEE_HP),
+            0,
+            100
+        );
         if (fleeHp <= 0) {
             return false;
         }
-        return this.ship.getHealth() <= this.ship.getMaxHealth() * (fleeHp / 100.0F);
+        return (
+            this.ship.getHealth() <=
+            this.ship.getMaxHealth() * (fleeHp / 100.0F)
+        );
     }
 
     private boolean isValidPassiveTarget(@Nullable LivingEntity target) {
@@ -375,7 +455,11 @@ final class EntityShipBasePassiveCombat {
         return canAttackTarget(target, isRevenge, isCommanded);
     }
 
-    private boolean canAttackTarget(@Nullable LivingEntity target, boolean revengeContext, boolean commandContext) {
+    private boolean canAttackTarget(
+        @Nullable LivingEntity target,
+        boolean revengeContext,
+        boolean commandContext
+    ) {
         if (target == null) return false;
         if (isGlobalUnattackable(target)) {
             return false;
@@ -394,7 +478,10 @@ final class EntityShipBasePassiveCombat {
             return false;
         }
 
-        if (target instanceof Player player && player.getAbilities().invulnerable) {
+        if (
+            target instanceof Player player &&
+            player.getAbilities().invulnerable
+        ) {
             return false;
         }
 
@@ -408,7 +495,11 @@ final class EntityShipBasePassiveCombat {
             return true;
         }
 
-        if (target.isInvisible() && this.ship.getStateMinor(38) < 1 && this.ship.getStateMinor(39) < 1) {
+        if (
+            target.isInvisible() &&
+            this.ship.getStateMinor(38) < 1 &&
+            this.ship.getStateMinor(39) < 1
+        ) {
             return false;
         }
 
@@ -420,7 +511,10 @@ final class EntityShipBasePassiveCombat {
             if (target instanceof Enemy) {
                 return true;
             }
-            if (target instanceof EntityShipBase shipTarget && shipTarget.getOwnerUUID() == null) {
+            if (
+                target instanceof EntityShipBase shipTarget &&
+                shipTarget.getOwnerUUID() == null
+            ) {
                 return true;
             }
             if (isPlayerOrShip(target)) {
@@ -432,7 +526,10 @@ final class EntityShipBasePassiveCombat {
             return false;
         }
 
-        if (target instanceof EntityShipBase shipTarget && shipTarget.getOwnerUUID() == null) {
+        if (
+            target instanceof EntityShipBase shipTarget &&
+            shipTarget.getOwnerUUID() == null
+        ) {
             return false;
         }
 
@@ -455,7 +552,11 @@ final class EntityShipBasePassiveCombat {
         if (target == null) return false;
         if (this.ship.level().isClientSide) return false;
 
-        java.util.HashSet<String> unatk = this.ship.level().getData(org.trp.shincolle.init.ModDataAttachments.UNATTACKABLE_TARGETS);
+        java.util.HashSet<String> unatk = this.ship
+            .level()
+            .getData(
+                org.trp.shincolle.init.ModDataAttachments.UNATTACKABLE_TARGETS
+            );
         if (unatk != null) {
             String className = target.getClass().getSimpleName();
             return unatk.contains(className);
@@ -467,7 +568,9 @@ final class EntityShipBasePassiveCombat {
         Player owner = this.ship.getOwnerPlayer();
         if (owner == null) return false;
 
-        org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+        org.trp.shincolle.attachment.AdmiralData data = owner.getData(
+            org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA
+        );
         if (data != null) {
             String targetName = target.getClass().getSimpleName();
             return data.getCustomTargetClasses().contains(targetName);
@@ -484,9 +587,11 @@ final class EntityShipBasePassiveCombat {
             return true;
         }
 
-        return target instanceof EntityShipBase shipTarget
-                && this.ship.getOwnerUUID() == null
-                && shipTarget.getOwnerUUID() == null;
+        return (
+            target instanceof EntityShipBase shipTarget &&
+            this.ship.getOwnerUUID() == null &&
+            shipTarget.getOwnerUUID() == null
+        );
     }
 
     private boolean sharesOwner(Entity target) {
@@ -510,13 +615,22 @@ final class EntityShipBasePassiveCombat {
     }
 
     private int getPassiveAimTime() {
-        return Math.max(5, (int) (20.0F * (150 - this.ship.getLevel()) / 150.0F) + 10);
+        return Math.max(
+            5,
+            (int) ((20.0F * (150 - this.ship.getLevel())) / 150.0F) + 10
+        );
     }
 
     private double getPassiveAcquireRange() {
-        double range = Math.max(2.0D, this.ship.getLegacyShipStats().getAttackRange());
+        double range = Math.max(
+            2.0D,
+            this.ship.getLegacyShipStats().getAttackRange()
+        );
         if (this.ship.getCombat().hasAircraftAttackEnabled()) {
-            range = Math.max(range, this.ship.getLegacyShipStats().getAttackRange() * 1.5D);
+            range = Math.max(
+                range,
+                this.ship.getLegacyShipStats().getAttackRange() * 1.5D
+            );
         }
         return range;
     }
@@ -536,12 +650,18 @@ final class EntityShipBasePassiveCombat {
         EntityShipBaseCombat combat = this.ship.getCombat();
 
         if (combat.canUseLightAmmo() || combat.canUseHeavyAmmo()) {
-            double range = Math.max(2.0D, this.ship.getLegacyShipStats().getAttackRange());
+            double range = Math.max(
+                2.0D,
+                this.ship.getLegacyShipStats().getAttackRange()
+            );
             return range * range;
         }
 
         if (combat.hasAircraftAttackEnabled()) {
-            double range = Math.max(24.0D, this.ship.getLegacyShipStats().getAttackRange() * 1.5D);
+            double range = Math.max(
+                24.0D,
+                this.ship.getLegacyShipStats().getAttackRange() * 1.5D
+            );
             return range * range;
         }
 
@@ -554,14 +674,29 @@ final class EntityShipBasePassiveCombat {
     }
 
     private boolean canFight() {
-        if (shouldRetreatForLowHealth() || this.ship.isCombatSuppressed() ||
-                this.ship.isInDeadPose() || this.ship.isPassenger() || this.ship.isVehicle()) {
+        if (
+            shouldRetreatForLowHealth() ||
+            this.ship.isCombatSuppressed() ||
+            this.ship.isInDeadPose() ||
+            this.ship.isVehicle()
+        ) {
+            return false;
+        }
+        
+        if (
+            this.ship.isPassenger() &&
+            !(this.ship.getVehicle() instanceof EntityMountBase)
+        ) {
             return false;
         }
         return !this.ship.isNoFuel();
     }
 
-    private boolean isAttackAllowed(@Nullable LivingEntity target, boolean isRevenge, boolean isCommanded) {
+    private boolean isAttackAllowed(
+        @Nullable LivingEntity target,
+        boolean isRevenge,
+        boolean isCommanded
+    ) {
         if (!canFight()) return false;
 
         if (isRevenge || isCommanded) return true;

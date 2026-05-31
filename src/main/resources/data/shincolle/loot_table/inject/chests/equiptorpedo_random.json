@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {"type": "minecraft:item", "name": "shincolle:equiptorpedo", "weight": 1, "functions": [{"function": "minecraft:set_custom_data", "tag": {"LegacyVariant": 0}}]},
+        {"type": "minecraft:item", "name": "shincolle:equiptorpedo", "weight": 1, "functions": [{"function": "minecraft:set_custom_data", "tag": {"LegacyVariant": 1}}]},
+        {"type": "minecraft:item", "name": "shincolle:equiptorpedo", "weight": 1, "functions": [{"function": "minecraft:set_custom_data", "tag": {"LegacyVariant": 2}}]},
+        {"type": "minecraft:item", "name": "shincolle:equiptorpedo", "weight": 1, "functions": [{"function": "minecraft:set_custom_data", "tag": {"LegacyVariant": 3}}]},
+        {"type": "minecraft:item", "name": "shincolle:equiptorpedo", "weight": 1, "functions": [{"function": "minecraft:set_custom_data", "tag": {"LegacyVariant": 4}}]},
+        {"type": "minecraft:item", "name": "shincolle:equiptorpedo", "weight": 1, "functions": [{"function": "minecraft:set_custom_data", "tag": {"LegacyVariant": 5}}]},
+        {"type": "minecraft:item", "name": "shincolle:equiptorpedo", "weight": 1, "functions": [{"function": "minecraft:set_custom_data", "tag": {"LegacyVariant": 6}}]}
+      ]
+    }
+  ]
+}

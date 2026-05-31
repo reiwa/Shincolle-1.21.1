@@ -356,11 +356,11 @@ public class ModelCarrierWo<T extends EntityShipBase> extends ShipModelHumanoidB
             return;
         }
 
-        this.EquipBase.visible = hasLegacyModelFlag(entity, 0);
-        this.GlowEquipBase.visible = this.EquipBase.visible;
-        this.Staff.visible = hasLegacyModelFlag(entity, 1);
-        this.Neck.visible = hasLegacyModelFlag(entity, 2);
-        this.CloakNeck.visible = hasLegacyModelFlag(entity, 3);
+        this.EquipBase.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierWo.EQUIP_EQUIPBASE);
+        this.GlowEquipBase.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierWo.EQUIP_EQUIPBASE);
+        this.Staff.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierWo.EQUIP_STAFF);
+        this.Neck.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierWo.EQUIP_NECK);
+        this.CloakNeck.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierWo.EQUIP_CLOAKNECK);
     }
 
     private void applyDeadPose() {
@@ -624,7 +624,7 @@ public class ModelCarrierWo<T extends EntityShipBase> extends ShipModelHumanoidB
         if (isSitting) {
             this.isSittingPose = true;
             if (hasLegacyState(entity, 1, 4)) {
-                this.poseTranslateY += 0.41F;
+                this.poseTranslateY += 0.41F*3;
                 this.BodyMain.xRot = 0.2094F;
                 this.BodyMain.yRot = 0.0F;
                 this.BodyMain.zRot = 0.0F;

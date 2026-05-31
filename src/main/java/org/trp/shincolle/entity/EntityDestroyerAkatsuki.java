@@ -1,7 +1,10 @@
 package org.trp.shincolle.entity;
 
-import net.minecraft.nbt.CompoundTag;
+import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -16,18 +19,18 @@ import net.minecraft.world.level.Level;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModItems;
 
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Objects;
-
-public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRiderType {
+public class EntityDestroyerAkatsuki
+    extends EntityShipBase
+    implements IShipRiderType
+{
 
     public static final String EQUIP_RIGGING = "equip_rigging";
     public static final String EQUIP_ANCHOR = "equip_anchor";
     public static final String EQUIP_HAT = "equip_hat";
     public static final String EQUIP_HAND_CANNON = "equip_hand_cannon";
     public static final String EQUIP_ARM_TORPEDO = "equip_arm_torpedo";
-    public static final String EQUIP_SHOULDER_SEARCHLIGHT = "equip_shoulder_searchlight";
+    public static final String EQUIP_SHOULDER_SEARCHLIGHT =
+        "equip_shoulder_searchlight";
 
     private static final int STATE_FLAG_15 = 15;
     private static final int STATE_FLAG_16 = 16;
@@ -44,14 +47,20 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
     private long akatsukiGattaiExpireTick = 0L;
     private long akatsukiGattaiCooldownUntilTick = 0L;
 
-    public EntityDestroyerAkatsuki(EntityType<? extends TamableAnimal> type, Level level) {
+    public EntityDestroyerAkatsuki(
+        EntityType<? extends TamableAnimal> type,
+        Level level
+    ) {
         super(type, level);
         setStateMinor(STATE_MINOR_FACTION_ID, -1);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 51);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 5);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeDD);
-        setModelPos(new float[]{0.0f, 25.0f, 0.0f, 50.0f});
+        setStateMinor(
+            STATE_MINOR_GRUDGE_CONSUMPTION,
+            org.trp.shincolle.Config.fuelConsumeDD
+        );
+        setModelPos(new float[] { 0.0f, 25.0f, 0.0f, 50.0f });
         setStateFlag(STATE_FLAG_15, false);
         setStateFlag(STATE_FLAG_16, false);
         setStateCanRide(true);
@@ -59,16 +68,19 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
 
     public static AttributeSupplier.Builder createAttributes() {
         return TamableAnimal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 160.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                .add(Attributes.ATTACK_DAMAGE, 8.0D)
-                .add(Attributes.FOLLOW_RANGE, 36.0D)
-                .add(Attributes.STEP_HEIGHT, 1.0D);
+            .add(Attributes.MAX_HEALTH, 160.0D)
+            .add(Attributes.MOVEMENT_SPEED, 0.25D)
+            .add(Attributes.ATTACK_DAMAGE, 8.0D)
+            .add(Attributes.FOLLOW_RANGE, 36.0D)
+            .add(Attributes.STEP_HEIGHT, 1.0D);
     }
 
     @Nullable
     @Override
-    public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
+    public AgeableMob getBreedOffspring(
+        ServerLevel level,
+        AgeableMob otherParent
+    ) {
         return null;
     }
 
@@ -78,14 +90,30 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
     }
 
     @Override
+    protected boolean hasSearchlightEquip() {
+        return super.hasSearchlightEquip() || this.isStateMarried();
+    }
+
+    @Override
     public List<EquipOption> getEquipOptions() {
-        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        List<EquipOption> list = new java.util.ArrayList<>(
+            super.getEquipOptions()
+        );
         list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
         list.add(new EquipOption(EQUIP_ANCHOR, "gui.shincolle.equip.anchor"));
         list.add(new EquipOption(EQUIP_HAT, "gui.shincolle.equip.hat"));
-        list.add(new EquipOption(EQUIP_HAND_CANNON, "gui.shincolle.equip.cannon"));
-        list.add(new EquipOption(EQUIP_ARM_TORPEDO, "gui.shincolle.equip.torpedo"));
-        list.add(new EquipOption(EQUIP_SHOULDER_SEARCHLIGHT, "gui.shincolle.equip.shoulder_searchlight"));
+        list.add(
+            new EquipOption(EQUIP_HAND_CANNON, "gui.shincolle.equip.cannon")
+        );
+        list.add(
+            new EquipOption(EQUIP_ARM_TORPEDO, "gui.shincolle.equip.torpedo")
+        );
+        list.add(
+            new EquipOption(
+                EQUIP_SHOULDER_SEARCHLIGHT,
+                "gui.shincolle.equip.shoulder_searchlight"
+            )
+        );
         return list;
     }
 
@@ -118,24 +146,55 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
         }
 
         double baseOffset = this.getIsSitting() ? 0.26 : 0.68;
-        double yOffsetEmotion = this.getStateEmotion(1) == 4 || this.getIsSitting() ? 0.0 : 0.1;
+        double yOffsetEmotion =
+            this.getStateEmotion(1) == 4 || this.getIsSitting() ? 0.0 : 0.1;
 
         if (passenger instanceof EntityDestroyerHibiki hibiki) {
             hibiki.setStateEmotion(1, this.getStateEmotion(1), false);
-            float[] partPos = rotateXZByAxis(-0.2f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
-            moveFunction.accept(passenger, this.getX() + partPos[1], this.getY() + baseOffset + yOffsetEmotion*2.5 - 0.4F, this.getZ() + partPos[0]);
+            float[] partPos = rotateXZByAxis(
+                -0.2f,
+                0.0f,
+                (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD,
+                1.0f
+            );
+            moveFunction.accept(
+                passenger,
+                this.getX() + partPos[1],
+                this.getY() + baseOffset + yOffsetEmotion * 2.5 - 0.4F,
+                this.getZ() + partPos[0]
+            );
             return;
         }
         if (passenger instanceof EntityDestroyerInazuma inazuma) {
             inazuma.setStateEmotion(1, this.getStateEmotion(1), false);
-            float[] partPos = rotateXZByAxis(-0.48f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
-            moveFunction.accept(passenger, this.getX() + partPos[1], this.getY() + baseOffset + yOffsetEmotion*4.5 - 0.05F, this.getZ() + partPos[0]);
+            float[] partPos = rotateXZByAxis(
+                -0.48f,
+                0.0f,
+                (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD,
+                1.0f
+            );
+            moveFunction.accept(
+                passenger,
+                this.getX() + partPos[1],
+                this.getY() + baseOffset + yOffsetEmotion * 4.5 - 0.05F,
+                this.getZ() + partPos[0]
+            );
             return;
         }
         if (passenger instanceof EntityDestroyerIkazuchi ikazuchi) {
             ikazuchi.setStateEmotion(1, this.getStateEmotion(1), false);
-            float[] partPos = rotateXZByAxis(-0.68f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
-            moveFunction.accept(passenger, this.getX() + partPos[1], this.getY() + baseOffset + yOffsetEmotion*6 + 0.4F, this.getZ() + partPos[0]);
+            float[] partPos = rotateXZByAxis(
+                -0.68f,
+                0.0f,
+                (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD,
+                1.0f
+            );
+            moveFunction.accept(
+                passenger,
+                this.getX() + partPos[1],
+                this.getY() + baseOffset + yOffsetEmotion * 6 + 0.4F,
+                this.getZ() + partPos[0]
+            );
             return;
         }
 
@@ -144,7 +203,9 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
 
     public double getPassengersRidingOffset() {
         if (this.getIsSitting()) {
-            return this.getStateEmotion(1) == 4 ? this.getBbHeight() * -0.07f : this.getBbHeight() * 0.26f;
+            return this.getStateEmotion(1) == 4
+                ? this.getBbHeight() * -0.07f
+                : this.getBbHeight() * 0.26f;
         }
         return this.getBbHeight() * 0.64f;
     }
@@ -160,13 +221,27 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
 
     private void updateClientEffects() {
         if ((this.tickCount % 4) == 0) {
-            if (!this.getIsSitting() && this.getEquipFlag(EQUIP_RIGGING)
-                    && this.riderType < 1) {
+            if (
+                !this.getIsSitting() &&
+                this.getEquipFlag(EQUIP_RIGGING) &&
+                this.riderType < 1
+            ) {
                 float addZ = this.isPassenger() ? -0.2f : 0.0f;
-                float[] partPos = rotateXZByAxis(-0.42f + addZ, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
-                this.level().addParticle(ParticleTypes.SMOKE,
-                        this.getX() + partPos[1], this.getY() + 1.4D, this.getZ() + partPos[0],
-                        0.0D, 0.0D, 0.0D);
+                float[] partPos = rotateXZByAxis(
+                    -0.42f + addZ,
+                    0.0f,
+                    (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD,
+                    1.0f
+                );
+                this.level().addParticle(
+                    ParticleTypes.SMOKE,
+                    this.getX() + partPos[1],
+                    this.getY() + 1.4D,
+                    this.getZ() + partPos[0],
+                    0.0D,
+                    0.0D,
+                    0.0D
+                );
             }
         }
     }
@@ -176,7 +251,12 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
             return;
         }
 
-        if (this.riderType == 2 || this.riderType == 4 || this.riderType == 5 || this.riderType == 6) {
+        if (
+            this.riderType == 2 ||
+            this.riderType == 4 ||
+            this.riderType == 5 ||
+            this.riderType == 6
+        ) {
             dismountAllRider();
         }
         if (this.riderType > 0) {
@@ -192,11 +272,25 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
     }
 
     private void applyPlayerBuff() {
-        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
-            if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
+        if (
+            this.isStateMarried() &&
+            this.isStateRingEffect() &&
+            this.getStateMinor(6) > 0
+        ) {
+            if (
+                this.getOwnerPlayer() != null &&
+                this.distanceToSqr(this.getOwnerPlayer()) < 256.0D
+            ) {
                 int amp = this.getStateMinor(0) / 30;
-                this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.DIG_SPEED,
-                        80 + this.getStateMinor(0), amp, false, false));
+                this.getOwnerPlayer().addEffect(
+                    new MobEffectInstance(
+                        MobEffects.DIG_SPEED,
+                        80 + this.getStateMinor(0),
+                        amp,
+                        false,
+                        false
+                    )
+                );
             }
         }
     }
@@ -219,7 +313,9 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
 
     private void addMoraleToRider() {
         for (Entity rider : this.getPassengers()) {
-            if (rider instanceof EntityShipBase ship && ship.getMorale() < 7650) {
+            if (
+                rider instanceof EntityShipBase ship && ship.getMorale() < 7650
+            ) {
                 ship.addMorale(100);
             }
             if (rider instanceof IShipRiderType riderShip) {
@@ -232,7 +328,10 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
         if (ship == null) {
             return false;
         }
-        if (this.getFormationTeam() == -1 || ship.getFormationTeam() != this.getFormationTeam()) {
+        if (
+            this.getFormationTeam() == -1 ||
+            ship.getFormationTeam() != this.getFormationTeam()
+        ) {
             return false;
         }
         if (!ship.isAlive()) {
@@ -258,7 +357,10 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
             if (vehicle == this) {
                 return true;
             }
-            if (ship instanceof EntityDestroyerIkazuchi && vehicle instanceof EntityDestroyerInazuma) {
+            if (
+                ship instanceof EntityDestroyerIkazuchi &&
+                vehicle instanceof EntityDestroyerInazuma
+            ) {
                 return true;
             }
             return false;
@@ -278,23 +380,37 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
         if (this.getHealth() <= this.getMaxHealth() * 0.5f) {
             return;
         }
-        if (this.getIsSitting() || this.isStateNoEquip() || this.riderType == RIDER_TYPE_ALL) {
+        if (
+            this.getIsSitting() ||
+            this.isStateNoEquip() ||
+            this.riderType == RIDER_TYPE_ALL
+        ) {
             return;
         }
 
-        List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
-                this.getBoundingBox().inflate(6.0D, 5.0D, 6.0D));
+        List<EntityShipBase> ships = this.level().getEntitiesOfClass(
+            EntityShipBase.class,
+            this.getBoundingBox().inflate(6.0D, 5.0D, 6.0D)
+        );
 
         EntityDestroyerHibiki hibiki = null;
         EntityDestroyerInazuma inazuma = null;
         EntityDestroyerIkazuchi ikazuchi = null;
 
         for (EntityShipBase ship : ships) {
-            if (ship instanceof EntityDestroyerHibiki && isGattaiCandidate(ship)) {
+            if (
+                ship instanceof EntityDestroyerHibiki && isGattaiCandidate(ship)
+            ) {
                 hibiki = (EntityDestroyerHibiki) ship;
-            } else if (ship instanceof EntityDestroyerInazuma && isGattaiCandidate(ship)) {
+            } else if (
+                ship instanceof EntityDestroyerInazuma &&
+                isGattaiCandidate(ship)
+            ) {
                 inazuma = (EntityDestroyerInazuma) ship;
-            } else if (ship instanceof EntityDestroyerIkazuchi && isGattaiCandidate(ship)) {
+            } else if (
+                ship instanceof EntityDestroyerIkazuchi &&
+                isGattaiCandidate(ship)
+            ) {
                 ikazuchi = (EntityDestroyerIkazuchi) ship;
             }
         }
@@ -363,51 +479,79 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
 
         if (isFullyCombined) {
             if (this.akatsukiGattaiExpireTick == 0L) {
-                this.akatsukiGattaiExpireTick = this.level().getGameTime() + AKATSUKI_GATTAI_DURATION_TICKS;
+                this.akatsukiGattaiExpireTick =
+                    this.level().getGameTime() + AKATSUKI_GATTAI_DURATION_TICKS;
             }
-            if (this.getIsSitting() || this.isInDeadPose() || this.getHealth() <= this.getMaxHealth() * 0.5f || isGattaiDurationExpired()) {
+            if (
+                this.getIsSitting() ||
+                this.isInDeadPose() ||
+                this.getHealth() <= this.getMaxHealth() * 0.5f ||
+                isGattaiDurationExpired()
+            ) {
                 dismountAllRider();
             }
         } else {
             this.akatsukiGattaiExpireTick = 0L;
-            if (this.riderType > 0 && this.riderType != RIDER_TYPE_HIBIKI && this.riderType != (RIDER_TYPE_HIBIKI | RIDER_TYPE_INAZUMA)) {
+            if (
+                this.riderType > 0 &&
+                this.riderType != RIDER_TYPE_HIBIKI &&
+                this.riderType != (RIDER_TYPE_HIBIKI | RIDER_TYPE_INAZUMA)
+            ) {
                 dismountAllRider();
             }
         }
 
-        if (this.akatsukiGattaiCooldownUntilTick > 0L && this.level().getGameTime() >= this.akatsukiGattaiCooldownUntilTick) {
+        if (
+            this.akatsukiGattaiCooldownUntilTick > 0L &&
+            this.level().getGameTime() >= this.akatsukiGattaiCooldownUntilTick
+        ) {
             this.akatsukiGattaiCooldownUntilTick = 0L;
         }
     }
 
     private boolean isGattaiDurationExpired() {
-        return this.akatsukiGattaiExpireTick > 0L && this.level().getGameTime() >= this.akatsukiGattaiExpireTick;
+        return (
+            this.akatsukiGattaiExpireTick > 0L &&
+            this.level().getGameTime() >= this.akatsukiGattaiExpireTick
+        );
     }
 
     public boolean isGattaiCooldownActive() {
-        return this.akatsukiGattaiCooldownUntilTick > this.level().getGameTime();
+        return (
+            this.akatsukiGattaiCooldownUntilTick > this.level().getGameTime()
+        );
     }
 
     public void startGattaiCooldown() {
         this.akatsukiGattaiExpireTick = 0L;
         this.akatsukiGattaiCooldownUntilTick = Math.max(
-                this.akatsukiGattaiCooldownUntilTick,
-                this.level().getGameTime() + AKATSUKI_GATTAI_COOLDOWN_TICKS
+            this.akatsukiGattaiCooldownUntilTick,
+            this.level().getGameTime() + AKATSUKI_GATTAI_COOLDOWN_TICKS
         );
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        compound.putLong("AkatsukiGattaiExpireTick", this.akatsukiGattaiExpireTick);
-        compound.putLong("AkatsukiGattaiCooldownUntilTick", this.akatsukiGattaiCooldownUntilTick);
+        compound.putLong(
+            "AkatsukiGattaiExpireTick",
+            this.akatsukiGattaiExpireTick
+        );
+        compound.putLong(
+            "AkatsukiGattaiCooldownUntilTick",
+            this.akatsukiGattaiCooldownUntilTick
+        );
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        this.akatsukiGattaiExpireTick = compound.getLong("AkatsukiGattaiExpireTick");
-        this.akatsukiGattaiCooldownUntilTick = compound.getLong("AkatsukiGattaiCooldownUntilTick");
+        this.akatsukiGattaiExpireTick = compound.getLong(
+            "AkatsukiGattaiExpireTick"
+        );
+        this.akatsukiGattaiCooldownUntilTick = compound.getLong(
+            "AkatsukiGattaiCooldownUntilTick"
+        );
     }
 
     @Override
@@ -521,12 +665,12 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
         }
     }
 
-
     @Override
     public boolean supportsItemPickup() {
         return true;
     }
-protected Item getShipSpawnEggItem() {
+
+    protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_AKATSUKI_SPAWN_EGG.get();
     }
 }

@@ -33,6 +33,10 @@ public class OwnedSpawnEggItem extends DeferredSpawnEggItem {
         this.typeSupplier = type;
     }
 
+    public EntityType<?> getEntityType() {
+        return this.typeSupplier.get();
+    }
+
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();

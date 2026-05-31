@@ -1,9 +1,16 @@
 {
   "replace": false,
   "entries": [
-    "shincolle:chest_inject_basic",
-    "shincolle:chest_inject_mid",
-    "shincolle:chest_inject_high",
+    "shincolle:chest_inject_spawn_bonus_chest",
+    "shincolle:chest_inject_igloo",
+    "shincolle:chest_inject_simple_dungeon",
+    "shincolle:chest_inject_village_blacksmith",
+    "shincolle:chest_inject_abandoned_mineshaft",
+    "shincolle:chest_inject_desert_pyramid",
+    "shincolle:chest_inject_jungle_temple",
+    "shincolle:chest_inject_nether_bridge",
+    "shincolle:chest_inject_stronghold",
+    "shincolle:chest_inject_end_city",
     "shincolle:chest_inject_trial"
   ]
 }

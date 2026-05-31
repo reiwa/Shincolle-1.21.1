@@ -29,6 +29,7 @@ import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.init.ModSounds;
 import org.trp.shincolle.menu.CraneMenu;
 import org.trp.shincolle.utility.InventoryHelper;
+import org.trp.shincolle.item.LegacyEquipItem;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -351,11 +352,44 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         return true;
     }
 
+    private int calcLiquidRate(EntityShipBase ship) {
+        int totalDrums = 0;
+        int totalEnchants = 0;
+        
+        if (ship.getStateMinor(EntityShipBase.STATE_MINOR_FACTION_ID) == 7 && ship.isStateMarried()) {
+            totalDrums = 1;
+        }
+        
+        int equipSlots = Math.min(
+            org.trp.shincolle.inventory.ShipInventoryHandler.getEquipSlotCount(),
+            ship.getInventory().getSlots()
+        );
+        for (int slot = 0; slot < equipSlots; slot++) {
+            ItemStack stack = ship.getInventory().getStackInSlot(slot);
+            if (stack.isEmpty() || !(stack.getItem() instanceof LegacyEquipItem equipItem)) {
+                continue;
+            }
+            if (equipItem.getEquipTypeId(stack) == EntityShipBase.EQUIP_TYPE_DRUM &&
+                equipItem.getVariant(stack) == EntityShipBase.EQUIP_DRUM_VARIANT_LIQUID) {
+                totalDrums += 1;
+                totalEnchants += org.trp.shincolle.utility.EnchantHelper.calcEnchantNumber(stack);
+            }
+        }
+        
+        return (totalEnchants * 5 + totalDrums * 40) * 16 * ((int)(ship.getLevel() * 0.1F) + 1);
+    }
+
     private boolean applyLiquidTransfer(int mode) {
         if (this.craningShip == null) return false;
+        int rateLiquid = calcLiquidRate(this.craningShip);
+        if (rateLiquid <= 0) return false;
+
         if (mode == 1) { 
             if (this.fluidTank.getFluidAmount() <= 0) return false;
             FluidStack toFill = this.fluidTank.getFluid().copy();
+            if (toFill.getAmount() > rateLiquid) {
+                toFill.setAmount(rateLiquid);
+            }
             int amountBefore = toFill.getAmount();
             if (InventoryHelper.tryFillContainer(this.craningShip.getInventory(), toFill)) {
                 int filled = amountBefore - toFill.getAmount();
@@ -365,7 +399,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
                 }
             }
         } else if (mode == 2) { 
-            int maxDrain = Math.min(1000, this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount());
+            int maxDrain = Math.min(rateLiquid, this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount());
             if (maxDrain <= 0) return false;
             FluidStack drained = InventoryHelper.tryDrainContainer(this.craningShip.getInventory(), this.fluidTank.getFluid(), maxDrain);
             if (!drained.isEmpty()) {

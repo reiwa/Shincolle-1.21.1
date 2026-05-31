@@ -19,7 +19,6 @@ public class EntityCarrierWo extends EntityShipBase {
 
     public static final String EQUIP_CLOAKNECK = "equip_cloakneck";
     public static final String EQUIP_EQUIPBASE = "equip_equipbase";
-    public static final String EQUIP_GLOWEQUIPBASE = "equip_glowequipbase";
     public static final String EQUIP_NECK = "equip_neck";
     public static final String EQUIP_STAFF = "equip_staff";
 
@@ -145,7 +144,6 @@ public class EntityCarrierWo extends EntityShipBase {
         List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
         list.add(new EquipOption(EQUIP_CLOAKNECK, "gui.shincolle.equip.cloakneck"));
         list.add(new EquipOption(EQUIP_EQUIPBASE, "gui.shincolle.equip.equipbase"));
-        list.add(new EquipOption(EQUIP_GLOWEQUIPBASE, "gui.shincolle.equip.glowequipbase"));
         list.add(new EquipOption(EQUIP_NECK, "gui.shincolle.equip.neck"));
         list.add(new EquipOption(EQUIP_STAFF, "gui.shincolle.equip.staff"));
         return list;

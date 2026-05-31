@@ -1,0 +1,71 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 1.0,
+        "max": 4.0
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "shincolle:trainingbook",
+          "weight": 6,
+          "conditions": [
+            {
+              "condition": "minecraft:random_chance",
+              "chance": 0.8
+            }
+          ],
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1.0,
+                "max": 3.0
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "shincolle:marriagering",
+          "weight": 6,
+          "conditions": [
+            {
+              "condition": "minecraft:random_chance",
+              "chance": 0.7
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "shincolle:shipspawneggs",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "shincolle:shipspawneggl",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "shincolle:inject/chests/equipcannon_random",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "shincolle:inject/chests/equipairplane_random",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "shincolle:inject/chests/equiptorpedo_random",
+          "weight": 8
+        }
+      ]
+    }
+  ]
+}

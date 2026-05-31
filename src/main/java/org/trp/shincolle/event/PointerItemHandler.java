@@ -19,28 +19,36 @@ public class PointerItemHandler {
 
     @SubscribeEvent
     public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        
-        
         if (event.getLevel().isClientSide) {
-            handleLeftClick(event.getEntity());
             if (event.getEntity().isShiftKeyDown()) {
-                event.setCanceled(true);
+                boolean handled = handleLeftClick(event.getEntity());
+                if (handled) {
+                    event.setCanceled(true);
+                }
             }
         }
     }
 
-    private static void handleLeftClick(Player player) {
+    private static boolean handleLeftClick(Player player) {
         if (!player.isShiftKeyDown()) {
-            return;
+            return false;
         }
-        ItemStack stack = player.getMainHandItem();
-        if (stack.is(ModItems.POINTER_ITEM.get()) && stack.getItem() instanceof PointerItem pointer) {
-            pointer.onSwingMiss(player, stack);
-        } else {
-            stack = player.getOffhandItem();
-            if (stack.is(ModItems.POINTER_ITEM.get()) && stack.getItem() instanceof PointerItem pointer) {
-                pointer.onSwingMiss(player, stack);
+        ItemStack main = player.getMainHandItem();
+        ItemStack off = player.getOffhandItem();
+        boolean hasPointerInMain = main.is(ModItems.POINTER_ITEM.get());
+        boolean hasPointerInOff = off.is(ModItems.POINTER_ITEM.get());
+
+        if (hasPointerInMain) {
+            if (main.getItem() instanceof PointerItem pointer) {
+                pointer.onSwingMiss(player, main);
+                return true;
+            }
+        } else if (hasPointerInOff && main.isEmpty()) {
+            if (off.getItem() instanceof PointerItem pointer) {
+                pointer.onSwingMiss(player, off);
+                return true;
             }
         }
+        return false;
     }
 }

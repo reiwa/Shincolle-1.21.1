@@ -3,6 +3,8 @@ package org.trp.shincolle.event;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.api.distmarker.Dist;
@@ -299,5 +301,81 @@ public class ClientModEventBusEvents {
         event.registerSpriteSet(ModParticles.PARTICLE_CUBE.get(), org.trp.shincolle.client.particle.ParticleCube.Provider::new);
         event.registerSpecial(ModParticles.PARTICLE_BEAM.get(), new ParticleBeam.Provider());
         event.registerSpecial(ModParticles.PARTICLE_SPHERE_LIGHT.get(), new ParticleSphereLight.Provider());
+    }
+
+    private static final ResourceLocation HUD_TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guihud.png");
+
+    @SubscribeEvent
+    public static void registerGuiLayers(net.neoforged.neoforge.client.event.RegisterGuiLayersEvent event) {
+        event.registerAboveAll(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "mount_hud"), (guiGraphics, deltaTracker) -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.options.hideGui || mc.screen != null) return;
+            Player player = mc.player;
+            if (player == null) return;
+            if (!(player.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase mount)) return;
+            org.trp.shincolle.entity.base.EntityShipBase ship = mount.getHost();
+            if (ship == null) return;
+
+            int width = mc.getWindow().getGuiScaledWidth();
+            int height = mc.getWindow().getGuiScaledHeight();
+
+            int px = (int) (width * 0.5);
+            int py = (int) (height * 0.6);
+
+            boolean[] drawBtn = new boolean[4];
+            int[] drawCD = new int[4];
+            int[] drawCDMax = new int[4];
+            int[] drawAirNum = new int[2];
+
+            drawBtn[0] = ship.isStateLightAttack();
+            drawBtn[1] = ship.isStateHeavyAttack();
+            drawBtn[2] = ship.isStateLightAircraftAttack();
+            drawBtn[3] = ship.isStateHeavyAircraftAttack();
+
+            drawCD[0] = ship.getStateTimer(16);
+            drawCD[1] = ship.getStateTimer(17);
+            drawCD[2] = ship.getStateTimer(18);
+            drawCD[3] = ship.getStateTimer(19);
+
+            drawCDMax[0] = org.trp.shincolle.entity.base.LegacyShipStats.getAttackDelay(ship.getLegacyShipStats().getReloadSpeed(), 1);
+            drawCDMax[1] = org.trp.shincolle.entity.base.LegacyShipStats.getAttackDelay(ship.getLegacyShipStats().getReloadSpeed(), 2);
+            drawCDMax[2] = org.trp.shincolle.entity.base.LegacyShipStats.getAttackDelay(ship.getLegacyShipStats().getReloadSpeed(), 3);
+            drawCDMax[3] = org.trp.shincolle.entity.base.LegacyShipStats.getAttackDelay(ship.getLegacyShipStats().getReloadSpeed(), 4);
+
+            drawAirNum[0] = ship.getNumAircraftLight();
+            drawAirNum[1] = ship.getNumAircraftHeavy();
+
+            for (int k = 0; k < 4; ++k) {
+                if (!drawBtn[k]) continue;
+
+                int px2 = px - 40 + k * 21;
+                int maxCd = Math.max(1, drawCDMax[k]);
+                int len = (int) ((float) drawCD[k] / (float) maxCd * 18.0F);
+
+                guiGraphics.blit(HUD_TEXTURE, px2, py, k * 18, 0, 18, 18, 256, 256);
+
+                if (len > 0) {
+                    guiGraphics.blit(HUD_TEXTURE, px2, py + 18 - len, 0, 36 - len, 18, len, 256, 256);
+                    
+                    String cdText = String.format("%.1f", drawCD[k] * 0.05F);
+                    guiGraphics.drawString(mc.font, cdText, px2 + 5, py + 18, 0xFFFFAA00, true);
+                }
+
+                if (mc.options.keyHotbarSlots[k].isDown()) {
+                    guiGraphics.fill(px2, py, px2 + 18, py + 18, 0x3FFFFFFF);
+                }
+
+                if (k == 2) {
+                    guiGraphics.drawString(mc.font, String.valueOf(drawAirNum[0]), px2 + 7, py - 8, 0xFF55FF55, true);
+                } else if (k == 3) {
+                    guiGraphics.drawString(mc.font, String.valueOf(drawAirNum[1]), px2 + 7, py - 8, 0xFF55FFFF, true);
+                }
+            }
+
+            int centerX = width / 2;
+            int centerY = height / 2;
+            guiGraphics.blit(HUD_TEXTURE, centerX, centerY - 4, 0, 7, 1, 9, 256, 256);
+            guiGraphics.blit(HUD_TEXTURE, centerX - 4, centerY, 7, 0, 9, 1, 256, 256);
+        });
     }
 }

@@ -406,7 +406,7 @@ public class ModelSubmU511<T extends EntityShipBase> extends ShipModelHumanoidBa
 
         if (isSitting) {
             if (entity != null && hasLegacyState(entity, 1, 4)) {
-                this.poseTranslateY += 0.41F * 3.2F;
+                this.poseTranslateY += 0.41F * 3.5F;
                 this.Head.xRot += 0.2618F;
                 this.BodyMain.xRot = 0.35F;
                 this.HairL01.xRot -= 0.2F;

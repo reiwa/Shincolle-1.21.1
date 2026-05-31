@@ -518,6 +518,7 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
             float renderScale = this.prevScale + (this.currentScale - this.prevScale) * partialTick;
             float rotX = this.prevRotateX + (this.currentRotateX - this.prevRotateX) * partialTick;
             float rotY = this.prevRotateY + (this.currentRotateY - this.prevRotateY) * partialTick;
+            float baseYaw = entityTemp.getType() == ModEntities.DESTROYER_I.get() ? -90.0f : 0.0f;
             
             int px = x + 72;
             int py = y + 110 + (int)(renderScale * 1.1f);
@@ -527,7 +528,7 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
             guiGraphics.pose().scale(-renderScale, renderScale, renderScale);
             guiGraphics.pose().mulPose(new org.joml.Quaternionf().rotateZ((float)Math.toRadians(180)));
             guiGraphics.pose().translate(0.0f, 0.7f, 0.0f);
-            guiGraphics.pose().mulPose(new org.joml.Quaternionf().rotateY((float)Math.toRadians(rotY)));
+            guiGraphics.pose().mulPose(new org.joml.Quaternionf().rotateY((float)Math.toRadians(rotY + baseYaw)));
             guiGraphics.pose().mulPose(new org.joml.Quaternionf().rotateX((float)Math.toRadians(rotX)));
 
             guiGraphics.pose().translate(0.0D, -0.7D, 0.0D);

@@ -46,6 +46,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -71,6 +72,7 @@ import org.trp.shincolle.item.CombatRationItem;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.LegacyEquipStats;
 import org.trp.shincolle.menu.ShipContainerMenu;
+import org.trp.shincolle.utility.BlockHelper;
 
 public abstract class EntityShipBase extends TamableAnimal {
 
@@ -132,19 +134,16 @@ public abstract class EntityShipBase extends TamableAnimal {
     static final int AUTO_PUMP_XP_INTERVAL_TICKS = 4;
     private static final int AUTO_RATION_INTERVAL_TICKS = 128;
     private static final int AUTO_RATION_MAX_FUEL = 100;
-    private static final int SEARCHLIGHT_INTERVAL_TICKS = 4;
     private static final int COMPASS_CHUNK_REFRESH_INTERVAL_TICKS = 40;
     private static final int COMPASS_CHUNK_RADIUS = 1;
     private static final int SPECIAL_EQUIP_FLARE_GLOW_TICKS = 80;
-    private static final int SPECIAL_EQUIP_SEARCHLIGHT_NIGHT_VISION_TICKS = 220;
     static final int XP_BOTTLE_COST = 8;
     private static final int HOSTILE_LIGHT_AMMO_CONTAINER_COUNT = 16;
     private static final int HOSTILE_HEAVY_AMMO_CONTAINER_COUNT = 12;
-    static final int KAITAI_AMOUNT_SMALL = 20;
-    static final int KAITAI_AMOUNT_LARGE = 20;
+    public static final int KAITAI_AMOUNT_SMALL = 20;
+    public static final int KAITAI_AMOUNT_LARGE = 20;
     static final String TAG_SPAWN_EGG = "ShincolleSpawnEgg";
-    static final String TAG_SPAWN_EGG_NO_EXP =
-        "ShincolleSpawnEggNoExpCost";
+    static final String TAG_SPAWN_EGG_NO_EXP = "ShincolleSpawnEggNoExpCost";
 
     public static final int STATE_MINOR_FACTION_ID = 19;
     public static final int STATE_MINOR_SHIP_CLASS = 20;
@@ -166,11 +165,13 @@ public abstract class EntityShipBase extends TamableAnimal {
     private static final int HELD_MAINHAND_SLOT = 22;
     private static final int HELD_OFFHAND_SLOT = 23;
 
-    static final int EQUIP_TYPE_DRUM = 24;
-    static final int EQUIP_TYPE_COMPASS = 25;
-    static final int EQUIP_TYPE_FLARE = 26;
-    static final int EQUIP_TYPE_SEARCHLIGHT = 27;
-    static final int EQUIP_DRUM_VARIANT_LIQUID = 1;
+    public static final int EQUIP_TYPE_DRUM = 24;
+    public static final int EQUIP_TYPE_COMPASS = 25;
+    public static final int EQUIP_TYPE_FLARE = 26;
+    public static final int EQUIP_TYPE_SEARCHLIGHT = 27;
+    public static final int EQUIP_TYPE_AMMO = 28;
+    public static final int EQUIP_TYPE_AMMO_2 = 29;
+    public static final int EQUIP_DRUM_VARIANT_LIQUID = 1;
 
     public static final int STATE_FLAG_MARRIED = 1;
     public static final int STATE_FLAG_NO_EQUIP = 2;
@@ -357,6 +358,26 @@ public abstract class EntityShipBase extends TamableAnimal {
             EntityDataSerializers.INT
         );
     protected static final EntityDataAccessor<Integer> LEGACY_SCALE_LEVEL =
+        SynchedEntityData.defineId(
+            EntityShipBase.class,
+            EntityDataSerializers.INT
+        );
+    protected static final EntityDataAccessor<Integer> MOUNT_ATTACK_CD_0 =
+        SynchedEntityData.defineId(
+            EntityShipBase.class,
+            EntityDataSerializers.INT
+        );
+    protected static final EntityDataAccessor<Integer> MOUNT_ATTACK_CD_1 =
+        SynchedEntityData.defineId(
+            EntityShipBase.class,
+            EntityDataSerializers.INT
+        );
+    protected static final EntityDataAccessor<Integer> MOUNT_ATTACK_CD_2 =
+        SynchedEntityData.defineId(
+            EntityShipBase.class,
+            EntityDataSerializers.INT
+        );
+    protected static final EntityDataAccessor<Integer> MOUNT_ATTACK_CD_3 =
         SynchedEntityData.defineId(
             EntityShipBase.class,
             EntityDataSerializers.INT
@@ -925,9 +946,14 @@ public abstract class EntityShipBase extends TamableAnimal {
     public boolean playerHasCombatRation(Player player) {
         if (player == null) return false;
         ItemStack mainHand = player.getMainHandItem();
-        if (!mainHand.isEmpty() && mainHand.getItem() instanceof CombatRationItem) return true;
+        if (
+            !mainHand.isEmpty() &&
+            mainHand.getItem() instanceof CombatRationItem
+        ) return true;
         ItemStack offHand = player.getOffhandItem();
-        return !offHand.isEmpty() && offHand.getItem() instanceof CombatRationItem;
+        return (
+            !offHand.isEmpty() && offHand.getItem() instanceof CombatRationItem
+        );
     }
 
     public boolean shouldFollowOwner() {
@@ -966,6 +992,10 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     protected void performLightAttack(Entity target) {
         this.combat.performLightAttack(target);
+    }
+
+    public void executeMountLightAttack(Entity target) {
+        this.performLightAttack(target);
     }
 
     protected void spawnLightAttackMuzzleParticles(
@@ -1060,6 +1090,34 @@ public abstract class EntityShipBase extends TamableAnimal {
         return this.combat.performHeavyAttack(target);
     }
 
+    protected boolean performHeavyAttack(Vec3 targetPos) {
+        return this.combat.performHeavyAttack(targetPos);
+    }
+
+    boolean performLightAircraftAttack(Entity target) {
+        return this.combat.performLightAircraftAttack(target);
+    }
+
+    boolean performHeavyAircraftAttack(Entity target) {
+        return this.combat.performHeavyAircraftAttack(target);
+    }
+
+    public boolean executeMountHeavyAttack(Entity target) {
+        return this.performHeavyAttack(target);
+    }
+
+    public boolean executeMountHeavyAttack(Vec3 targetPos) {
+        return this.performHeavyAttack(targetPos);
+    }
+
+    public boolean executeMountLightAircraftAttack(Entity target) {
+        return this.combat.performLightAircraftAttackManual(target);
+    }
+
+    public boolean executeMountHeavyAircraftAttack(Entity target) {
+        return this.combat.performHeavyAircraftAttackManual(target);
+    }
+
     public int getStateMinor(int index) {
         if (index == 6) {
             return this.getFuel();
@@ -1103,11 +1161,29 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public int getStateTimer(int index) {
+        if (index >= 16 && index <= 19) {
+            
+            return switch (index) {
+                case 16 -> this.entityData.get(MOUNT_ATTACK_CD_0);
+                case 17 -> this.entityData.get(MOUNT_ATTACK_CD_1);
+                case 18 -> this.entityData.get(MOUNT_ATTACK_CD_2);
+                case 19 -> this.entityData.get(MOUNT_ATTACK_CD_3);
+                default -> legacyState.getInt(legacyState.stateTimer, index);
+            };
+        }
         return legacyState.getInt(legacyState.stateTimer, index);
     }
 
     public void setStateTimer(int index, int value) {
         legacyState.setInt(legacyState.stateTimer, index, value);
+        if (!this.level().isClientSide) {
+            switch (index) {
+                case 16 -> this.entityData.set(MOUNT_ATTACK_CD_0, value);
+                case 17 -> this.entityData.set(MOUNT_ATTACK_CD_1, value);
+                case 18 -> this.entityData.set(MOUNT_ATTACK_CD_2, value);
+                case 19 -> this.entityData.set(MOUNT_ATTACK_CD_3, value);
+            }
+        }
     }
 
     public boolean getStateFlag(int index) {
@@ -1320,7 +1396,8 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (
             this.level().isClientSide &&
             this.isSubmarine() &&
-            this.isStateRingEffect()
+            this.isStateRingEffect() &&
+            this.isInvisible()
         ) {
             return isLocalPlayerOwner();
         }
@@ -1451,6 +1528,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     private static final float SHIP_SOUND_VOLUME = 0.6F;
     private static final int AMBIENT_SOUND_MIN_INTERVAL_TICKS = 80;
     private static final int AMBIENT_SOUND_MAX_PER_TICK = 3;
+
     @Override
     protected float getSoundVolume() {
         return EntityShipBaseAudioHelper.SHIP_SOUND_VOLUME;
@@ -1485,7 +1563,9 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     @Override
     protected void playHurtSound(DamageSource source) {
-        this.audioHelper.playHurtSound(source, () -> super.playHurtSound(source));
+        this.audioHelper.playHurtSound(source, () ->
+            super.playHurtSound(source)
+        );
     }
 
     @Override
@@ -2129,44 +2209,30 @@ public abstract class EntityShipBase extends TamableAnimal {
         }
     }
 
-    private void tickSearchlightAssist() {
-        if ((this.tickCount % SEARCHLIGHT_INTERVAL_TICKS) != 0) {
+    protected boolean hasSearchlightEquip() {
+        return this.getStateMinor(STATE_MINOR_EQUIP_SEARCHLIGHT) > 0;
+    }
+
+    protected void tickSearchlightAssist() {
+        if (!Config.canSearchlight) {
             return;
         }
-        if (
-            this.getStateMinor(STATE_MINOR_EQUIP_SEARCHLIGHT) <= 0 ||
-            !this.isAlive()
-        ) {
+        if ((this.tickCount % Config.searchlightCD) != 0) {
             return;
         }
-        if (!(this.level() instanceof ServerLevel serverLevel)) {
+        if (!this.hasSearchlightEquip() || !this.isAlive()) {
             return;
         }
-        if (this.level().getMaxLocalRawBrightness(this.blockPosition()) >= 10) {
+        if (this.level().isClientSide) {
             return;
         }
 
-        this.addEffect(
-            new MobEffectInstance(
-                MobEffects.NIGHT_VISION,
-                SPECIAL_EQUIP_SEARCHLIGHT_NIGHT_VISION_TICKS,
-                0,
-                true,
-                false,
-                false
-            )
-        );
-        serverLevel.sendParticles(
-            ParticleTypes.END_ROD,
-            this.getX(),
-            this.getY() + 1.2D,
-            this.getZ(),
-            3,
-            0.25D,
-            0.35D,
-            0.25D,
-            0.01D
-        );
+        BlockPos pos = this.blockPosition();
+        if (this.level().getBrightness(LightLayer.BLOCK, pos) < 10) {
+            BlockHelper.placeLightBlock(this.level(), pos);
+        } else {
+            BlockHelper.updateNearbyLightBlock(this.level(), pos);
+        }
     }
 
     public int findItemInInventory(Item item) {
@@ -2324,7 +2390,9 @@ public abstract class EntityShipBase extends TamableAnimal {
             }
 
             if (stack.getItem() instanceof CombatRationItem) {
-                if (this.suppliesHelper.consumeCombatRationInHand(stack, player)) {
+                if (
+                    this.suppliesHelper.consumeCombatRationInHand(stack, player)
+                ) {
                     this.focusOnPlayer(player);
                     return InteractionResult.sidedSuccess(
                         this.level().isClientSide
@@ -2341,7 +2409,9 @@ public abstract class EntityShipBase extends TamableAnimal {
             }
 
             if (stack.is(ModItems.BUCKET_REPAIR.get())) {
-                if (this.suppliesHelper.consumeBucketRepairInHand(stack, player)) {
+                if (
+                    this.suppliesHelper.consumeBucketRepairInHand(stack, player)
+                ) {
                     return InteractionResult.sidedSuccess(
                         this.level().isClientSide
                     );
@@ -2349,7 +2419,9 @@ public abstract class EntityShipBase extends TamableAnimal {
             }
 
             if (stack.is(ModItems.TOY_AIRPLANE.get())) {
-                if (this.suppliesHelper.consumeToyAirplaneInHand(stack, player)) {
+                if (
+                    this.suppliesHelper.consumeToyAirplaneInHand(stack, player)
+                ) {
                     return InteractionResult.sidedSuccess(
                         this.level().isClientSide
                     );
@@ -2374,7 +2446,17 @@ public abstract class EntityShipBase extends TamableAnimal {
             if (stack.has(DataComponents.FOOD)) {
                 FoodProperties food = stack.getFoodProperties(player);
                 if (food != null && food.nutrition() > 0) {
-                    this.setFuel(this.getFuel() + food.nutrition());
+                    float fv = food.nutrition();
+                    float sv = food.saturation();
+                    if (fv < 1.0F) fv = 1.0F;
+                    int grudgeValue = (int) ((fv +
+                            this.getRandom().nextInt((int) fv + 5)) *
+                        sv *
+                        20.0F);
+                    float modFuel = this.getLegacyShipStats().getBuffedAttr(17);
+                    int gain = (int) (grudgeValue * modFuel);
+                    this.setFuel(this.getFuel() + gain);
+                    this.addMorale(grudgeValue);
                     if (!player.getAbilities().instabuild) {
                         stack.shrink(1);
                     }
@@ -2717,8 +2799,6 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.attackEffectMap.clear();
     }
 
-
-
     protected float[] computeLegacyAuraBuffs() {
         return new float[21];
     }
@@ -2732,8 +2812,6 @@ public abstract class EntityShipBase extends TamableAnimal {
     protected void tickPeriodicEffects() {
         this.statsHelper.tickPeriodicEffects();
     }
-
-
 
     protected void setFaceNormal() {
         this.faceExpressions.setFaceNormal();
@@ -2903,6 +2981,26 @@ public abstract class EntityShipBase extends TamableAnimal {
             this.hurtSoundCooldown--;
         }
         this.suppliesHelper.tickSupplies();
+
+        
+        @SuppressWarnings("unchecked")
+        EntityDataAccessor<Integer>[] cdAccessors = new EntityDataAccessor[] {
+            MOUNT_ATTACK_CD_0,
+            MOUNT_ATTACK_CD_1,
+            MOUNT_ATTACK_CD_2,
+            MOUNT_ATTACK_CD_3,
+        };
+        for (int i = 0; i < 4; i++) {
+            int idx = 16 + i;
+            int timer = legacyState.stateTimer[idx];
+            if (timer > 0) {
+                int newTimer = timer - 1;
+                legacyState.stateTimer[idx] = newTimer;
+                if (!this.level().isClientSide) {
+                    this.entityData.set(cdAccessors[i], newTimer);
+                }
+            }
+        }
     }
 
     public void applyEmotesReaction(int type) {

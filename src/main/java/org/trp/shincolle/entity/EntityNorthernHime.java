@@ -1,9 +1,14 @@
 package org.trp.shincolle.entity;
 
+import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
@@ -14,14 +19,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.damagesource.DamageSource;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
-
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Objects;
 
 public class EntityNorthernHime extends EntityShipBase {
 
@@ -35,15 +35,35 @@ public class EntityNorthernHime extends EntityShipBase {
     private boolean goRiding;
     private Entity goRideEntity;
 
-    public EntityNorthernHime(EntityType<? extends TamableAnimal> type, Level level) {
+    public EntityNorthernHime(
+        EntityType<? extends TamableAnimal> type,
+        Level level
+    ) {
         super(type, level);
-        setModelPos(new float[]{-6, 25, 0, 40});
+        setModelPos(new float[] { -6, 25, 0, 40 });
         setStateMinor(STATE_MINOR_FACTION_ID, 7);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 31);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 5);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBBV);
+        setStateMinor(
+            STATE_MINOR_GRUDGE_CONSUMPTION,
+            org.trp.shincolle.Config.fuelConsumeBBV
+        );
         setStateCanRide(true);
+    }
+
+    @Override
+    public boolean supportsAircraftCombat() {
+        return true;
+    }
+
+    @Override
+    public EntityType<? extends TamableAnimal> getAttackAircraftType(
+        boolean isLightAircraft
+    ) {
+        return isLightAircraft
+            ? ModEntities.AIRPLANE.get()
+            : ModEntities.TAKOYAKI.get();
     }
 
     @Override
@@ -53,16 +73,19 @@ public class EntityNorthernHime extends EntityShipBase {
 
     public static AttributeSupplier.Builder createAttributes() {
         return TamableAnimal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 200.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                .add(Attributes.ATTACK_DAMAGE, 10.0D)
-                .add(Attributes.FOLLOW_RANGE, 40.0D)
-                .add(Attributes.STEP_HEIGHT, 1.0D);
+            .add(Attributes.MAX_HEALTH, 200.0D)
+            .add(Attributes.MOVEMENT_SPEED, 0.25D)
+            .add(Attributes.ATTACK_DAMAGE, 10.0D)
+            .add(Attributes.FOLLOW_RANGE, 40.0D)
+            .add(Attributes.STEP_HEIGHT, 1.0D);
     }
 
     @Nullable
     @Override
-    public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
+    public AgeableMob getBreedOffspring(
+        ServerLevel level,
+        AgeableMob otherParent
+    ) {
         return null;
     }
 
@@ -73,11 +96,22 @@ public class EntityNorthernHime extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        List<EquipOption> list = new java.util.ArrayList<>(
+            super.getEquipOptions()
+        );
         list.add(new EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"));
-        list.add(new EquipOption(EQUIP_SANTA_CLOTH, "gui.shincolle.equip.santa_cloth"));
-        list.add(new EquipOption(EQUIP_SANTA_HAT, "gui.shincolle.equip.santa_hat"));
-        list.add(new EquipOption(EQUIP_UMBRELLA, "gui.shincolle.equip.umbrella"));
+        list.add(
+            new EquipOption(
+                EQUIP_SANTA_CLOTH,
+                "gui.shincolle.equip.santa_cloth"
+            )
+        );
+        list.add(
+            new EquipOption(EQUIP_SANTA_HAT, "gui.shincolle.equip.santa_hat")
+        );
+        list.add(
+            new EquipOption(EQUIP_UMBRELLA, "gui.shincolle.equip.umbrella")
+        );
         list.add(new EquipOption(EQUIP_SHOES, "gui.shincolle.equip.shoes"));
         return list;
     }
@@ -108,11 +142,17 @@ public class EntityNorthernHime extends EntityShipBase {
     }
 
     private void handlePeriodicEffects() {
-        if (this.getStateMinor(6) > 0 && this.getHealth() < this.getMaxHealth()) {
+        if (
+            this.getStateMinor(6) > 0 && this.getHealth() < this.getMaxHealth()
+        ) {
             this.heal(this.getMaxHealth() * 0.03f + 1.0f);
         }
 
-        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 25) {
+        if (
+            this.isStateMarried() &&
+            this.isStateRingEffect() &&
+            this.getStateMinor(6) > 25
+        ) {
             healNearbyAllies();
         }
 
@@ -128,8 +168,10 @@ public class EntityNorthernHime extends EntityShipBase {
     private void healNearbyAllies() {
         int remainingHeals = Math.max(1, this.getLevel() / 25 + 1);
 
-        List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class,
-                this.getBoundingBox().inflate(8.0D, 8.0D, 8.0D));
+        List<LivingEntity> targets = this.level().getEntitiesOfClass(
+            LivingEntity.class,
+            this.getBoundingBox().inflate(8.0D, 8.0D, 8.0D)
+        );
 
         for (LivingEntity target : targets) {
             if (remainingHeals <= 0) {
@@ -161,9 +203,15 @@ public class EntityNorthernHime extends EntityShipBase {
 
             float healAmount;
             if (target instanceof Player) {
-                healAmount = 1.0f + target.getMaxHealth() * 0.02f + this.getLevel() * 0.02f;
+                healAmount =
+                    1.0f +
+                    target.getMaxHealth() * 0.02f +
+                    this.getLevel() * 0.02f;
             } else {
-                healAmount = 1.0f + target.getMaxHealth() * 0.02f + this.getLevel() * 0.1f;
+                healAmount =
+                    1.0f +
+                    target.getMaxHealth() * 0.02f +
+                    this.getLevel() * 0.1f;
             }
 
             target.heal(healAmount);
@@ -179,9 +227,17 @@ public class EntityNorthernHime extends EntityShipBase {
             return;
         }
         double y = target.getY() + target.getBbHeight() * 0.6D;
-        serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER,
-                target.getX(), y, target.getZ(),
-                4, 0.3D, 0.2D, 0.3D, 0.01D);
+        serverLevel.sendParticles(
+            ParticleTypes.HAPPY_VILLAGER,
+            target.getX(),
+            y,
+            target.getZ(),
+            4,
+            0.3D,
+            0.2D,
+            0.3D,
+            0.01D
+        );
     }
 
     private void decrGrudgeNum(int amount) {
@@ -291,7 +347,9 @@ public class EntityNorthernHime extends EntityShipBase {
         }
         if (this.isPassenger()) {
             Entity vehicle = this.getVehicle();
-            if (vehicle instanceof LivingEntity living && living.isCrouching()) {
+            if (
+                vehicle instanceof LivingEntity living && living.isCrouching()
+            ) {
                 this.stopRiding();
             }
         }
@@ -299,12 +357,21 @@ public class EntityNorthernHime extends EntityShipBase {
 
     private void updateGoRidingState() {
         this.goRidingTicks++;
-        if (this.goRidingTicks > 200 || this.goRideEntity == null || !this.goRideEntity.isAlive()) {
+        if (
+            this.goRidingTicks > 200 ||
+            this.goRideEntity == null ||
+            !this.goRideEntity.isAlive()
+        ) {
             cancelGoRiding();
             return;
         }
         float distRiding = this.distanceTo(this.goRideEntity);
-        if (distRiding <= 2.0f && !this.goRideEntity.isPassenger() && this.getPassengers().isEmpty() && this.goRideEntity.getPassengers().isEmpty()) {
+        if (
+            distRiding <= 2.0f &&
+            !this.goRideEntity.isPassenger() &&
+            this.getPassengers().isEmpty() &&
+            this.goRideEntity.getPassengers().isEmpty()
+        ) {
             this.startRiding(this.goRideEntity, true);
             this.getNavigation().stop();
             cancelGoRiding();
@@ -332,10 +399,15 @@ public class EntityNorthernHime extends EntityShipBase {
         }
 
         AABB range = this.getBoundingBox().inflate(6.0D, 4.0D, 6.0D);
-        List<LivingEntity> hitList = this.level().getEntitiesOfClass(LivingEntity.class, range);
+        List<LivingEntity> hitList = this.level().getEntitiesOfClass(
+            LivingEntity.class,
+            range
+        );
         hitList.removeIf(target -> !isRideable(target));
         if (!hitList.isEmpty()) {
-            this.goRideEntity = hitList.get(this.getRandom().nextInt(hitList.size()));
+            this.goRideEntity = hitList.get(
+                this.getRandom().nextInt(hitList.size())
+            );
             this.goRidingTicks = 0;
             this.goRiding = true;
         }
@@ -345,15 +417,25 @@ public class EntityNorthernHime extends EntityShipBase {
         if (!(target instanceof Player || target instanceof EntityShipBase)) {
             return false;
         }
-        if (target == this || target.isPassenger() || !target.getPassengers().isEmpty()) {
+        if (
+            target == this ||
+            target.isPassenger() ||
+            !target.getPassengers().isEmpty()
+        ) {
             return false;
         }
         if (target instanceof EntityShipBase ship) {
-            boolean allowed = Objects.equals(ship.getOwnerUUID(), this.getOwnerUUID());
+            boolean allowed = Objects.equals(
+                ship.getOwnerUUID(),
+                this.getOwnerUUID()
+            );
             return allowed;
         }
         if (target instanceof Player player) {
-            boolean allowed = Objects.equals(player.getUUID(), this.getOwnerUUID());
+            boolean allowed = Objects.equals(
+                player.getUUID(),
+                this.getOwnerUUID()
+            );
             return allowed;
         }
         return false;
@@ -369,9 +451,10 @@ public class EntityNorthernHime extends EntityShipBase {
 
     public double getPassengersRidingOffset() {
         if (this.getIsSitting()) {
-            return this.getStateEmotion(1) == 4 ? 0.0 : this.getBbHeight() * 0.08f;
+            return this.getStateEmotion(1) == 4
+                ? 0.0
+                : this.getBbHeight() * 0.08f;
         }
         return this.getBbHeight() * 0.48f;
     }
-
 }

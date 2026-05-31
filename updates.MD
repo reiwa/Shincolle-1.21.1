@@ -1,3 +1,13 @@
+## v0.8.8(2026/06/01 JST)
+- Added new blocks and recipes
+- Fixed issues related to entity appearance
+- Fixed the loot table for naturally generated chests
+- Implemented spawn eggs and the dismantling of equipment items using LargeShipYard
+- Fixed an issue where blocks could not be destroyed while holding down the Shift key
+- Implemented effects for some equipment items
+- Implemented attack actions while mounted on a Mount entity
+- Various minor fixes
+
 ## v0.8.7(2026/05/25 JST)
 - Added new blocks, items and recipes
 - Implemented most Aura effects
