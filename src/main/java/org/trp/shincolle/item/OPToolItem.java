@@ -16,7 +16,7 @@ public class OPToolItem extends Item {
 
     @Override
     public String getDescriptionId() {
-        return "item.shincolle.OPTool.name";
+        return "item.shincolle.optool";
     }
 
     @Override
