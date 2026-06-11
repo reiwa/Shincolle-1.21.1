@@ -5,10 +5,12 @@
       "item": "shincolle:abyssium"
     },
     "t": {
-      "item": "shincolle:shiptank",
+      "type": "neoforge:components",
+      "items": "shincolle:shiptank",
       "components": {
         "minecraft:custom_data": "{LegacyVariant:1}"
-      }
+      },
+      "strict": false
     }
   },
   "pattern": [

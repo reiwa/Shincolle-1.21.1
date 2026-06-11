@@ -2,7 +2,6 @@ package org.trp.shincolle.init;
 
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -68,7 +67,7 @@ public class ModBlocks {
     public static final DeferredBlock<Block> POLYMETAL_ORE = BLOCKS.register(
         "polymetal_ore",
         () ->
-            new DropExperienceBlock(
+            new ShiningOreBlock(
                 UniformInt.of(1, 4),
                 BlockBehaviour.Properties.of()
                     .strength(3.0F)
@@ -85,6 +84,19 @@ public class ModBlocks {
                 BlockBehaviour.Properties.of()
                     .strength(0.8F)
                     .sound(SoundType.SAND)
+            )
+    );
+
+    public static final DeferredBlock<Block> NETHER_ABYSS = BLOCKS.register(
+        "nether_abyss",
+        () ->
+            new ShiningOreBlock(
+                UniformInt.of(1, 4),
+                BlockBehaviour.Properties.of()
+                    .strength(1.5F)
+                    .requiresCorrectToolForDrops()
+                    .lightLevel(state -> 10)
+                    .sound(SoundType.STONE)
             )
     );
 
@@ -120,6 +132,11 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> GRUDGE_HEAVY_DECO_BLOCK =
         BLOCKS.register("grudge_heavy_deco_block", GrudgeHeavyDecoBlock::new);
+
+    public static final DeferredBlock<Block> CHAIR = BLOCKS.register(
+        "blockchair",
+        BlockChair::new
+    );
 
     public static final DeferredBlock<Block> LIGHT_AIR = BLOCKS.register(
         "block_light_air",

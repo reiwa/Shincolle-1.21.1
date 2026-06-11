@@ -10,6 +10,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import org.trp.shincolle.utility.EnchantHelper;
 
 import java.util.List;
 import java.util.Locale;
@@ -91,7 +95,7 @@ public class LegacyEquipItem extends Item {
     public Component getName(ItemStack stack) {
         int variant = getVariant(stack);
         String suffix = variant > 0 ? String.valueOf(variant) : "";
-        return Component.translatable("item.shincolle." + this.legacyNameBase + suffix + ".name");
+        return Component.translatable("item.shincolle." + this.legacyNameBase.toLowerCase(java.util.Locale.ROOT) + suffix + ".name");
     }
 
     @Override
@@ -139,6 +143,26 @@ public class LegacyEquipItem extends Item {
             case "EquipAmmo" -> {
                 if (variant == 5) {
                     tooltipComponents.add(Component.translatable("gui.shincolle.equip.gravity").withStyle(ChatFormatting.YELLOW));
+                } else if (variant == 7) {
+                    CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+                    if (customData != null) {
+                        CompoundTag tag = customData.copyTag();
+                        if (tag.contains("PList", 9)) {
+                            ListTag plist = tag.getList("PList", 10);
+                            for (int i = 0; i < plist.size(); ++i) {
+                                CompoundTag nbtX = plist.getCompound(i);
+                                int pid = nbtX.getInt("PID");
+                                int plv = nbtX.getInt("PLV") + 1;
+                                int ptime = nbtX.getInt("PTick") / 20;
+                                int pchance = nbtX.getInt("PChance");
+                                Holder<net.minecraft.world.effect.MobEffect> effectHolder = EnchantHelper.getMobEffectHolderFromOldId(pid);
+                                if (effectHolder != null) {
+                                    Component effectName = effectHolder.value().getDisplayName();
+                                    tooltipComponents.add(Component.translatable("gui.shincolle.equip.enchantshell", pchance, effectName, plv, ptime).withStyle(ChatFormatting.GREEN));
+                                }
+                            }
+                        }
+                    }
                 } else if (variant == 8) {
                     tooltipComponents.add(Component.translatable("gui.shincolle.equip.cluster").withStyle(ChatFormatting.YELLOW));
                 }

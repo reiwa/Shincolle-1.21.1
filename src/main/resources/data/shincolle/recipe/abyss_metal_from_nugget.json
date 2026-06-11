@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "shincolle:abyss_nugget"
+    },
+    {
+      "item": "shincolle:abyss_nugget"
+    },
+    {
+      "item": "shincolle:abyss_nugget"
+    },
+    {
+      "item": "shincolle:abyss_nugget"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:abyss_metal"
+  }
+}

@@ -1,7 +1,6 @@
 package org.trp.shincolle.entity;
 
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -114,6 +113,7 @@ public class EntityBattleshipNagato extends EntityShipBase {
 
         if (phase > 3) {
             this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
+            this.playAttackSound();
             performFinalAttack(serverLevel, target);
             this.tryFlareTarget(target);
             this.setAttackTick(50);
@@ -160,10 +160,8 @@ public class EntityBattleshipNagato extends EntityShipBase {
             double baseX = target != null ? target.getX() : this.getX();
             double baseY = (target != null ? target.getY() + target.getBbHeight() * 0.5D : this.getY() + this.getBbHeight() * 0.5D) + 2.5D;
             double baseZ = target != null ? target.getZ() : this.getZ();
-            if (this.level() instanceof ClientLevel clientLevel) {
-                clientLevel.addParticle(org.trp.shincolle.init.ModParticles.PARTICLE_91TYPE.get(), true,
-                        baseX, baseY, baseZ,
-                        0.6D, 0.0D, 0.0D);
+            if (this.level().isClientSide) {
+                org.trp.shincolle.client.ClientProxy.spawn91TypeParticle(this.level(), baseX, baseY, baseZ, 0.6D, 0.0D, 0.0D);
             }
         }
         this.lastClientAttackTick = attackTick;

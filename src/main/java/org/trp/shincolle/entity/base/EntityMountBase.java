@@ -1,9 +1,5 @@
 package org.trp.shincolle.entity.base;
 
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.UUID;
-import javax.annotation.Nullable;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -28,7 +24,14 @@ import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.entity.base.path.ShipLegacyNavigation;
 import org.trp.shincolle.entity.base.path.ShipMoveControl;
 
+import javax.annotation.Nullable;
+import java.util.EnumSet;
+import java.util.Optional;
+import java.util.UUID;
+
 public abstract class EntityMountBase extends PathfinderMob {
+
+    public static boolean stopAI = false;
 
     private static final EntityDataAccessor<Optional<UUID>> HOST_UUID =
         SynchedEntityData.defineId(
@@ -319,6 +322,11 @@ public abstract class EntityMountBase extends PathfinderMob {
             .add(Attributes.KNOCKBACK_RESISTANCE, 1.0)
             .add(Attributes.STEP_HEIGHT, 3.0)
             .add(Attributes.ATTACK_DAMAGE, 2.0);
+    }
+
+    @Override
+    public boolean isNoAi() {
+        return super.isNoAi() || stopAI;
     }
 
     @Override

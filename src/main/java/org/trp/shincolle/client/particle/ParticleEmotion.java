@@ -413,7 +413,7 @@ public class ParticleEmotion extends TextureSheetParticle {
         Player player = Minecraft.getInstance().player;
         float angle = 0.0F;
         if (player != null) {
-            angle = player.getYRot() * (float) Math.PI / 180.0F;
+            angle = (player.yBodyRot % 360.0F) * (float) Math.PI / 180.0F;
         }
 
         double baseX = 0.0D;
@@ -488,7 +488,7 @@ public class ParticleEmotion extends TextureSheetParticle {
                 baseZ += rotated[0];
             }
             default -> {
-                rotated = rotateXZ(0.5F - (float) addZ2, this.random.nextFloat() * 0.3F + 0.7F + (float) addX2,
+                rotated = rotateXZ(-0.4F - (float) addZ2, this.random.nextFloat() * 0.3F + 0.7F + (float) addX2,
                         angle);
                 baseX += rotated[1];
                 baseY = baseY + this.random.nextDouble() * this.addHeight * 0.5D + this.addHeight * 1.5D + addY2;
@@ -504,12 +504,12 @@ public class ParticleEmotion extends TextureSheetParticle {
         this.z += this.addZ;
     }
 
-    private double[] rotateXZ(float x, float z, float angle) {
+    private double[] rotateXZ(float z, float x, float angle) {
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);
+        double rz = z * cos + x * sin;
         double rx = x * cos - z * sin;
-        double rz = x * sin + z * cos;
-        return new double[]{rx, rz};
+        return new double[]{rz, rx};
     }
 
     public static class Provider implements ParticleProvider<net.minecraft.core.particles.SimpleParticleType> {

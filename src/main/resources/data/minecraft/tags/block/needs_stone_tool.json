@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "shincolle:polymetal_ore"
+    "shincolle:polymetal_ore",
+    "shincolle:nether_abyss"
   ]
 }

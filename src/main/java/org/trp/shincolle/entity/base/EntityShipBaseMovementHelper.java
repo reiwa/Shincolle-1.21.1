@@ -1,16 +1,12 @@
 package org.trp.shincolle.entity.base;
 
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.block.entity.CraneBlockEntity;
 import org.trp.shincolle.block.entity.IWaypoint;
@@ -172,14 +168,14 @@ class EntityShipBaseMovementHelper {
             ShipContainerMenu.STATE_MINOR_FOLLOW_MIN
         );
         float minDist =
-            configuredMin <= 0 ? 5.0F : (float) Mth.clamp(configuredMin, 1, 31);
+            configuredMin <= 0 ? 6.0F : (float) Mth.clamp(configuredMin, 1, 31);
 
         int configuredMax = this.ship.getStateMinor(
             ShipContainerMenu.STATE_MINOR_FOLLOW_MAX
         );
         float maxDist =
             configuredMax <= 0
-                ? Math.max(16.0F, minDist + 1.0F)
+                ? Math.max(12.0F, minDist + 1.0F)
                 : (float) Mth.clamp(
                       configuredMax,
                       Math.max(2, Mth.floor(minDist) + 1),
@@ -194,6 +190,51 @@ class EntityShipBaseMovementHelper {
         double distanceSqr = this.ship.distanceToSqr(owner);
         return (
             distanceSqr > (checkMinDist * checkMinDist) &&
+            distanceSqr < (maxDist * maxDist) * 256.0D
+        );
+    }
+
+    public boolean isOwnerTooFar() {
+        if (
+            this.ship.isOrderedToSit() ||
+            this.ship.isInSittingPose() ||
+            this.ship.isInDeadPose() ||
+            this.ship.isPassenger()
+        ) {
+            return false;
+        }
+        LivingEntity owner = this.ship.getOwner();
+        if (owner == null) {
+            return false;
+        }
+        if (this.ship.getGuardedPos(4) == 1 || this.ship.hasPointerTarget()) {
+            return false;
+        }
+        if (this.ship.hasPointerTargetEntity()) {
+            return false;
+        }
+
+        int configuredMin = this.ship.getStateMinor(
+            ShipContainerMenu.STATE_MINOR_FOLLOW_MIN
+        );
+        float minDist =
+            configuredMin <= 0 ? 6.0F : (float) Mth.clamp(configuredMin, 1, 31);
+
+        int configuredMax = this.ship.getStateMinor(
+            ShipContainerMenu.STATE_MINOR_FOLLOW_MAX
+        );
+        float maxDist =
+            configuredMax <= 0
+                ? Math.max(12.0F, minDist + 1.0F)
+                : (float) Mth.clamp(
+                      configuredMax,
+                      Math.max(2, Mth.floor(minDist) + 1),
+                      32
+                  );
+
+        double distanceSqr = this.ship.distanceToSqr(owner);
+        return (
+            distanceSqr > (maxDist * maxDist) &&
             distanceSqr < (maxDist * maxDist) * 256.0D
         );
     }
@@ -215,6 +256,9 @@ class EntityShipBaseMovementHelper {
     }
 
     public boolean shouldRetreatForLowHealth() {
+        if (this.ship.getIsSitting()) {
+            return false;
+        }
         int fleeHp = Mth.clamp(
             this.ship.getStateMinor(ShipContainerMenu.STATE_MINOR_FLEE_HP),
             0,

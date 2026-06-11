@@ -1,6 +1,5 @@
 package org.trp.shincolle.entity;
 
-import java.util.List;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
@@ -14,6 +13,8 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
+
+import java.util.List;
 
 public class EntityIsolatedHime extends EntityShipBase {
 
@@ -82,6 +83,7 @@ public class EntityIsolatedHime extends EntityShipBase {
         }
 
         this.setAttackTick(50);
+        this.playAttackSound();
         this.applyEmotesReaction(3);
         spawnMissile(target);
         return true;

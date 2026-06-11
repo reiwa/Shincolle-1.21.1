@@ -1,8 +1,5 @@
 package org.trp.shincolle.entity;
 
-import java.util.List;
-import java.util.Objects;
-import javax.annotation.Nullable;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
@@ -20,6 +17,10 @@ import net.minecraft.world.phys.AABB;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
 
 public class EntityAirfieldHime extends EntityShipBase {
 

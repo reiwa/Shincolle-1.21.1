@@ -1,8 +1,5 @@
 package org.trp.shincolle.entity;
 
-import java.util.List;
-import java.util.Objects;
-import javax.annotation.Nullable;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -18,6 +15,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModItems;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
 
 public class EntityDestroyerAkatsuki
     extends EntityShipBase
@@ -672,5 +673,10 @@ public class EntityDestroyerAkatsuki
 
     protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_AKATSUKI_SPAWN_EGG.get();
+    }
+
+    @Override
+    protected net.minecraft.world.BossEvent.BossBarColor getBossBarColor() {
+        return net.minecraft.world.BossEvent.BossBarColor.PURPLE;
     }
 }

@@ -75,4 +75,14 @@ public class ModBlockEntities {
             ModBlocks.CRANE.get()
         ).build(null)
     );
+
+    public static final DeferredHolder<
+        BlockEntityType<?>,
+        BlockEntityType<org.trp.shincolle.block.entity.ChairBlockEntity>
+    > CHAIR = BLOCK_ENTITY_TYPES.register("blockchair", () ->
+        BlockEntityType.Builder.of(
+            org.trp.shincolle.block.entity.ChairBlockEntity::new,
+            ModBlocks.CHAIR.get()
+        ).build(null)
+    );
 }

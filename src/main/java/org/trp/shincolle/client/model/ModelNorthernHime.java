@@ -11,7 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.EntityNorthernHime;
-import net.minecraft.world.entity.Entity;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
 public class ModelNorthernHime<T extends EntityNorthernHime> extends ShipModelHumanoidBase<T> implements IGlowableModel {
@@ -732,9 +731,14 @@ public class ModelNorthernHime<T extends EntityNorthernHime> extends ShipModelHu
         }
 
         if (isPassenger) {
-            this.poseTranslateY = RIDING_TRANSLATE_Y;
-            this.poseTranslateZ = RIDING_TRANSLATE_Z;
-            if (ctx.isSitting) {
+            if (entity != null && entity.getVehicle() instanceof org.trp.shincolle.entity.EntitySeat) {
+                this.poseTranslateY = SITTING_TRANSLATE_Y;
+                this.poseTranslateZ = 0.0F;
+            } else {
+                this.poseTranslateY = RIDING_TRANSLATE_Y;
+                this.poseTranslateZ = RIDING_TRANSLATE_Z;
+            }
+            if (ctx.isSitting || (entity != null && entity.getVehicle() instanceof org.trp.shincolle.entity.EntitySeat)) {
                 ArmLeft01.xRot = -0.8F;
                 ArmLeft01.zRot = -0.35F;
                 ArmRight01.xRot = -0.8F;

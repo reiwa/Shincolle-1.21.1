@@ -83,6 +83,7 @@ public class ModTabs {
                 output.accept(ModItems.KAITAI_HAMMER.get());
                 output.accept(ModItems.MODERN_KIT.get());
                 output.accept(ModItems.MARRIAGE_RING.get());
+                output.accept(ModItems.OWNER_PAPER.get());
                 ModItems.addShipTankVariants(output);
                 ModItems.addCombatRationVariants(output);
                 output.accept(ModItems.BUCKET_REPAIR.get());
@@ -96,16 +97,20 @@ public class ModTabs {
                 output.accept(ModItems.AMMO_HEAVY.get());
                 output.accept(ModItems.AMMO_HEAVY_CONTAINER.get());
                 output.accept(ModItems.ABYSS_METAL.get());
+                output.accept(ModItems.ABYSS_NUGGET.get());
                 output.accept(ModItems.ABYSSIUM.get());
                 output.accept(ModItems.ABYSS_POLYMETAL.get());
+                output.accept(ModItems.POLYMETAL_NUGGET.get());
                 output.accept(ModItems.GRUDGE.get());
                 output.accept(ModItems.GRUDGE_BLOCK.get());
                 output.accept(ModItems.GRUDGE_HEAVY_BLOCK.get());
                 output.accept(ModItems.POLYMETAL.get());
                 output.accept(ModItems.POLYMETAL_ORE.get());
                 output.accept(ModItems.POLYMETAL_GRAVEL.get());
+                output.accept(ModItems.NETHER_ABYSS.get());
                 output.accept(ModBlocks.SMALL_SHIPYARD.get());
                 output.accept(ModItems.DESK.get());
+                output.accept(ModItems.CHAIR.get());
                 output.accept(ModItems.VOL_CORE.get());
                 output.accept(ModItems.VOL_BLOCK.get());
                 output.accept(ModItems.WAYPOINT.get());

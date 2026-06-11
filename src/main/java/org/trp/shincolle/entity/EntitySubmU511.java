@@ -68,6 +68,7 @@ public class EntitySubmU511 extends EntityShipBase {
         }
 
         this.setAttackTick(50);
+        this.playAttackSound();
         this.applyEmotesReaction(3);
         spawnTorpedoes(target);
         return true;
@@ -119,6 +120,11 @@ public class EntitySubmU511 extends EntityShipBase {
     @Override
     protected float getInvisibleDodgeBonus() {
         return 0.30F;
+    }
+
+    @Override
+    protected net.minecraft.world.BossEvent.BossBarColor getBossBarColor() {
+        return net.minecraft.world.BossEvent.BossBarColor.BLUE;
     }
 }
 

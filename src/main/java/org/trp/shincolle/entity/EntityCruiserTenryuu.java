@@ -65,5 +65,10 @@ public class EntityCruiserTenryuu extends EntityShipBase {
     protected Item getShipSpawnEggItem() {
         return ModItems.CRUISER_TENRYUU_SPAWN_EGG.get();
     }
+
+    @Override
+    protected net.minecraft.world.BossEvent.BossBarColor getBossBarColor() {
+        return net.minecraft.world.BossEvent.BossBarColor.PURPLE;
+    }
 }
 

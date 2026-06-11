@@ -1,17 +1,10 @@
 package org.trp.shincolle.entity;
 
-import java.util.List;
-import java.util.Objects;
-import javax.annotation.Nullable;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -22,6 +15,10 @@ import net.minecraft.world.phys.AABB;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
 
 public class EntityNorthernHime extends EntityShipBase {
 

@@ -21,6 +21,18 @@
         "shincolle:legacy_variant": 3.0
       },
       "model": "shincolle:item/pointer_item3"
+    },
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 4.0
+      },
+      "model": "shincolle:item/pointer_item4"
+    },
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 5.0
+      },
+      "model": "shincolle:item/pointer_item5"
     }
   ]
 }

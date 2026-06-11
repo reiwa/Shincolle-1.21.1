@@ -486,8 +486,14 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
     public boolean supportsItemPickup() {
         return true;
     }
-protected Item getShipSpawnEggItem() {
+    @Override
+    protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_INAZUMA_SPAWN_EGG.get();
+    }
+
+    @Override
+    protected net.minecraft.world.BossEvent.BossBarColor getBossBarColor() {
+        return net.minecraft.world.BossEvent.BossBarColor.PINK;
     }
 }
 

@@ -1,7 +1,5 @@
 package org.trp.shincolle.entity;
 
-import java.util.List;
-import java.util.Objects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.item.Item;
@@ -10,6 +8,9 @@ import net.minecraft.world.phys.AABB;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
+
+import java.util.List;
+import java.util.Objects;
 
 public class EntityHarbourHime extends EntityShipBase {
 

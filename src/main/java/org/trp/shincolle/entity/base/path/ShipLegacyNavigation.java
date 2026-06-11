@@ -339,21 +339,32 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
     }
 
     private double getLiquidHoverY(Vec3 target) {
-        BlockPos pos = BlockPos.containing(target.x, target.y, target.z);
-        FluidState fluid = this.level.getFluidState(pos);
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(target.x, target.y, target.z);
+        Level level = this.level;
+        int minY = level.getMinBuildHeight();
 
-        if (fluid.isEmpty()) {
-            BlockPos below = pos.below();
-            fluid = this.level.getFluidState(below);
-
-            if (fluid.isEmpty()) {
-                return target.y;
+        while (pos.getY() > minY) {
+            FluidState fluid = level.getFluidState(pos);
+            if (!fluid.isEmpty()) {
+                return pos.getY() + fluid.getHeight(level, pos) - LIQUID_HOVER_OFFSET;
             }
-
-            pos = below;
+            pos.move(net.minecraft.core.Direction.DOWN);
         }
 
-        return pos.getY() + fluid.getHeight(this.level, pos) - LIQUID_HOVER_OFFSET;
+        BlockPos mobPos = this.mob.blockPosition();
+        FluidState mobFluid = level.getFluidState(mobPos);
+        if (mobFluid.isEmpty()) {
+            BlockPos below = mobPos.below();
+            mobFluid = level.getFluidState(below);
+            if (!mobFluid.isEmpty()) {
+                mobPos = below;
+            }
+        }
+        if (!mobFluid.isEmpty()) {
+            return mobPos.getY() + mobFluid.getHeight(level, mobPos) - LIQUID_HOVER_OFFSET;
+        }
+
+        return target.y;
     }
 
     private boolean isDirectPathBetweenPoints(Vec3 from, Vec3 to, int sizeX, int sizeY, int sizeZ) {

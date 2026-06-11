@@ -882,7 +882,7 @@ public class ModelSubmHime<T extends EntityShipBase> extends ShipModelHumanoidBa
             this.GlowEquipBase.xRot = -0.2F;
         }
 
-        if (isSitting && !isPassenger) {
+        if (isSitting && (!isPassenger || (entity != null && entity.getVehicle() instanceof org.trp.shincolle.entity.EntitySeat))) {
             if ((entity.tickCount & 0x1FF) > 256) {
                 this.poseTranslateY += -angleX * 0.05F + 0.1F;
                 this.Head.xRot *= 0.5F;

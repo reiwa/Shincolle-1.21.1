@@ -27,9 +27,9 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.init.ModSounds;
+import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.menu.CraneMenu;
 import org.trp.shincolle.utility.InventoryHelper;
-import org.trp.shincolle.item.LegacyEquipItem;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -544,7 +544,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("tile.shincolle.BlockCrane.name");
+        return Component.translatable("tile.shincolle.blockcrane.name");
     }
 
     @Nullable

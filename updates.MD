@@ -1,3 +1,16 @@
+## v0.9.0(2026/06/11 JST)
+- Added new blocks, items and recipes
+- Implemented idle, attack, and item pickup voice lines for entities
+- Fixed an issue where items placed in the LargeShipyard were not retained after dismantling
+- Implemented various config settings
+- Implemented original features
+- Implemented enchantment recipes and effects for the equip item
+- Fixed an issue where entity facial expressions and running animations were not playing in the Abyssal Logbook
+- Fixed an issue where boss entities were scaled too large
+- Implemented health bars for boss entities
+- Fixed issues related to entity appearance
+- So many changes
+
 ## v0.8.8(2026/06/01 JST)
 - Added new blocks and recipes
 - Fixed issues related to entity appearance

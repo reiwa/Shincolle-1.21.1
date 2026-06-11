@@ -2,11 +2,10 @@ package org.trp.shincolle.reference;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.init.ModBlocks;
+import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.ShipTankItem;
-
 
 import java.util.*;
 
@@ -154,7 +153,7 @@ public class Values {
         tempItemIconMap.put((short)18, new ItemStack(Items.NETHER_STAR));
         tempItemIconMap.put((short)19, new ItemStack(ModItems.MARRIAGE_RING.get()));
         tempItemIconMap.put((short)20, new ItemStack(Items.PAPER));
-        // tempItemIconMap.put((short)21, new ItemStack(ModItems.OwnerPaper.get())); // Missing
+        tempItemIconMap.put((short)21, new ItemStack(ModItems.OWNER_PAPER.get()));
         tempItemIconMap.put((short)22, new ItemStack(Items.STICK));
         tempItemIconMap.put((short)23, new ItemStack(ModItems.KAITAI_HAMMER.get()));
         tempItemIconMap.put((short)24, new ItemStack(ModItems.MODERN_KIT.get()));
@@ -166,7 +165,7 @@ public class Values {
         tempItemIconMap.put((short)30, new ItemStack(ModItems.REPAIR_GODDESS.get()));
         tempItemIconMap.put((short)31, new ItemStack(ModItems.POINTER_ITEM.get()));
         tempItemIconMap.put((short)32, new ItemStack(ModItems.TOY_AIRPLANE.get()));
-        // tempItemIconMap.put((short)37, new ItemStack(ModBlocks.BlockChair.get())); // Missing
+        tempItemIconMap.put((short)37, new ItemStack(ModItems.CHAIR.get()));
         tempItemIconMap.put((short)33, new ItemStack(ModItems.DESK.get()));
         tempItemIconMap.put((short)50, new ItemStack(ModItems.DESK_ITEM_BOOK.get()));
         tempItemIconMap.put((short)51, new ItemStack(ModItems.DESK_ITEM_RADAR.get()));

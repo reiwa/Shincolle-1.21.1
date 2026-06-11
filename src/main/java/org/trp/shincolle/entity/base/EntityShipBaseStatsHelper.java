@@ -15,6 +15,7 @@ import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.LegacyEquipStats;
 import org.trp.shincolle.reference.Values;
 import org.trp.shincolle.utility.FormationHelper;
+import org.trp.shincolle.utility.EnchantHelper;
 
 class EntityShipBaseStatsHelper {
 
@@ -75,7 +76,9 @@ class EntityShipBaseStatsHelper {
             this.collectEquipBonuses(),
             formationBuffs,
             moraleBuffs,
-            combinedBuffs
+            combinedBuffs,
+            this.ship.isHostileShipMob(),
+            this.ship.getScaleLevel()
         );
 
         this.ship.calcShipAttributesAddEffect();
@@ -314,7 +317,7 @@ class EntityShipBaseStatsHelper {
                                     int plv = ptag.getInt("PLV");
                                     int ptick = ptag.getInt("PTick");
                                     int pchance = ptag.getInt("PChance");
-                                    Holder<MobEffect> effHolder = getMobEffectHolderFromOldId(pid);
+                                    Holder<MobEffect> effHolder = EnchantHelper.getMobEffectHolderFromOldId(pid);
                                     if (effHolder != null) {
                                         this.ship.getAttackEffectMap().put(effHolder, new int[]{plv, ptick, pchance});
                                     }
@@ -325,38 +328,5 @@ class EntityShipBaseStatsHelper {
                 }
             }
         }
-    }
-
-    private static Holder<MobEffect> getMobEffectHolderFromOldId(int id) {
-        return switch (id) {
-            case 1 -> MobEffects.MOVEMENT_SPEED;
-            case 2 -> MobEffects.MOVEMENT_SLOWDOWN;
-            case 3 -> MobEffects.DIG_SPEED;
-            case 4 -> MobEffects.DIG_SLOWDOWN;
-            case 5 -> MobEffects.DAMAGE_BOOST;
-            case 6 -> MobEffects.HEAL;
-            case 7 -> MobEffects.HARM;
-            case 8 -> MobEffects.JUMP;
-            case 9 -> MobEffects.CONFUSION;
-            case 10 -> MobEffects.REGENERATION;
-            case 11 -> MobEffects.DAMAGE_RESISTANCE;
-            case 12 -> MobEffects.FIRE_RESISTANCE;
-            case 13 -> MobEffects.WATER_BREATHING;
-            case 14 -> MobEffects.INVISIBILITY;
-            case 15 -> MobEffects.BLINDNESS;
-            case 16 -> MobEffects.NIGHT_VISION;
-            case 17 -> MobEffects.HUNGER;
-            case 18 -> MobEffects.WEAKNESS;
-            case 19 -> MobEffects.POISON;
-            case 20 -> MobEffects.WITHER;
-            case 21 -> MobEffects.HEALTH_BOOST;
-            case 22 -> MobEffects.ABSORPTION;
-            case 23 -> MobEffects.SATURATION;
-            case 24 -> MobEffects.GLOWING;
-            case 25 -> MobEffects.LEVITATION;
-            case 26 -> MobEffects.LUCK;
-            case 27 -> MobEffects.UNLUCK;
-            default -> null;
-        };
     }
 }

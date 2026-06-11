@@ -5,10 +5,12 @@
       "item": "shincolle:grudge_heavy_block"
     },
     "t": {
-      "item": "shincolle:shiptank",
+      "type": "neoforge:components",
+      "items": "shincolle:shiptank",
       "components": {
         "minecraft:custom_data": "{LegacyVariant:2}"
-      }
+      },
+      "strict": false
     }
   },
   "pattern": [

@@ -76,7 +76,10 @@ final class EntityShipBaseReactions {
             spawnEmotionParticleClient(type);
             return;
         }
-        if (!(this.ship.level() instanceof net.minecraft.server.level.ServerLevel)) {
+        if (
+            !(this.ship.level() instanceof
+                    net.minecraft.server.level.ServerLevel)
+        ) {
             return;
         }
         int nextSeq = this.emotionParticleSeq++ & 0x7FFF;
@@ -89,15 +92,29 @@ final class EntityShipBaseReactions {
     }
 
     void spawnEmotionParticleClient(EmotionParticleType type) {
-        if (!(this.ship.level() instanceof net.minecraft.client.multiplayer.ClientLevel clientLevel)) {
+        if (
+            !(this.ship.level() instanceof
+                    net.minecraft.client.multiplayer.ClientLevel clientLevel)
+        ) {
             return;
         }
-        double baseX = this.ship.getX() + (this.ship.getRandom().nextDouble() - 0.5D) * 0.2D;
+        double baseX =
+            this.ship.getX() +
+            (this.ship.getRandom().nextDouble() - 0.5D) * 0.2D;
         double baseY = this.ship.getY() + this.ship.getBbHeight() * 0.6D;
-        double baseZ = this.ship.getZ() + (this.ship.getRandom().nextDouble() - 0.5D) * 0.2D;
+        double baseZ =
+            this.ship.getZ() +
+            (this.ship.getRandom().nextDouble() - 0.5D) * 0.2D;
         float height = (float) (this.ship.getBbHeight() * 0.6D);
-        clientLevel.addParticle(ModParticles.PARTICLE_EMOTION.get(), baseX, baseY, baseZ,
-                height, this.ship.getId(), type.getId());
+        clientLevel.addParticle(
+            ModParticles.PARTICLE_EMOTION.get(),
+            baseX,
+            baseY,
+            baseZ,
+            height,
+            this.ship.getId(),
+            type.getId()
+        );
     }
 
     private int getMoraleLevel() {
@@ -113,77 +130,129 @@ final class EntityShipBaseReactions {
         this.emotesTick = Math.max(this.emotesTick, ticks);
     }
 
+    private static final java.util.Set<Integer> MAJOR_BODY_PARTS = java.util.Set.of(0, 1, 2, 4);
+
     private void reactionNormal() {
+        this.ship.resetFaceTick();
+        int m = this.ship.getMorale();
+        int body = this.ship.getHitBodyID();
+        int baseMorale = 50;
+        boolean sensitive = (body == this.ship.getSensitiveBody());
+
         switch (getMoraleLevel()) {
             case 0 -> {
-                this.ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
-                EmotionParticleType[] emotes = {
-                        EmotionParticleType.BLUSH,
-                        EmotionParticleType.DIZZY_EYES,
-                        EmotionParticleType.POUT_BOUNCE,
-                        EmotionParticleType.HEART,
-                        EmotionParticleType.MUSIC_NOTE
-                };
-                applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+                this.ship.setStateEmotion(1, sensitive ? 7 : 8, true);
+                if (sensitive) {
+                    applyParticleEmotion(this.ship.getRandom().nextBoolean() ? 31 : 10);
+                    if (m < 7650) {
+                        this.ship.addMorale(baseMorale * 3 + this.ship.getRandom().nextInt(baseMorale + 1));
+                    }
+                } else {
+                    applyParticleEmotion(MAJOR_BODY_PARTS.contains(body) ? (this.ship.isStateMarried() ? 15 : 1) : (this.ship.getRandom().nextBoolean() ? 1 : 7));
+                }
             }
             case 1 -> {
-                this.ship.setEmotionPrimary(EntityShipBase.EMOTION_SHY);
-                EmotionParticleType[] emotes = {
-                        EmotionParticleType.HEART,
-                        EmotionParticleType.LAUGH,
-                        EmotionParticleType.MUSIC_NOTE
-                };
-                applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+                this.ship.setStateEmotion(1, 7, true);
+                if (sensitive) {
+                    applyParticleEmotion(this.ship.isStateMarried() ? (this.ship.getRandom().nextBoolean() ? 31 : 10) : 10);
+                    this.ship.addMorale(baseMorale + this.ship.getRandom().nextInt(baseMorale + 1));
+                } else {
+                    applyParticleEmotion(MAJOR_BODY_PARTS.contains(body) ? (this.ship.isStateMarried() ? 1 : 16) : (this.ship.getRandom().nextBoolean() ? 1 : 7));
+                }
             }
             case 2 -> {
-                this.ship.setEmotionPrimary(EntityShipBase.EMOTION_SHY);
-                EmotionParticleType[] emotes = {
-                        EmotionParticleType.SIGH,
-                        EmotionParticleType.MUSIC_NOTE,
-                        EmotionParticleType.PEACE,
-                        EmotionParticleType.HAPPY_GLANCE,
-                        EmotionParticleType.BLINK
-                };
-                applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+                if (sensitive) {
+                    this.ship.setStateEmotion(1, 7, true);
+                    applyParticleEmotion(this.ship.isStateMarried() ? 19 : 18);
+                    this.ship.addMorale(baseMorale + this.ship.getRandom().nextInt(baseMorale + 1));
+                    if (this.ship.getRandom().nextInt(6) == 0) {
+                        this.ship.pushAITarget();
+                    }
+                } else {
+                    if (MAJOR_BODY_PARTS.contains(body)) {
+                        applyParticleEmotion(this.ship.isStateMarried() ? 1 : 27);
+                        if (this.ship.getRandom().nextInt(8) == 0) {
+                            this.ship.pushAITarget();
+                        }
+                    } else {
+                        int[] emotes = {30, 7, 26, 11, 29};
+                        applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+                    }
+                }
             }
             case 3 -> {
-                EmotionParticleType[] emotes = {
-                        EmotionParticleType.SIGH,
-                        EmotionParticleType.SWEAT_DROPS,
-                        EmotionParticleType.QUESTION,
-                        EmotionParticleType.SWEAT_DROP_BIG
-                };
-                applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+                if (sensitive) {
+                    this.ship.setStateEmotion(1, 7, true);
+                    applyParticleEmotion(32);
+                    this.ship.addMorale(this.ship.getRandom().nextInt(baseMorale + 1));
+                    if (this.ship.getRandom().nextInt(2) == 0) {
+                        this.ship.pushAITarget();
+                    } else if (this.ship.getAITarget() != null && this.ship.getRandom().nextInt(8) == 0) {
+                        this.ship.attackAITarget();
+                    }
+                } else {
+                    if (MAJOR_BODY_PARTS.contains(body)) {
+                        this.ship.setStateEmotion(1, 3, true);
+                        applyParticleEmotion(32);
+                        if (this.ship.getRandom().nextInt(4) == 0) {
+                            this.ship.pushAITarget();
+                        }
+                    } else {
+                        int[] emotes = {30, 2, 3, 0};
+                        applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+                    }
+                }
             }
             default -> {
-                EmotionParticleType[] emotes = {
-                        EmotionParticleType.TEARS,
-                        EmotionParticleType.SWEAT_DROPS,
-                        EmotionParticleType.ORZ,
-                        EmotionParticleType.SILENCE,
-                        EmotionParticleType.GLOOM
-                };
-                applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+                if (sensitive) {
+                    this.ship.setStateEmotion(1, 7, true);
+                    applyParticleEmotion(6);
+                    this.ship.addMorale(-(baseMorale * 10 + this.ship.getRandom().nextInt(baseMorale * 5 + 1)));
+                    this.ship.pushAITarget();
+                    if (this.ship.getAITarget() != null && this.ship.getRandom().nextInt(3) == 0) {
+                        this.ship.attackAITarget();
+                    }
+                } else {
+                    if (MAJOR_BODY_PARTS.contains(body)) {
+                        this.ship.setStateEmotion(1, 2, true);
+                        applyParticleEmotion(this.ship.getRandom().nextInt(3) == 0 ? 6 : 32);
+                        if (this.ship.getRandom().nextInt(2) == 0) {
+                            this.ship.pushAITarget();
+                        } else if (this.ship.getAITarget() != null && this.ship.getRandom().nextInt(5) == 0) {
+                            this.ship.attackAITarget();
+                        }
+                    } else {
+                        int[] emotes = {8, 2, 20, 5, 34};
+                        applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+                    }
+                }
             }
         }
     }
 
     private void reactionStranger() {
-        this.ship.setEmotionPrimary(EntityShipBase.EMOTION_ANGRY);
-        if (this.ship.getRandom().nextBoolean()) {
-            applyParticleEmotion(this.ship.getRandom().nextBoolean()
-                    ? EmotionParticleType.ANGER
-                    : EmotionParticleType.CROSS);
+        int body = this.ship.getHitBodyID();
+        if (body == this.ship.getSensitiveBody()) {
+            this.ship.setStateEmotion(1, 6, true);
+            applyParticleEmotion(this.ship.getRandom().nextBoolean() ? 6 : 22);
+            if (this.ship.getRandom().nextInt(2) == 0) {
+                this.ship.pushAITarget();
+            } else if (this.ship.getAITarget() != null && this.ship.getRandom().nextInt(4) == 0) {
+                this.ship.attackAITarget();
+            }
         } else {
-            EmotionParticleType[] emotes = {
-                    EmotionParticleType.DROOL,
-                    EmotionParticleType.SWEAT_DROPS,
-                    EmotionParticleType.ORZ,
-                    EmotionParticleType.TEARS,
-                    EmotionParticleType.SWEAT_DROP_BIG,
-                    EmotionParticleType.GLOOM
-            };
-            applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+            this.ship.setStateEmotion(1, 3, true);
+            if (MAJOR_BODY_PARTS.contains(body)) {
+                applyParticleEmotion(this.ship.getRandom().nextBoolean() ? 6 : 5);
+                if (this.ship.getRandom().nextInt(4) == 0) {
+                    this.ship.pushAITarget();
+                } else if (this.ship.getAITarget() != null && this.ship.getRandom().nextInt(8) == 0) {
+                    this.ship.attackAITarget();
+                }
+            } else {
+                int[] emotes = {9, 2, 20, 8, 0, 34};
+                applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+            }
         }
     }
 
@@ -191,46 +260,54 @@ final class EntityShipBaseReactions {
         if (getMoraleLevel() == 0) {
             this.ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
             EmotionParticleType[] emotes = {
-                    EmotionParticleType.SILLY_TONGUE,
-                    EmotionParticleType.EVIL_GRIN,
-                    EmotionParticleType.TONGUE_OUT,
-                    EmotionParticleType.LAUGH,
-                    EmotionParticleType.MUSIC_NOTE
+                EmotionParticleType.SILLY_TONGUE,
+                EmotionParticleType.EVIL_GRIN,
+                EmotionParticleType.TONGUE_OUT,
+                EmotionParticleType.LAUGH,
+                EmotionParticleType.MUSIC_NOTE,
             };
-            applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+            applyParticleEmotion(
+                emotes[this.ship.getRandom().nextInt(emotes.length)]
+            );
         } else {
             EmotionParticleType[] emotes = {
-                    EmotionParticleType.SPARKLE_EYES,
-                    EmotionParticleType.SIGH,
-                    EmotionParticleType.MUSIC_NOTE,
-                    EmotionParticleType.EXCLAMATION,
-                    EmotionParticleType.MUSIC_NOTE,
-                    EmotionParticleType.ANGER
+                EmotionParticleType.SPARKLE_EYES,
+                EmotionParticleType.SIGH,
+                EmotionParticleType.MUSIC_NOTE,
+                EmotionParticleType.EXCLAMATION,
+                EmotionParticleType.MUSIC_NOTE,
+                EmotionParticleType.ANGER,
             };
-            applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+            applyParticleEmotion(
+                emotes[this.ship.getRandom().nextInt(emotes.length)]
+            );
         }
     }
 
     private void reactionDamaged() {
         if (getMoraleLevel() <= 2) {
             EmotionParticleType[] emotes = {
-                    EmotionParticleType.SIGH,
-                    EmotionParticleType.SILENCE,
-                    EmotionParticleType.SWEAT_DROPS,
-                    EmotionParticleType.QUESTION,
-                    EmotionParticleType.TEARS
+                EmotionParticleType.SIGH,
+                EmotionParticleType.SILENCE,
+                EmotionParticleType.SWEAT_DROPS,
+                EmotionParticleType.QUESTION,
+                EmotionParticleType.TEARS,
             };
-            applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+            applyParticleEmotion(
+                emotes[this.ship.getRandom().nextInt(emotes.length)]
+            );
         } else {
             EmotionParticleType[] emotes = {
-                    EmotionParticleType.SIGH,
-                    EmotionParticleType.SILENCE,
-                    EmotionParticleType.SWEAT_DROPS,
-                    EmotionParticleType.QUESTION,
-                    EmotionParticleType.SWEAT_DROP_BIG,
-                    EmotionParticleType.TEARS
+                EmotionParticleType.SIGH,
+                EmotionParticleType.SILENCE,
+                EmotionParticleType.SWEAT_DROPS,
+                EmotionParticleType.QUESTION,
+                EmotionParticleType.SWEAT_DROP_BIG,
+                EmotionParticleType.TEARS,
             };
-            applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+            applyParticleEmotion(
+                emotes[this.ship.getRandom().nextInt(emotes.length)]
+            );
         }
     }
 
@@ -238,41 +315,53 @@ final class EntityShipBaseReactions {
         switch (getMoraleLevel()) {
             case 0, 1 -> {
                 EmotionParticleType[] emotesSparkling = {
-                        EmotionParticleType.SILLY_TONGUE,
-                        EmotionParticleType.EVIL_GRIN,
-                        EmotionParticleType.TONGUE_OUT,
-                        EmotionParticleType.DROOL,
-                        EmotionParticleType.HEART,
-                        EmotionParticleType.POUT_BOUNCE,
-                        EmotionParticleType.LAUGH,
-                        EmotionParticleType.SPARKLE_EYES,
-                        EmotionParticleType.MUSIC_NOTE
+                    EmotionParticleType.SILLY_TONGUE,
+                    EmotionParticleType.EVIL_GRIN,
+                    EmotionParticleType.TONGUE_OUT,
+                    EmotionParticleType.DROOL,
+                    EmotionParticleType.HEART,
+                    EmotionParticleType.POUT_BOUNCE,
+                    EmotionParticleType.LAUGH,
+                    EmotionParticleType.SPARKLE_EYES,
+                    EmotionParticleType.MUSIC_NOTE,
                 };
-                applyParticleEmotion(emotesSparkling[this.ship.getRandom().nextInt(emotesSparkling.length)]);
+                applyParticleEmotion(
+                    emotesSparkling[
+                        this.ship.getRandom().nextInt(emotesSparkling.length)
+                    ]
+                );
             }
             case 2 -> {
                 EmotionParticleType[] emotesNormal = {
-                        EmotionParticleType.HAPPY_GLANCE,
-                        EmotionParticleType.QUESTION,
-                        EmotionParticleType.HAPPY_BOB,
-                        EmotionParticleType.DROOL,
-                        EmotionParticleType.SHAKE_HEAD,
-                        EmotionParticleType.LAUGH,
-                        EmotionParticleType.BLINK
+                    EmotionParticleType.HAPPY_GLANCE,
+                    EmotionParticleType.QUESTION,
+                    EmotionParticleType.HAPPY_BOB,
+                    EmotionParticleType.DROOL,
+                    EmotionParticleType.SHAKE_HEAD,
+                    EmotionParticleType.LAUGH,
+                    EmotionParticleType.BLINK,
                 };
-                applyParticleEmotion(emotesNormal[this.ship.getRandom().nextInt(emotesNormal.length)]);
+                applyParticleEmotion(
+                    emotesNormal[
+                        this.ship.getRandom().nextInt(emotesNormal.length)
+                    ]
+                );
             }
             default -> {
                 EmotionParticleType[] emotesTired = {
-                        EmotionParticleType.SWEAT_DROP_BIG,
-                        EmotionParticleType.SWEAT_DROPS,
-                        EmotionParticleType.QUESTION,
-                        EmotionParticleType.TEARS,
-                        EmotionParticleType.DIZZY_EYES,
-                        EmotionParticleType.ORZ,
-                        EmotionParticleType.SCRATCH_HEAD
+                    EmotionParticleType.SWEAT_DROP_BIG,
+                    EmotionParticleType.SWEAT_DROPS,
+                    EmotionParticleType.QUESTION,
+                    EmotionParticleType.TEARS,
+                    EmotionParticleType.DIZZY_EYES,
+                    EmotionParticleType.ORZ,
+                    EmotionParticleType.SCRATCH_HEAD,
                 };
-                applyParticleEmotion(emotesTired[this.ship.getRandom().nextInt(emotesTired.length)]);
+                applyParticleEmotion(
+                    emotesTired[
+                        this.ship.getRandom().nextInt(emotesTired.length)
+                    ]
+                );
             }
         }
     }
@@ -281,35 +370,43 @@ final class EntityShipBaseReactions {
         switch (getMoraleLevel()) {
             case 0, 1, 2 -> {
                 EmotionParticleType[] emotesOk = {
-                        EmotionParticleType.CIRCLE,
-                        EmotionParticleType.EXCLAMATION,
-                        EmotionParticleType.SPARKLE_EYES,
-                        EmotionParticleType.HAPPY_GLANCE,
-                        EmotionParticleType.HAPPY_BOB
+                    EmotionParticleType.CIRCLE,
+                    EmotionParticleType.EXCLAMATION,
+                    EmotionParticleType.SPARKLE_EYES,
+                    EmotionParticleType.HAPPY_GLANCE,
+                    EmotionParticleType.HAPPY_BOB,
                 };
-                applyParticleEmotion(emotesOk[this.ship.getRandom().nextInt(emotesOk.length)]);
+                applyParticleEmotion(
+                    emotesOk[this.ship.getRandom().nextInt(emotesOk.length)]
+                );
             }
             default -> {
                 EmotionParticleType[] emotesTired = {
-                        EmotionParticleType.SWEAT_DROP_BIG,
-                        EmotionParticleType.SILLY_TONGUE,
-                        EmotionParticleType.QUESTION,
-                        EmotionParticleType.DIZZY_EYES,
-                        EmotionParticleType.HAPPY_BOB,
-                        EmotionParticleType.SCRATCH_HEAD
+                    EmotionParticleType.SWEAT_DROP_BIG,
+                    EmotionParticleType.SILLY_TONGUE,
+                    EmotionParticleType.QUESTION,
+                    EmotionParticleType.DIZZY_EYES,
+                    EmotionParticleType.HAPPY_BOB,
+                    EmotionParticleType.SCRATCH_HEAD,
                 };
-                applyParticleEmotion(emotesTired[this.ship.getRandom().nextInt(emotesTired.length)]);
+                applyParticleEmotion(
+                    emotesTired[
+                        this.ship.getRandom().nextInt(emotesTired.length)
+                    ]
+                );
             }
         }
     }
 
     private void reactionShock() {
         EmotionParticleType[] emotes = {
-                EmotionParticleType.SWEAT_DROP_BIG,
-                EmotionParticleType.TEARS,
-                EmotionParticleType.EXCLAMATION,
-                EmotionParticleType.SHOCK
+            EmotionParticleType.SWEAT_DROP_BIG,
+            EmotionParticleType.TEARS,
+            EmotionParticleType.EXCLAMATION,
+            EmotionParticleType.SHOCK,
         };
-        applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.length)]);
+        applyParticleEmotion(
+            emotes[this.ship.getRandom().nextInt(emotes.length)]
+        );
     }
 }

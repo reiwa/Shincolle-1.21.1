@@ -16,6 +16,7 @@ public class Shincolle {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
         ModItems.ITEMS.register(modEventBus);
+        ModRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);

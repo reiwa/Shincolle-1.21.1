@@ -3,6 +3,7 @@ package org.trp.shincolle.crafting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
@@ -15,13 +16,12 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.LegacyEquipStats;
-import net.minecraft.util.RandomSource;
 import org.trp.shincolle.item.ShipSpawnEggItem;
-import org.trp.shincolle.entity.base.EntityShipBase;
 
 import java.util.List;
 import java.util.Map;
@@ -406,7 +406,7 @@ public final class ShipyardRecipes {
             case 49:
             case 50:
             case 72:
-                if (random.nextBoolean()) {
+                if (org.trp.shincolle.Config.consumptionLevel == 0) {
                     return new ItemStack[] {
                         new ItemStack(ModItems.GRUDGE_BLOCK.get(), 1),
                         new ItemStack(ModItems.ABYSSIUM.get(), 1),
@@ -473,6 +473,9 @@ public final class ShipyardRecipes {
             return false;
         }
 
+        int level = org.trp.shincolle.Config.consumptionLevel;
+        int multiplier = level == 0 ? 10 : (level == 1 ? 2 : 1);
+
         int[] taggedMats = getShipyardMatsTag(stack);
         if (taggedMats != null) {
             for (int i = 0; i < 4; i++) {
@@ -482,39 +485,47 @@ public final class ShipyardRecipes {
         }
 
         if (stack.is(ModItems.GRUDGE.get())) {
-            matStock[0] += 1;
+            matStock[0] += multiplier;
             return true;
         }
         if (stack.is(ModItems.ABYSS_METAL.get())) {
-            matStock[1] += 1;
+            matStock[1] += multiplier;
             return true;
         }
-        if (stack.is(ModItems.AMMO_LIGHT.get()) || stack.is(ModItems.AMMO_HEAVY.get())) {
-            matStock[2] += 1;
+        if (stack.is(ModItems.AMMO_LIGHT.get())) {
+            matStock[2] += multiplier;
             return true;
         }
-        if (stack.is(ModItems.AMMO_LIGHT_CONTAINER.get()) || stack.is(ModItems.AMMO_HEAVY_CONTAINER.get())) {
-            matStock[2] += 9;
+        if (stack.is(ModItems.AMMO_HEAVY.get())) {
+            matStock[2] += 4 * multiplier;
+            return true;
+        }
+        if (stack.is(ModItems.AMMO_LIGHT_CONTAINER.get())) {
+            matStock[2] += 9 * multiplier;
+            return true;
+        }
+        if (stack.is(ModItems.AMMO_HEAVY_CONTAINER.get())) {
+            matStock[2] += 36 * multiplier;
             return true;
         }
         if (stack.is(ModItems.ABYSS_POLYMETAL.get())) {
-            matStock[3] += 1;
+            matStock[3] += multiplier;
             return true;
         }
         if (stack.is(ModItems.GRUDGE_BLOCK.get())) {
-            matStock[0] += 9;
+            matStock[0] += 9 * multiplier;
             return true;
         }
         if (stack.is(ModItems.ABYSSIUM.get())) {
-            matStock[1] += 9;
+            matStock[1] += 9 * multiplier;
             return true;
         }
         if (stack.is(ModItems.POLYMETAL.get())) {
-            matStock[3] += 9;
+            matStock[3] += 9 * multiplier;
             return true;
         }
         if (stack.is(ModItems.GRUDGE_HEAVY_BLOCK.get())) {
-            matStock[0] += 81;
+            matStock[0] += 81 * multiplier;
             return true;
         }
 
@@ -555,12 +566,12 @@ public final class ShipyardRecipes {
                     
                     for (int i = 0; i < 4; i++) {
                         int amount = share + ThreadLocalRandom.current().nextInt(Math.max(1, share / 4));
-                        matStock[i] += amount;
+                        matStock[i] += amount * multiplier;
                     }
 
                     
                     int extra = share + ThreadLocalRandom.current().nextInt(Math.max(1, share / 4));
-                    matStock[matType] += extra;
+                    matStock[matType] += extra * multiplier;
                     return true;
                 }
             }

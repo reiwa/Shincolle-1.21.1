@@ -1,6 +1,5 @@
 package org.trp.shincolle.entity.projectile;
 
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -12,8 +11,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.init.ModEntities;
-import org.trp.shincolle.init.ModParticles;
-import net.minecraft.client.multiplayer.ClientLevel;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -110,8 +107,8 @@ public class EntityProjectileStatic extends Entity {
     }
 
     private void spawnSphereLight() {
-        if (this.level() instanceof ClientLevel clientLevel) {
-            clientLevel.addParticle(ModParticles.PARTICLE_SPHERE_LIGHT.get(), true,
+        if (this.level().isClientSide) {
+            org.trp.shincolle.client.ClientProxy.spawnSphereLight(this.level(),
                     this.getX(), this.getY(), this.getZ(),
                     this.getRange() * 2.0D, (double) this.getId(), (double) this.getProjectileType());
         }

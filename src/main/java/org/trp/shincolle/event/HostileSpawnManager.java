@@ -50,7 +50,7 @@ final class HostileSpawnManager {
     }
 
     private static void spawnMobShips(ServerLevel level, Player player) {
-        if (Config.hostileSpawnRequireRing && !hasMarriageRing(player)) {
+        if (Config.checkRing && !hasMarriageRing(player)) {
             return;
         }
 
@@ -62,15 +62,15 @@ final class HostileSpawnManager {
         }
 
         RandomSource random = player.getRandom();
-        if (countHostileMinions(level) > Config.hostileMobSpawnMax) {
+        if (countHostileMinions(level) > Config.mobSpawn[0]) {
             return;
         }
 
-        if (random.nextInt(100) > Config.hostileMobSpawnChancePercent) {
+        if (random.nextInt(100) > Config.mobSpawn[1]) {
             return;
         }
 
-        int groups = Math.max(1, Config.hostileMobSpawnGroups);
+        int groups = Math.max(1, Config.mobSpawn[2]);
         for (int loop = 30 + groups * 30; groups > 0 && loop > 0; --loop) {
             int offX = random.nextInt(30) + 20;
             int offZ = random.nextInt(30) + 20;
@@ -104,9 +104,9 @@ final class HostileSpawnManager {
             groups--;
 
             int spawnY = getTopWaterHeight(level, spawnX, level.getSeaLevel() - 3, spawnZ);
-            int shipMin = Math.max(1, Config.hostileMobSpawnGroupMin);
+            int shipMin = Math.max(1, Config.mobSpawn[3]);
             int shipNum = shipMin;
-            int rangeMax = Config.hostileMobSpawnGroupMax - shipMin;
+            int rangeMax = Config.mobSpawn[4] - shipMin;
             if (rangeMax > 0) {
                 shipNum += random.nextInt(rangeMax + 1);
             }
@@ -127,14 +127,14 @@ final class HostileSpawnManager {
 
         BlockPos playerPos = player.blockPosition();
         boolean canTickCooldown = isWaterOrBeachBiome(level, playerPos)
-                && (!Config.hostileSpawnRequireRing || hasMarriageRing(player));
+                && (!Config.checkRing || hasMarriageRing(player));
         if (canTickCooldown) {
             cooldown--;
         }
 
         if (cooldown <= 0 && canTickCooldown) {
             RandomSource random = player.getRandom();
-            cooldown = Config.hostileBossCooldownTicks;
+            cooldown = Config.bossCooldown;
 
             if (random.nextInt(4) == 0) {
                 trySpawnBossFleet(level, player, random);
@@ -187,7 +187,7 @@ final class HostileSpawnManager {
                 continue;
             }
 
-            int bossCount = Math.max(1, Config.hostileSpawnBossCount);
+            int bossCount = Math.max(1, Config.spawnBossNum);
             for (int j = 0; j < bossCount; ++j) {
                 int scaleLevel = random.nextInt(100) > 65 ? 3 : 2;
                 spawnRandomHostileShip(level, random, scaleLevel,
@@ -196,7 +196,7 @@ final class HostileSpawnManager {
                         spawnZ + random.nextInt(3));
             }
 
-            int minionCount = Math.max(1, Config.hostileSpawnMinionCount);
+            int minionCount = Math.max(1, Config.spawnMobNum);
             for (int j = 0; j < minionCount; ++j) {
                 spawnRandomHostileShip(level, random, random.nextInt(2),
                         spawnX + random.nextInt(3),

@@ -1,8 +1,6 @@
 package org.trp.shincolle.client.handler;
 
-import java.util.Optional;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +18,8 @@ import org.trp.shincolle.entity.base.EntityMountBase;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.network.C2SMountInputPayload;
 import org.trp.shincolle.network.ModNetwork;
+
+import java.util.Optional;
 
 @EventBusSubscriber(modid = Shincolle.MODID, value = Dist.CLIENT)
 public class MountCameraHandler {

@@ -1,12 +1,12 @@
 package org.trp.shincolle.event;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -20,6 +20,7 @@ import org.trp.shincolle.client.particle.*;
 import org.trp.shincolle.client.renderer.*;
 import org.trp.shincolle.client.renderer.block.RenderLargeShipyard;
 import org.trp.shincolle.client.renderer.block.RenderSmallShipyard;
+import org.trp.shincolle.client.renderer.layer.PlayerAccessoryLayer;
 import org.trp.shincolle.client.renderer.layer.ShipHeldItemLayer;
 import org.trp.shincolle.client.screen.CraneScreen;
 import org.trp.shincolle.client.screen.LargeShipyardScreen;
@@ -163,31 +164,51 @@ public class ClientModEventBusEvents {
         event.registerEntityRenderer(ModEntities.PROJECTILE_BEAM.get(), RendererProjectileBeam::new);
         event.registerEntityRenderer(ModEntities.SHIP_GRUDGE.get(), RendererShipGrudge::new);
         event.registerEntityRenderer(ModEntities.SHIP_FISHING_HOOK.get(), RendererShipFishingHook::new);
+        event.registerEntityRenderer(ModEntities.SEAT.get(), net.minecraft.client.renderer.entity.NoopRenderer::new);
 
         event.registerBlockEntityRenderer(ModBlockEntities.SMALL_SHIPYARD.get(), RenderSmallShipyard::new);
         event.registerBlockEntityRenderer(ModBlockEntities.LARGE_SHIPYARD.get(), RenderLargeShipyard::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DESK.get(), org.trp.shincolle.client.renderer.block.RenderDesk::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.CHAIR.get(), org.trp.shincolle.client.renderer.block.RenderChair::new);
     }
 
-        @SubscribeEvent
-        public static void addRenderLayers(EntityRenderersEvent.AddLayers event) {
-                for (var entry : ModEntities.ENTITY_TYPES.getEntries()) {
-                        EntityType<?> type = entry.get();
-                        EntityRenderer<?> renderer = event.getRenderer(type);
-                        if (renderer instanceof LivingEntityRenderer<?, ?> livingRenderer
-                                        && livingRenderer.getModel() instanceof ShipModelBaseAdv) {
-                                addHeldItemLayerUnchecked(livingRenderer);
-                        }
-                }
-        }
+        public static final net.minecraft.client.model.geom.ModelLayerLocation ACCESSORY_LAYER =
+            new net.minecraft.client.model.geom.ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "player_accessory"), "main");
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        private static void addHeldItemLayerUnchecked(LivingEntityRenderer renderer) {
-                renderer.addLayer(new ShipHeldItemLayer(renderer));
-        }
+	@SubscribeEvent
+	public static void addRenderLayers(EntityRenderersEvent.AddLayers event) {
+		for (var entry : ModEntities.ENTITY_TYPES.getEntries()) {
+			EntityType<?> type = entry.get();
+			EntityRenderer<?> renderer = event.getRenderer(type);
+			if (renderer instanceof LivingEntityRenderer<?, ?> livingRenderer
+					&& livingRenderer.getModel() instanceof ShipModelBaseAdv) {
+				addHeldItemLayerUnchecked(livingRenderer);
+			}
+		}
+
+		net.minecraft.client.renderer.entity.EntityRenderer<? extends Player> defaultRenderer = event.getSkin(net.minecraft.client.resources.PlayerSkin.Model.WIDE);
+		if (defaultRenderer instanceof LivingEntityRenderer<?, ?> livingRenderer) {
+			addPlayerAccessoryLayerUnchecked(livingRenderer, event.getEntityModels().bakeLayer(ACCESSORY_LAYER));
+		}
+		net.minecraft.client.renderer.entity.EntityRenderer<? extends Player> slimRenderer = event.getSkin(net.minecraft.client.resources.PlayerSkin.Model.SLIM);
+		if (slimRenderer instanceof LivingEntityRenderer<?, ?> livingRenderer) {
+			addPlayerAccessoryLayerUnchecked(livingRenderer, event.getEntityModels().bakeLayer(ACCESSORY_LAYER));
+		}
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private static void addHeldItemLayerUnchecked(LivingEntityRenderer renderer) {
+		renderer.addLayer(new ShipHeldItemLayer(renderer));
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private static void addPlayerAccessoryLayerUnchecked(LivingEntityRenderer renderer, net.minecraft.client.model.geom.ModelPart part) {
+		renderer.addLayer(new PlayerAccessoryLayer(renderer, part));
+	}
 
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(ACCESSORY_LAYER, ModelPlayerAccessory::createBodyLayer);
         event.registerLayerDefinition(ModelDestroyerI.LAYER_LOCATION, ModelDestroyerI::createBodyLayer);
         event.registerLayerDefinition(ModelDestroyerRo.LAYER_LOCATION, ModelDestroyerRo::createBodyLayer);
         event.registerLayerDefinition(ModelDestroyerHa.LAYER_LOCATION, ModelDestroyerHa::createBodyLayer);
@@ -256,6 +277,7 @@ public class ClientModEventBusEvents {
                 event.registerLayerDefinition(ModelVortex.LAYER_LOCATION, ModelVortex::createBodyLayer);
                 event.registerLayerDefinition(ModelBlockDesk.LAYER_LOCATION, ModelBlockDesk::createBodyLayer);
                 event.registerLayerDefinition(ModelBlockDeskLarge.LAYER_LOCATION, ModelBlockDeskLarge::createBodyLayer);
+                event.registerLayerDefinition(ModelBlockChair.LAYER_LOCATION, ModelBlockChair::createBodyLayer);
     }
 
     @SubscribeEvent
@@ -272,6 +294,8 @@ public class ClientModEventBusEvents {
 
     @SubscribeEvent
     public static void registerParticles(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(ModParticles.PARTICLE_SHINE.get(), ParticleShine.Provider::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_FOG.get(), ParticleFog.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_EMOTION.get(), ParticleEmotion.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_HEAL_SPARKLE.get(), ParticleHealSparkle.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_GODDESS.get(), ParticleGoddess.Provider::new);
@@ -279,6 +303,7 @@ public class ClientModEventBusEvents {
         event.registerSpriteSet(ModParticles.PARTICLE_LIGHTNING.get(), ParticleLightning.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_SPRAY_RED.get(), ParticleSprayRed.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_SPRAY.get(), ParticleSpray.Provider::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_SPRAY_CYAN.get(), ParticleSprayCyan.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_CRANING.get(), ParticleCraning.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM.get(), ParticleTeam.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED.get(),

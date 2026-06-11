@@ -11,16 +11,21 @@ public final class LegacyScale {
     }
 
     public static float getScale(net.minecraft.world.entity.LivingEntity entity, EntityModel<?> model) {
+        float s = DEFAULT;
         if (entity instanceof EntityShipBase ship && model instanceof ShipModelBaseAdv<?> shipModel) {
-            return shipModel.getLegacyScale(ship);
-        }
-        if (entity instanceof org.trp.shincolle.entity.base.EntityShincolleSimpleMob simpleMob) {
+            s = shipModel.getLegacyScale(ship);
+        } else if (entity instanceof org.trp.shincolle.entity.base.EntityShincolleSimpleMob simpleMob) {
             float base = 0.34f;
             if (simpleMob instanceof org.trp.shincolle.entity.EntityRensouhou || simpleMob instanceof org.trp.shincolle.entity.EntityRensouhouS) {
                 base = 0.4f;
             }
-            return base * (simpleMob.getScaleLevel() + 1);
+            s = base * (simpleMob.getScaleLevel() + 1);
         }
-        return DEFAULT;
+
+        float attributeScale = entity.getScale();
+        if (attributeScale > 0.0F) {
+            return s / attributeScale;
+        }
+        return s;
     }
 }

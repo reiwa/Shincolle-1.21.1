@@ -23,11 +23,7 @@ class EntityShipBaseSupplies {
 
     boolean checkAndPlayFeedSound() {
         if (this.feedSoundCooldown <= 0) {
-            this.ship.playSound(
-                ModSounds.SHIP_FEED.get(),
-                this.ship.getSoundVolume(),
-                this.ship.getShipSoundPitch()
-            );
+            this.ship.playFeedSound();
             this.feedSoundCooldown = 30;
             return true;
         }
@@ -135,11 +131,7 @@ class EntityShipBaseSupplies {
         }
 
         if (this.feedSoundCooldown <= 0) {
-            this.ship.playSound(
-                ModSounds.SHIP_FEED.get(),
-                this.ship.getSoundVolume(),
-                this.ship.getShipSoundPitch()
-            );
+            this.ship.playFeedSound();
             this.feedSoundCooldown = 30;
         }
 
@@ -177,11 +169,7 @@ class EntityShipBaseSupplies {
 
             this.ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
             this.ship.applyParticleEmotion(EmotionParticleType.HEART);
-            this.ship.playSound(
-                ModSounds.SHIP_FEED.get(),
-                this.ship.getSoundVolume(),
-                this.ship.getShipSoundPitch()
-            );
+            this.ship.playFeedSound();
             this.ship.focusOnPlayer(player);
             return true;
         }
@@ -201,11 +189,7 @@ class EntityShipBaseSupplies {
         this.ship.addMorale(200);
         this.ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
         this.ship.applyParticleEmotion(EmotionParticleType.HAPPY_BOB);
-        this.ship.playSound(
-            ModSounds.SHIP_FEED.get(),
-            this.ship.getSoundVolume(),
-            this.ship.getShipSoundPitch()
-        );
+        this.ship.playFeedSound();
 
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
@@ -219,15 +203,17 @@ class EntityShipBaseSupplies {
             return;
         }
 
+        int multiplier = org.trp.shincolle.Config.consumptionLevel == 0 ? 10 : 1;
+
         if (this.ship.getFuel() <= 0) {
             float modFuel = this.ship.getLegacyShipStats().getBuffedAttr(17);
             if (this.ship.consumeItemInInventory(ModItems.GRUDGE.get())) {
-                this.ship.setFuel((int) (300 * modFuel));
+                this.ship.setFuel((int) (300 * modFuel * multiplier));
                 this.applyAutoSupplyEffects();
             } else if (
                 this.ship.consumeItemInInventory(ModItems.GRUDGE_BLOCK.get())
             ) {
-                this.ship.setFuel((int) (2700 * modFuel));
+                this.ship.setFuel((int) (2700 * modFuel * multiplier));
                 this.applyAutoSupplyEffects();
             }
         }
@@ -235,12 +221,12 @@ class EntityShipBaseSupplies {
         if (this.ship.getAmmoLight() <= 0) {
             float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(18);
             if (this.ship.consumeItemInInventory(ModItems.AMMO_LIGHT.get())) {
-                this.ship.setAmmoLight((int) (30 * modAmmo));
+                this.ship.setAmmoLight((int) (30 * modAmmo * multiplier));
                 this.applyAutoSupplyEffects();
             } else if (
                 this.ship.consumeItemInInventory(ModItems.AMMO_LIGHT_CONTAINER.get())
             ) {
-                this.ship.setAmmoLight((int) (270 * modAmmo));
+                this.ship.setAmmoLight((int) (270 * modAmmo * multiplier));
                 this.applyAutoSupplyEffects();
             }
         }
@@ -248,12 +234,12 @@ class EntityShipBaseSupplies {
         if (this.ship.getAmmoHeavy() <= 0) {
             float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(18);
             if (this.ship.consumeItemInInventory(ModItems.AMMO_HEAVY.get())) {
-                this.ship.setAmmoHeavy((int) (15 * modAmmo));
+                this.ship.setAmmoHeavy((int) (15 * modAmmo * multiplier));
                 this.applyAutoSupplyEffects();
             } else if (
                 this.ship.consumeItemInInventory(ModItems.AMMO_HEAVY_CONTAINER.get())
             ) {
-                this.ship.setAmmoHeavy((int) (135 * modAmmo));
+                this.ship.setAmmoHeavy((int) (135 * modAmmo * multiplier));
                 this.applyAutoSupplyEffects();
             }
         }

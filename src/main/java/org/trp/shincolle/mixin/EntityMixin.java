@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.EntitySSNH;
+import org.trp.shincolle.entity.base.EntityShipBase;
 
 import java.util.Objects;
 

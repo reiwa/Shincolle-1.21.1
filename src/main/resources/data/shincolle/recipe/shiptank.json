@@ -15,6 +15,9 @@
   ],
   "result": {
     "count": 1,
-    "id": "shincolle:shiptank"
+    "id": "shincolle:shiptank",
+    "components": {
+      "minecraft:custom_data": "{LegacyVariant:0}"
+    }
   }
 }

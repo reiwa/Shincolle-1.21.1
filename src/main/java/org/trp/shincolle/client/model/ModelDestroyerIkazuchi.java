@@ -9,7 +9,6 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.EntityDestroyerAkatsuki;
 import org.trp.shincolle.entity.EntityDestroyerIkazuchi;
@@ -547,10 +546,12 @@ public class ModelDestroyerIkazuchi<T extends EntityShipBase> extends ShipModelH
         }
 
         if (ctx.isSitting || isPassenger) {
-            this.isSittingPose = ctx.isSitting;
+            this.isSittingPose = ctx.isSitting || (isPassenger && entity != null && entity.getVehicle() instanceof org.trp.shincolle.entity.EntitySeat);
             net.minecraft.world.entity.Entity mount = entity != null ? entity.getVehicle() : null;
             if (mount instanceof org.trp.shincolle.entity.base.EntityShipBase) {
                 this.poseTranslateY = 0.0F;
+            } else if (mount instanceof org.trp.shincolle.entity.EntitySeat) {
+                this.poseTranslateY = SITTING_TRANSLATE_Y;
             } else {
                 this.poseTranslateY = ctx.isSitting && !isPassenger ? SITTING_TRANSLATE_Y : RIDING_TRANSLATE_Y;
             }
@@ -710,9 +711,7 @@ public class ModelDestroyerIkazuchi<T extends EntityShipBase> extends ShipModelH
             }
         }
 
-        float attackAnim = entity != null ? entity.getAttackAnim(ageInTicks) : 0.0F;
-        float attackTicks = attackAnim * 50.0F;
-        if (attackTicks > 20.0F && !isPassenger) {
+        if (entity != null && entity.getAttackTick() > 20 && !isPassenger) {
             Head.xRot -= 0.1F;
             EquipHead01.yRot = -0.3142F;
             if (entity != null && (entity.tickCount % 128) < 64) {

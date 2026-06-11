@@ -286,5 +286,9 @@ final class EntityShipBaseSerialization {
         }
 
         this.ship.recalculateLegacyShipStats();
+
+        if (compound.contains("Health")) {
+            this.ship.setHealth(compound.getFloat("Health"));
+        }
     }
 }

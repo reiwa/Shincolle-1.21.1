@@ -1,9 +1,5 @@
 package org.trp.shincolle.network;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -26,9 +22,11 @@ import org.trp.shincolle.init.ModDataComponents;
 import org.trp.shincolle.item.DeskItemBook;
 import org.trp.shincolle.item.PointerItem;
 
+import java.util.List;
+import java.util.UUID;
+
 @EventBusSubscriber(modid = Shincolle.MODID)
 public class ModNetwork {
-
 
     public static void sendToServer(CustomPacketPayload payload) {
         PacketDistributor.sendToServer(payload);
@@ -82,6 +80,36 @@ public class ModNetwork {
             S2CAdmiralDataSyncPayload.STREAM_CODEC,
             ModNetwork::handleAdmiralDataSync
         );
+        registrar.playToClient(
+            S2CCollectedShipsSyncPayload.TYPE,
+            S2CCollectedShipsSyncPayload.STREAM_CODEC,
+            ModNetwork::handleCollectedShipsSync
+        );
+        registrar.playToServer(
+            C2SPlayerAppearancePayload.TYPE,
+            C2SPlayerAppearancePayload.STREAM_CODEC,
+            ModNetwork::handlePlayerAppearance
+        );
+        registrar.playToServer(
+            C2SPetShipPayload.TYPE,
+            C2SPetShipPayload.STREAM_CODEC,
+            ModNetwork::handlePetShip
+        );
+    }
+
+    private static void handleCollectedShipsSync(
+        final S2CCollectedShipsSyncPayload payload,
+        final IPayloadContext context
+    ) {
+        context.enqueueWork(() -> {
+            Player player = context.player();
+            if (player != null) {
+                player.setData(
+                    ModDataAttachments.COLLECTED_SHIPS,
+                    new java.util.HashSet<>(payload.collectedShips())
+                );
+            }
+        });
     }
 
     private static void handleAdmiralDataSync(
@@ -146,6 +174,25 @@ public class ModNetwork {
                         }
                     }
                 }
+            }
+        });
+    }
+
+    private static void handlePlayerAppearance(
+        final C2SPlayerAppearancePayload payload,
+        final IPayloadContext context
+    ) {
+        context.enqueueWork(() -> {
+            Player player = context.player();
+            if (player != null) {
+                AdmiralData data = player.getData(
+                    ModDataAttachments.ADMIRAL_DATA
+                );
+                data.setAppearance(payload.appearance());
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(
+                    player,
+                    new S2CAdmiralDataSyncPayload(data.serializeNBT())
+                );
             }
         });
     }
@@ -614,6 +661,21 @@ public class ModNetwork {
                         )
                     )
                 );
+            } else if (payload.action() == 6) {
+                ItemStack main = player.getMainHandItem();
+                ItemStack off = player.getOffhandItem();
+                ItemStack pointer = main.getItem() instanceof PointerItem
+                    ? main
+                    : (off.getItem() instanceof PointerItem
+                          ? off
+                          : ItemStack.EMPTY);
+                if (
+                    !pointer.isEmpty() &&
+                    pointer.getItem() instanceof PointerItem pi
+                ) {
+                    boolean next = !pi.isPetting(pointer);
+                    pi.setPetting(pointer, next);
+                }
             }
         });
     }
@@ -955,7 +1017,6 @@ public class ModNetwork {
             if (payload.action() == 1) {
                 ship.openShipMenu(player);
             } else if (payload.action() == 12) {
-                
                 int skillKey = payload.skillKey();
                 int stateTimerIdx;
                 int stateFlagIdx;
@@ -983,8 +1044,6 @@ public class ModNetwork {
                     default:
                         return;
                 }
-
-                
 
                 if (skillKey < 2 && !ship.getStateFlag(stateFlagIdx)) {
                     return;
@@ -1047,7 +1106,8 @@ public class ModNetwork {
                         break;
                     case 2:
                         if (target != null) {
-                            boolean launched = ship.executeMountLightAircraftAttack(target);
+                            boolean launched =
+                                ship.executeMountLightAircraftAttack(target);
                             if (launched) {
                                 int delay = ship
                                     .getLegacyShipStats()
@@ -1059,7 +1119,8 @@ public class ModNetwork {
                         break;
                     case 3:
                         if (target != null) {
-                            boolean launched = ship.executeMountHeavyAircraftAttack(target);
+                            boolean launched =
+                                ship.executeMountHeavyAircraftAttack(target);
                             if (launched) {
                                 int delay = ship
                                     .getLegacyShipStats()
@@ -1069,6 +1130,29 @@ public class ModNetwork {
                             }
                         }
                         break;
+                }
+            }
+        });
+    }
+
+    private static void handlePetShip(
+        final C2SPetShipPayload payload,
+        final IPayloadContext context
+    ) {
+        context.enqueueWork(() -> {
+            Player player = context.player();
+            if (player == null) return;
+            if (
+                player.level() instanceof
+                    net.minecraft.server.level.ServerLevel serverLevel
+            ) {
+                net.minecraft.world.entity.Entity entity =
+                    serverLevel.getEntity(payload.shipUUID());
+                if (entity instanceof EntityShipBase ship) {
+                    ship.setHitHeight(payload.hitHeight());
+                    ship.setHitAngle(payload.hitAngle());
+                    ship.checkCaressed();
+                    ship.interactPointer(player);
                 }
             }
         });

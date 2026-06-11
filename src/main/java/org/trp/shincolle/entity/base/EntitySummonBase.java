@@ -50,7 +50,10 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
             damage = Math.max(2.0F, carrier.getLegacyShipStats().getFirepower() * 0.35F);
         }
         
-        target.hurt(this.damageSources().mobAttack(this), damage);
+        boolean hurt = target.hurt(this.damageSources().mobAttack(this), damage);
+        if (hurt && carrier != null) {
+            carrier.applyAttackEffects(target);
+        }
         
         serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.CRIT, target.getX(), target.getY() + target.getBbHeight() * 0.5D, target.getZ(), 8, 0.2D, 0.2D, 0.2D, 0.1D);
         this.playSound(ModSounds.SHIP_FIRELIGHT.get(), 1.0F, 1.0F);

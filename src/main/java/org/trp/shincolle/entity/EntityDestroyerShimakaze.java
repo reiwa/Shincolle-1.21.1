@@ -180,6 +180,17 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
             aimPos = aimPos.add(push);
         }
 
+        if (this.level() instanceof ServerLevel serverLevel) {
+            double distance = targetEntity != null ? this.distanceTo(targetEntity) : this.position().distanceTo(aimPos);
+            if (this.getRandom().nextFloat() <= org.trp.shincolle.utility.CombatHelper.calcMissRate(this, (float) distance)) {
+                double offsetX = (this.getRandom().nextDouble() - 0.5D) * 10.0D;
+                double offsetY = this.getRandom().nextDouble() * 5.0D;
+                double offsetZ = (this.getRandom().nextDouble() - 0.5D) * 10.0D;
+                aimPos = aimPos.add(offsetX, offsetY, offsetZ);
+                this.spawnCombatTextParticle(COMBAT_TEXT_MISS);
+            }
+        }
+
         spawnTorpedoes(aimPos, targetEntity);
         return true;
     }
@@ -337,8 +348,14 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
     public boolean supportsItemPickup() {
         return true;
     }
-protected Item getShipSpawnEggItem() {
+    @Override
+    protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_SHIMAKAZE_SPAWN_EGG.get();
+    }
+
+    @Override
+    protected net.minecraft.world.BossEvent.BossBarColor getBossBarColor() {
+        return net.minecraft.world.BossEvent.BossBarColor.YELLOW;
     }
 }
 

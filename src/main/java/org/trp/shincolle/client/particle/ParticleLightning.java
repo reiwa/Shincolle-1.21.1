@@ -18,7 +18,6 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.trp.shincolle.entity.base.EntityMountBase;
-
 import org.trp.shincolle.utility.CalcHelper;
 
 public class ParticleLightning extends Particle {

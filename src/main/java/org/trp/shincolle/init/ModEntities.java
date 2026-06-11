@@ -8,8 +8,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.*;
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile;
-import org.trp.shincolle.entity.projectile.EntityProjectileStatic;
 import org.trp.shincolle.entity.projectile.EntityProjectileBeam;
+import org.trp.shincolle.entity.projectile.EntityProjectileStatic;
 
 public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, Shincolle.MODID);
@@ -344,4 +344,8 @@ public class ModEntities {
                     .sized(0.25f, 0.25f)
                     .build("ship_fishing_hook"));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<EntitySeat>> SEAT = ENTITY_TYPES.register("entity_seat",
+            () -> EntityType.Builder.<EntitySeat>of(EntitySeat::new, MobCategory.MISC)
+                    .sized(0.01f, 0.01f)
+                    .build("entity_seat"));
 }

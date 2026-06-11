@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "shincolle:polymetal_nugget"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "shincolle:abyss_polymetal"
+  }
+}

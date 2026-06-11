@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -21,6 +22,7 @@ import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModBlocks;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.menu.LargeShipyardMenu;
+import org.trp.shincolle.world.LargeShipyardSavedData;
 
 public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvider {
     public static final int SLOT_OUTPUT = 0;
@@ -48,7 +50,6 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     private int invMode;
     private int selectMat;
     private int[] matsBuild = new int[]{0, 0, 0, 0};
-    private int[] matsStock = new int[]{0, 0, 0, 0};
     private boolean active;
     private float renderYaw;
     private float renderPitch;
@@ -85,7 +86,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
         }
 
         if (blockEntity.isBuilding()) {
-            blockEntity.powerRemained -= BUILD_SPEED;
+            blockEntity.powerRemained -= blockEntity.getActualFuelConsumption();
             blockEntity.powerConsumed += BUILD_SPEED;
             stateChanged = true;
 
@@ -189,7 +190,10 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     public int[] getMatsStock() {
-        return this.matsStock;
+        if (this.level instanceof ServerLevel serverLevel) {
+            return LargeShipyardSavedData.get(serverLevel).getMatsStockCopy();
+        }
+        return new int[]{0, 0, 0, 0};
     }
 
     public int getMatBuild(int index) {
@@ -197,7 +201,10 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     public int getMatStock(int index) {
-        return this.matsStock[index];
+        if (this.level instanceof ServerLevel serverLevel) {
+            return LargeShipyardSavedData.get(serverLevel).getMatStock(index);
+        }
+        return 0;
     }
 
     public int getPowerRemainingScaled(int scale) {
@@ -207,8 +214,19 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
         return this.powerRemained * scale / POWER_MAX;
     }
 
+    private int getActualFuelConsumption() {
+        int difficulty = org.trp.shincolle.Config.consumptionLevel;
+        int consumption = BUILD_SPEED;
+        if (difficulty == 0) {
+            consumption /= 5;
+        } else if (difficulty == 1) {
+            consumption /= 2;
+        }
+        return Math.max(1, consumption);
+    }
+
     public boolean hasRemainedPower() {
-        return this.powerRemained > BUILD_SPEED;
+        return this.powerRemained > getActualFuelConsumption();
     }
 
     public int getRemainingTimeSeconds() {
@@ -227,7 +245,12 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     public void moveBuildMaterialAmount(int matType, int value) {
-        ShipyardRecipes.moveBuildMaterialAmount(this.matsBuild, this.matsStock, matType, value);
+        if (this.level instanceof ServerLevel serverLevel) {
+            LargeShipyardSavedData savedData = LargeShipyardSavedData.get(serverLevel);
+            int[] tempStock = savedData.getMatsStockCopy();
+            ShipyardRecipes.moveBuildMaterialAmount(this.matsBuild, tempStock, matType, value);
+            savedData.setMatsStock(tempStock);
+        }
         setChanged();
     }
 
@@ -242,7 +265,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
         tag.putInt("InvMode", this.invMode);
         tag.putInt("SelectMat", this.selectMat);
         tag.putIntArray("MatsBuild", this.matsBuild);
-        tag.putIntArray("MatsStock", this.matsStock);
+        // MatsStock is stored globally in LargeShipyardSavedData, not per block entity.
     }
 
     @Override
@@ -258,7 +281,18 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
         this.invMode = tag.getInt("InvMode");
         this.selectMat = Math.max(0, Math.min(tag.getInt("SelectMat"), MAT_COUNT - 1));
         this.matsBuild = sanitizeMatsArray(tag.getIntArray("MatsBuild"));
-        this.matsStock = sanitizeMatsArray(tag.getIntArray("MatsStock"));
+        // MatsStock is stored globally in LargeShipyardSavedData, not per block entity.
+        // Legacy migration: if an old save has MatsStock in the block entity, migrate it to the global store.
+        if (tag.contains("MatsStock")) {
+            int[] legacy = sanitizeMatsArray(tag.getIntArray("MatsStock"));
+            boolean hasAny = legacy[0] != 0 || legacy[1] != 0 || legacy[2] != 0 || legacy[3] != 0;
+            if (hasAny && this.level instanceof ServerLevel serverLevel) {
+                LargeShipyardSavedData savedData = LargeShipyardSavedData.get(serverLevel);
+                for (int i = 0; i < 4; i++) {
+                    savedData.addMatStock(i, legacy[i]);
+                }
+            }
+        }
     }
 
     @Override
@@ -315,15 +349,22 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     private boolean handleMaterials() {
+        if (!(this.level instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        LargeShipyardSavedData savedData = LargeShipyardSavedData.get(serverLevel);
+
         if (this.invMode == 0) {
             for (int i = SLOT_IO_START; i <= SLOT_IO_END; i++) {
                 ItemStack stack = this.inventory.getStackInSlot(i);
                 if (stack.isEmpty()) {
                     continue;
                 }
-                if (!ShipyardRecipes.addLargeMaterialStock(this.matsStock, stack)) {
+                int[] tempStock = savedData.getMatsStockCopy();
+                if (!ShipyardRecipes.addLargeMaterialStock(tempStock, stack)) {
                     continue;
                 }
+                savedData.setMatsStock(tempStock);
 
                 stack.shrink(1);
                 this.inventory.setStackInSlot(i, stack);
@@ -332,17 +373,18 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
             return false;
         }
 
-        int compressNum = 9;
-        int normalNum = 1;
+        int difficulty = org.trp.shincolle.Config.consumptionLevel;
+        int compressNum = (difficulty == 0) ? 90 : ((difficulty == 1) ? 18 : 9);
+        int normalNum = (difficulty == 0) ? 10 : ((difficulty == 1) ? 2 : 1);
         int matType = this.selectMat;
 
-        if (this.matsStock[matType] >= compressNum && outputMaterialToSlot(matType, true)) {
-            this.matsStock[matType] -= compressNum;
+        if (savedData.getMatStock(matType) >= compressNum && outputMaterialToSlot(matType, true)) {
+            savedData.addMatStock(matType, -compressNum);
             return true;
         }
 
-        if (this.matsStock[matType] >= normalNum && outputMaterialToSlot(matType, false)) {
-            this.matsStock[matType] -= normalNum;
+        if (savedData.getMatStock(matType) >= normalNum && outputMaterialToSlot(matType, false)) {
+            savedData.addMatStock(matType, -normalNum);
             return true;
         }
 
@@ -432,9 +474,16 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     private void setupRepeatBuild() {
+        if (!(this.level instanceof ServerLevel serverLevel)) {
+            this.buildType = 0;
+            this.matsBuild = new int[]{0, 0, 0, 0};
+            return;
+        }
+        LargeShipyardSavedData savedData = LargeShipyardSavedData.get(serverLevel);
+
         boolean canRepeat = true;
         for (int i = 0; i < MAT_COUNT; i++) {
-            if (this.matsStock[i] < this.matsBuild[i]) {
+            if (savedData.getMatStock(i) < this.matsBuild[i]) {
                 canRepeat = false;
                 break;
             }
@@ -447,7 +496,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
         }
 
         for (int i = 0; i < MAT_COUNT; i++) {
-            this.matsStock[i] -= this.matsBuild[i];
+            savedData.addMatStock(i, -this.matsBuild[i]);
         }
     }
 

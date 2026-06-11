@@ -1,9 +1,5 @@
 package org.trp.shincolle.entity.base;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.FlyingMob;
@@ -13,6 +9,11 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.menu.ShipContainerMenu;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 final class EntityShipBasePassiveCombat {
 
@@ -157,7 +158,7 @@ final class EntityShipBasePassiveCombat {
 
         if (needsCloser || cannotSee) {
             if (
-                this.ship.shouldFollowOwner() ||
+                this.ship.isOwnerTooFar() ||
                 this.ship.hasPointerTarget() ||
                 !hasAttackMeans
             ) {
@@ -433,6 +434,9 @@ final class EntityShipBasePassiveCombat {
     }
 
     private boolean shouldRetreatForLowHealth() {
+        if (this.ship.getIsSitting()) {
+            return false;
+        }
         int fleeHp = Mth.clamp(
             this.ship.getStateMinor(STATE_MINOR_FLEE_HP),
             0,

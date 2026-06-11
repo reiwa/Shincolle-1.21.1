@@ -11,7 +11,7 @@ final class EntityShipLegacyState {
     private static final int LEGACY_STATE_FLAG_SIZE = 28;
     private static final int LEGACY_UPDATE_FLAG_SIZE = 8;
     private static final int[] LEGACY_STATE_MINOR_DEFAULTS = {
-            1, 0, 0, 40, 0, 0, 0, 0, 0, 3, 5, 8, 35, 1, -1, -1, -1, 0, -1, 0, 0, -1, -1, -1, 0, 0, 0, 0, 0, 0, 60, 0, 10, 0, 0, -1, 0, 0, 0, 0, -1, -1, -1, 0, 0, -1
+            1, 0, 0, 40, 0, 0, 0, 0, 0, 3, 6, 12, 35, 1, -1, -1, -1, 0, -1, 0, 0, -1, -1, -1, 0, 0, 0, 0, 0, 0, 60, 0, 10, 0, 0, -1, 0, 0, 0, 0, -1, -1, -1, 0, 0, -1
     };
     private static final boolean[] LEGACY_STATE_FLAG_DEFAULTS = {
             false, false, false, false, true, true, true, true, false, true, true, false, true, true, true, true, true, true, true, false, false, false, true, true, false, true, false, false

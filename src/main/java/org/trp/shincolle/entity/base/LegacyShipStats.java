@@ -2,6 +2,7 @@ package org.trp.shincolle.entity.base;
 
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import org.trp.shincolle.Config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,17 +17,8 @@ public class LegacyShipStats {
 
     private static final float[] DEFAULT_BASE = new float[]{20.0f, 3.0f, 0.05f, 1.0f, 0.5f, 6.0f, 0.3f, 0.25f, 0.11f, 0.5f, 1.0f, 0.4f};
 
-    private static final int[] BASE_ATTACK_SPEED = new int[]{40, 80, 120, 100, 100};
-    private static final int[] FIXED_ATTACK_DELAY = new int[]{0, 20, 50, 35, 35};
-
-    private static final float[] ATTR_LIMITS = new float[]{
-            -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 0.8f, 4.0f, 0.6f, 64.0f,
-            0.9f, 0.9f, 0.9f, 0.9f, -1.0f, -1.0f, 0.75f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f
-    };
-
-    private static final int MODERN_LIMIT = 3;
-
     private static final Map<Integer, float[]> SHIP_ATTR_MAP = new HashMap<>();
+    private static final Map<Integer, float[]> HOSTILE_SHIP_ATTR_MAP = new HashMap<>();
 
     static {
         SHIP_ATTR_MAP.put(-10, new float[]{20.0f, 3.0f, 0.08f, 1.0f, 0.38f, 6.0f, 0.3f, 0.25f, 0.1f, 0.5f, 0.8f, 0.5f});
@@ -81,6 +73,26 @@ public class LegacyShipStats {
         SHIP_ATTR_MAP.put(62, new float[]{90.0f, 28.0f, 0.36f, 1.0f, 0.42f, 12.0f, 0.7f, 0.6f, 0.24f, 0.6f, 0.84f, 0.55f});
         SHIP_ATTR_MAP.put(63, new float[]{90.0f, 28.0f, 0.36f, 1.0f, 0.42f, 12.0f, 0.7f, 0.6f, 0.24f, 0.6f, 0.84f, 0.55f});
         SHIP_ATTR_MAP.put(72, new float[]{55.0f, 34.0f, 0.1f, 1.0f, 0.4f, 5.5f, 0.4f, 0.75f, 0.16f, 0.7f, 0.7f, 0.4f});
+
+        HOSTILE_SHIP_ATTR_MAP.put(51, new float[]{0.35f, 0.35f, 0.35f, 1.0f, 1.1f, 0.7f});
+        HOSTILE_SHIP_ATTR_MAP.put(52, new float[]{0.35f, 0.35f, 0.35f, 1.0f, 1.1f, 0.7f});
+        HOSTILE_SHIP_ATTR_MAP.put(53, new float[]{0.35f, 0.35f, 0.35f, 1.0f, 1.1f, 0.7f});
+        HOSTILE_SHIP_ATTR_MAP.put(54, new float[]{0.35f, 0.35f, 0.35f, 1.0f, 1.1f, 0.7f});
+        HOSTILE_SHIP_ATTR_MAP.put(36, new float[]{0.4f, 0.5f, 0.4f, 1.2f, 1.2f, 0.75f});
+        HOSTILE_SHIP_ATTR_MAP.put(56, new float[]{0.55f, 0.6f, 0.5f, 1.0f, 0.9f, 0.8f});
+        HOSTILE_SHIP_ATTR_MAP.put(57, new float[]{0.55f, 0.6f, 0.5f, 1.0f, 0.9f, 0.8f});
+        HOSTILE_SHIP_ATTR_MAP.put(58, new float[]{0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.9f});
+        HOSTILE_SHIP_ATTR_MAP.put(59, new float[]{0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.9f});
+        HOSTILE_SHIP_ATTR_MAP.put(37, new float[]{1.1f, 1.1f, 1.1f, 1.0f, 0.8f, 1.05f});
+        HOSTILE_SHIP_ATTR_MAP.put(46, new float[]{1.2f, 1.2f, 1.2f, 1.2f, 0.8f, 1.1f});
+        HOSTILE_SHIP_ATTR_MAP.put(60, new float[]{1.0f, 1.05f, 1.0f, 1.0f, 1.0f, 1.0f});
+        HOSTILE_SHIP_ATTR_MAP.put(61, new float[]{1.0f, 1.05f, 1.0f, 1.0f, 1.0f, 1.0f});
+        HOSTILE_SHIP_ATTR_MAP.put(62, new float[]{1.0f, 1.05f, 1.0f, 1.0f, 1.0f, 1.0f});
+        HOSTILE_SHIP_ATTR_MAP.put(63, new float[]{1.0f, 1.05f, 1.0f, 1.0f, 1.0f, 1.0f});
+        HOSTILE_SHIP_ATTR_MAP.put(38, new float[]{0.25f, 0.8f, 0.25f, 0.75f, 0.4f, 0.4f});
+        HOSTILE_SHIP_ATTR_MAP.put(39, new float[]{0.25f, 0.8f, 0.25f, 0.75f, 0.4f, 0.4f});
+        HOSTILE_SHIP_ATTR_MAP.put(47, new float[]{0.8f, 0.8f, 0.8f, 0.75f, 0.8f, 1.2f});
+        HOSTILE_SHIP_ATTR_MAP.put(48, new float[]{0.8f, 0.8f, 0.8f, 0.75f, 0.8f, 1.2f});
     }
 
     private final byte[] bonus = new byte[6];
@@ -94,7 +106,7 @@ public class LegacyShipStats {
         int len = Math.min(this.bonus.length, data.length);
         System.arraycopy(data, 0, this.bonus, 0, len);
         for (int i = 0; i < len; i++) {
-            this.bonus[i] = (byte) Mth.clamp(this.bonus[i], 0, MODERN_LIMIT);
+            this.bonus[i] = (byte) Mth.clamp(this.bonus[i], 0, Config.modernLimit);
         }
     }
 
@@ -113,17 +125,17 @@ public class LegacyShipStats {
         if (index < 0 || index >= this.bonus.length) {
             return;
         }
-        this.bonus[index] = (byte) Mth.clamp(value, 0, MODERN_LIMIT);
+        this.bonus[index] = (byte) Mth.clamp(value, 0, Config.modernLimit);
     }
 
     public boolean addBonusRandom(Random random) {
         int pick = random.nextInt(this.bonus.length);
-        if (this.bonus[pick] < MODERN_LIMIT) {
+        if (this.bonus[pick] < Config.modernLimit) {
             this.bonus[pick]++;
             return true;
         }
         for (int i = 0; i < this.bonus.length; i++) {
-            if (this.bonus[i] < MODERN_LIMIT) {
+            if (this.bonus[i] < Config.modernLimit) {
                 this.bonus[i]++;
                 return true;
             }
@@ -131,32 +143,81 @@ public class LegacyShipStats {
         return false;
     }
 
-    public void recalculate(int shipClass, int level, float[] equipBonuses, float[] formationBuffs, float[] moraleBuffs, float[] potionBuffs) {
-        float[] base = SHIP_ATTR_MAP.getOrDefault(shipClass, DEFAULT_BASE);
-        float[] type = new float[]{base[6], base[7], base[8], base[9], base[10], base[11]};
-
+    public void recalculate(int shipClass, int level, float[] equipBonuses, float[] formationBuffs, float[] moraleBuffs, float[] potionBuffs, boolean isHostile, int scaleLevel) {
         float safeLevel = Math.max(1, level);
 
         zero(raw);
         zero(buffed);
 
-        raw[0] = base[0] + (this.bonus[0] + 1.0F) * safeLevel * type[0];
-        raw[5] = base[2] + (this.bonus[2] + 1.0F) * safeLevel * LV_SCALE_DEF * type[2];
-        raw[6] = base[3] + (this.bonus[3] + 1.0F) * safeLevel * LV_SCALE_SPD * type[3];
-        raw[7] = base[4] + (this.bonus[4] + 1.0F) * safeLevel * LV_SCALE_MOV * type[4];
-        raw[8] = base[5] + (this.bonus[5] + 1.0F) * safeLevel * LV_SCALE_HIT * type[5];
+        if (isHostile) {
+            float[] attrMod = HOSTILE_SHIP_ATTR_MAP.get(shipClass);
+            if (attrMod == null) {
+                attrMod = new float[]{1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F};
+            }
+            double[] attrBase;
+            float kb;
+            switch (scaleLevel) {
+                case 1:
+                    attrBase = Config.scaleMobLarge;
+                    kb = 0.4F;
+                    break;
+                case 2:
+                    attrBase = Config.scaleBossSmall;
+                    kb = 0.85F;
+                    break;
+                case 3:
+                    attrBase = Config.scaleBossLarge;
+                    kb = 1.0F;
+                    break;
+                default:
+                    attrBase = Config.scaleMobSmall;
+                    kb = 0.2F;
+            }
 
-        float baseAtk = base[1] + (this.bonus[1] + 1.0F) * safeLevel * LV_SCALE_ATK * type[1];
-        raw[1] = baseAtk;
-        raw[2] = baseAtk * 3.0F;
-        raw[3] = baseAtk;
-        raw[4] = baseAtk * 3.0F;
+            float baseAtk = (float) attrBase[1] * attrMod[1];
+            raw[0] = (float) attrBase[0] * attrMod[0];
+            raw[1] = baseAtk;
+            raw[2] = baseAtk * 3.0F;
+            raw[3] = baseAtk;
+            raw[4] = baseAtk * 3.0F;
+            raw[5] = (float) attrBase[2] * attrMod[2];
+            raw[6] = (float) attrBase[3] * attrMod[3];
+            raw[7] = (float) attrBase[4] * attrMod[4];
+            raw[8] = (float) attrBase[5] * attrMod[5];
+            raw[9] = 0.15F;
+            raw[10] = 0.1F;
+            raw[11] = 0.1F;
+            raw[12] = 0.0F;
+            raw[13] = 0.0F;
+            raw[14] = 0.0F;
+            raw[15] = 0.15F;
+            raw[16] = 1.0F;
+            raw[17] = 1.0F;
+            raw[18] = 1.0F;
+            raw[19] = 1.0F;
+            raw[20] = kb;
+        } else {
+            float[] base = SHIP_ATTR_MAP.getOrDefault(shipClass, DEFAULT_BASE);
+            float[] type = new float[]{base[6], base[7], base[8], base[9], base[10], base[11]};
 
-        raw[16] = 1.0F;
-        raw[17] = 1.0F;
-        raw[18] = 1.0F;
-        raw[19] = 1.0F;
-        raw[20] = safeLevel * 0.005F;
+            raw[0] = (base[0] + (this.bonus[0] + 1.0F) * safeLevel * type[0]) * (float) Config.scaleShip[0];
+            raw[5] = (base[2] + (this.bonus[2] + 1.0F) * safeLevel * LV_SCALE_DEF * type[2]) * (float) Config.scaleShip[2];
+            raw[6] = (base[3] + (this.bonus[3] + 1.0F) * safeLevel * LV_SCALE_SPD * type[3]) * (float) Config.scaleShip[3];
+            raw[7] = (base[4] + (this.bonus[4] + 1.0F) * safeLevel * LV_SCALE_MOV * type[4]) * (float) Config.scaleShip[4];
+            raw[8] = (base[5] + (this.bonus[5] + 1.0F) * safeLevel * LV_SCALE_HIT * type[5]) * (float) Config.scaleShip[5];
+
+            float baseAtk = base[1] + (this.bonus[1] + 1.0F) * safeLevel * LV_SCALE_ATK * type[1];
+            raw[1] = baseAtk * (float) Config.scaleShip[1];
+            raw[2] = baseAtk * 3.0F * (float) Config.scaleShip[1];
+            raw[3] = baseAtk * (float) Config.scaleShip[1];
+            raw[4] = baseAtk * 3.0F * (float) Config.scaleShip[1];
+
+            raw[16] = 1.0F;
+            raw[17] = 1.0F;
+            raw[18] = 1.0F;
+            raw[19] = 1.0F;
+            raw[20] = safeLevel * 0.005F;
+        }
 
         if (equipBonuses != null) {
             int len = Math.min(raw.length, equipBonuses.length);
@@ -200,10 +261,10 @@ public class LegacyShipStats {
     }
 
     private static void applyLimits(float[] data) {
-        for (int i = 0; i < data.length && i < ATTR_LIMITS.length; i++) {
-            float limit = ATTR_LIMITS[i];
-            if (limit >= 0.0F && data[i] > limit) {
-                data[i] = limit;
+        for (int i = 0; i < data.length && i < Config.limitShipAttrs.length; i++) {
+            double limit = Config.limitShipAttrs[i];
+            if (limit >= 0.0 && data[i] > limit) {
+                data[i] = (float) limit;
             }
             if (data[i] < 0.0F) {
                 data[i] = 0.0F;
@@ -273,8 +334,8 @@ public class LegacyShipStats {
 
     public static int getAttackDelay(float attackSpeed, int type) {
         float safe = Math.max(0.01F, attackSpeed);
-        if (type >= 0 && type < BASE_ATTACK_SPEED.length) {
-            return (int) (BASE_ATTACK_SPEED[type] / safe) + FIXED_ATTACK_DELAY[type];
+        if (type >= 0 && type < Config.baseAttackSpeed.length && type < Config.fixedAttackDelay.length) {
+            return (int) (Config.baseAttackSpeed[type] / safe) + Config.fixedAttackDelay[type];
         }
         return 40;
     }

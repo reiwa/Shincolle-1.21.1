@@ -539,7 +539,12 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         if (!ship.level().isClientSide && playerInv.player != null) {
             int classID = ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
             if (classID >= 0) {
-                playerInv.player.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS).add(classID);
+                java.util.HashSet<Integer> collected = playerInv.player.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS);
+                if (collected.add(classID)) {
+                    if (playerInv.player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                        net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer, new org.trp.shincolle.network.S2CCollectedShipsSyncPayload(new java.util.ArrayList<>(collected)));
+                    }
+                }
             }
         }
 

@@ -447,7 +447,7 @@ public class ModelSubmSo<T extends EntityShipBase> extends ShipModelHumanoidBase
             this.LegRight01.xRot -= 0.1F;
         }
 
-        if (isSitting && !isPassenger) {
+        if (isSitting && (!isPassenger || (entity != null && entity.getVehicle() instanceof org.trp.shincolle.entity.EntitySeat))) {
             float angleX = net.minecraft.util.Mth.cos(ageInTicks * 0.08F);
             if (entity != null && hasLegacyState(entity, 1, 4)) {
                 this.poseTranslateY += angleX * 0.05F;
