@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile;
+import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
 
 import java.util.List;
@@ -26,9 +27,12 @@ public class EntityIsolatedHime extends EntityShipBase {
     public static final String EQUIP_LEG_ARMOR = "equip_leg_armor";
     public static final String EQUIP_ROAD = "equip_road";
 
-    public EntityIsolatedHime(EntityType<? extends TamableAnimal> type, Level level) {
+    public EntityIsolatedHime(
+        EntityType<? extends TamableAnimal> type,
+        Level level
+    ) {
         super(type, level);
-        setModelPos(new float[]{-6, 30, 0, 40});
+        setModelPos(new float[] { -6, 30, 0, 40 });
         setStateMinor(STATE_MINOR_FACTION_ID, 10);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 29);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
@@ -37,13 +41,35 @@ public class EntityIsolatedHime extends EntityShipBase {
     }
 
     @Override
+    public boolean supportsAircraftCombat() {
+        return true;
+    }
+
+    @Override
+    public EntityType<? extends TamableAnimal> getAttackAircraftType(
+        boolean isLightAircraft
+    ) {
+        return isLightAircraft
+            ? ModEntities.AIRPLANE.get()
+            : ModEntities.TAKOYAKI.get();
+    }
+
+    @Override
     protected void calcShipAttributesAddEffect() {
         super.calcShipAttributesAddEffect();
 
-        this.attackEffectMap.put(MobEffects.BLINDNESS, new int[]{0, 100 + this.getLevel(), this.getLevel()});
+        this.attackEffectMap.put(MobEffects.BLINDNESS, new int[] {
+            0,
+            100 + this.getLevel(),
+            this.getLevel(),
+        });
 
         if (this.isStateMarried() && this.isStateRingEffect()) {
-            this.attackEffectMap.put(MobEffects.POISON, new int[]{Math.max(0, this.getLevel() / 75), 80 + this.getLevel(), this.getLevel()});
+            this.attackEffectMap.put(MobEffects.POISON, new int[] {
+                Math.max(0, this.getLevel() / 75),
+                80 + this.getLevel(),
+                this.getLevel(),
+            });
         }
     }
 
@@ -57,6 +83,7 @@ public class EntityIsolatedHime extends EntityShipBase {
         }
 
         this.setAttackTick(50);
+        this.playAttackSound();
         this.applyEmotesReaction(3);
         spawnMissile(target);
         return true;
@@ -67,22 +94,40 @@ public class EntityIsolatedHime extends EntityShipBase {
             return;
         }
 
-        float baseDamage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        float baseDamage = (float) this.getAttributeValue(
+            Attributes.ATTACK_DAMAGE
+        );
         float damage = Math.max(5.0F, baseDamage * 0.45F);
         float speed = 0.75f;
         int life = 200;
         float explosionRadius = 4.0f;
         float yawRad = this.getYRot() * Mth.DEG_TO_RAD;
         float[] pos = rotateXZByAxis(0.1f, 0.0f, yawRad, 1.0f);
-        EntityAbyssMissile missile = new EntityAbyssMissile(serverLevel, this, target, damage, speed, life, explosionRadius);
-        missile.setPos(this.getX() + pos[1], this.getY() + this.getBbHeight() * 0.65D, this.getZ() + pos[0]);
+        EntityAbyssMissile missile = new EntityAbyssMissile(
+            serverLevel,
+            this,
+            target,
+            damage,
+            speed,
+            life,
+            explosionRadius
+        );
+        missile.setPos(
+            this.getX() + pos[1],
+            this.getY() + this.getBbHeight() * 0.65D,
+            this.getZ() + pos[0]
+        );
         serverLevel.addFreshEntity(missile);
     }
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
-        list.add(new EquipOption(EQUIP_HAT_BASE, "gui.shincolle.equip.head_base"));
+        List<EquipOption> list = new java.util.ArrayList<>(
+            super.getEquipOptions()
+        );
+        list.add(
+            new EquipOption(EQUIP_HAT_BASE, "gui.shincolle.equip.head_base")
+        );
         list.add(new EquipOption(EQUIP_HEAD_GEAR, "gui.shincolle.equip.head"));
         list.add(new EquipOption(EQUIP_CLOTH_1, "gui.shincolle.equip.upper"));
         list.add(new EquipOption(EQUIP_CLOTH_2, "gui.shincolle.equip.cloak"));
@@ -105,6 +150,9 @@ public class EntityIsolatedHime extends EntityShipBase {
 
     @Override
     public org.trp.shincolle.entity.base.EntityMountBase summonMountEntity() {
-        return new EntityMountIsH(org.trp.shincolle.init.ModEntities.MOUNT_IS_H.get(), this.level());
+        return new EntityMountIsH(
+            org.trp.shincolle.init.ModEntities.MOUNT_IS_H.get(),
+            this.level()
+        );
     }
 }

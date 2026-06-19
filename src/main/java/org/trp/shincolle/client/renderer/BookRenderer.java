@@ -23,14 +23,6 @@ public class BookRenderer {
 
     public static void drawBookBase(GuiGraphics guiGraphics, int x, int y, int chapId, int pageId) {
         guiGraphics.blit(GUI_BOOK, x, y, 0, 0, 256, 192);
-        if ((chapId == 4 || chapId == 5) && pageId > 0) {
-            drawBookSidePanel(guiGraphics, x, y, chapId);
-        }
-    }
-
-    private static void drawBookSidePanel(GuiGraphics guiGraphics, int x, int y, int chapId) {
-        int u = (chapId == 4) ? 0 : 105;
-        guiGraphics.blit(GUI_BOOK2, x + 20, y + 48, u, 0, 87, 130);
     }
 
     public static void drawBookContent(GuiGraphics guiGraphics, int x, int y, int page, int chapNum) {

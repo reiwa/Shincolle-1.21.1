@@ -19,6 +19,7 @@ public class AdmiralData {
     private int currentTeamID = 0;
     private boolean hasReceivedBook = false;
     private final java.util.Set<String> customTargetClasses = new java.util.HashSet<>();
+    private int appearance = 0;
 
     public AdmiralData() {
         for (int i = 0; i < TEAM_COUNT; i++) {
@@ -35,6 +36,14 @@ public class AdmiralData {
 
     public void setHasReceivedBook(boolean hasReceivedBook) {
         this.hasReceivedBook = hasReceivedBook;
+    }
+
+    public int getAppearance() {
+        return appearance;
+    }
+
+    public void setAppearance(int appearance) {
+        this.appearance = appearance;
     }
 
     public UUID getShipUUID(int teamId, int slotId) {
@@ -144,6 +153,7 @@ public class AdmiralData {
         nbt.put("Teams", teamsList);
         nbt.putInt("CurrentTeam", currentTeamID);
         nbt.putBoolean("HasReceivedBook", hasReceivedBook);
+        nbt.putInt("Appearance", appearance);
 
         ListTag customTargetsList = new ListTag();
         for (String targetClass : customTargetClasses) {
@@ -177,6 +187,7 @@ public class AdmiralData {
         }
         currentTeamID = nbt.getInt("CurrentTeam");
         hasReceivedBook = nbt.getBoolean("HasReceivedBook");
+        appearance = nbt.getInt("Appearance");
 
         customTargetClasses.clear();
         if (nbt.contains("CustomTargetClasses", Tag.TAG_LIST)) {

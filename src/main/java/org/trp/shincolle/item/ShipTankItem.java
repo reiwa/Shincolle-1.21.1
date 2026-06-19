@@ -84,7 +84,7 @@ public class ShipTankItem extends Item {
     public Component getName(ItemStack stack) {
         int variant = getVariant(stack);
         String suffix = variant > 0 ? String.valueOf(variant) : "";
-        return Component.translatable("item.shincolle.ShipTank" + suffix + ".name");
+        return Component.translatable("item.shincolle.shiptank" + suffix + ".name");
     }
 
     @Override

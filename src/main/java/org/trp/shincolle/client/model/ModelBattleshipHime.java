@@ -415,7 +415,7 @@ public class ModelBattleshipHime<T extends EntityShipBase> extends ShipModelHuma
             this.Hair03.xRot -= 0.1F;
         }
 
-        if (isSitting && !isPassenger) {
+        if (isSitting && (!isPassenger || (entity != null && entity.getVehicle() instanceof org.trp.shincolle.entity.EntitySeat))) {
             this.isSittingPose = true;
             if (entity != null && hasLegacyState(entity, 1, 4)) {
                 this.poseTranslateY += 0.65F * 2.4;

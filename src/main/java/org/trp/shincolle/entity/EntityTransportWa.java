@@ -139,32 +139,37 @@ public class EntityTransportWa extends EntityShipBase {
     }
 
     private void consumeSupplyItems(int type) {
+        int level = org.trp.shincolle.Config.consumptionLevel;
+        float modFuel = this.getLegacyShipStats().getBuffedAttr(17);
+        float modAmmo = this.getLegacyShipStats().getBuffedAttr(18);
+        int multiplier = level == 0 ? 10 : 1;
+
         switch (type) {
             case 0:
                 if (consumeItemInInventory(ModItems.GRUDGE.get())) {
-                    addGrudge(3000);
+                    addGrudge((int) (300 * modFuel * multiplier));
                     break;
                 }
                 if (consumeItemInInventory(ModItems.GRUDGE_HEAVY_BLOCK.get())) {
-                    addGrudge(27000);
+                    addGrudge((int) (2700 * modFuel * multiplier));
                 }
                 break;
             case 1:
                 if (consumeItemInInventory(ModItems.AMMO_LIGHT.get())) {
-                    addAmmoLight(300);
+                    addAmmoLight((int) (30 * modAmmo * multiplier));
                     break;
                 }
                 if (consumeItemInInventory(ModItems.AMMO_LIGHT_CONTAINER.get())) {
-                    addAmmoLight(2700);
+                    addAmmoLight((int) (270 * modAmmo * multiplier));
                 }
                 break;
             case 2:
                 if (consumeItemInInventory(ModItems.AMMO_HEAVY.get())) {
-                    addAmmoHeavy(150);
+                    addAmmoHeavy((int) (15 * modAmmo * multiplier));
                     break;
                 }
                 if (consumeItemInInventory(ModItems.AMMO_HEAVY_CONTAINER.get())) {
-                    addAmmoHeavy(1350);
+                    addAmmoHeavy((int) (135 * modAmmo * multiplier));
                 }
                 break;
             default:

@@ -2,6 +2,8 @@ package org.trp.shincolle.event;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -115,48 +117,61 @@ public final class ClientShipTrailParticles {
             return;
         }
 
+        float scale = ship.getScaleLevel() + 1.0F;
+
         double baseX = ship.getX();
-        double baseY = ship.getY() + HEALTH_PARTICLE_OFFSET_Y;
+        double baseY = ship.getY() + ship.getBbHeight() * 0.45D;
         double baseZ = ship.getZ();
         double spread = ship.getBbWidth();
         RandomSource random = ship.getRandom();
 
         if (healthRatio > 0.5F) {
-            spawnSmokeNormal(level, random, baseX, baseY, baseZ, spread, 3, false);
+            spawnSmokeNormal(level, random, baseX, baseY, baseZ, spread, 3, false, scale);
         } else if (healthRatio > 0.25F) {
-            spawnSmokeNormal(level, random, baseX, baseY, baseZ, spread, 3, true);
+            spawnSmokeNormal(level, random, baseX, baseY, baseZ, spread, 3, true, scale);
         } else {
-            spawnSmokeLarge(level, random, baseX, baseY, baseZ, spread, 4, true);
+            spawnSmokeLarge(level, random, baseX, baseY, baseZ, spread, 4, true, scale);
         }
     }
 
+    private static void spawnScaledParticle(Level level, ParticleOptions options, double x, double y, double z,
+                                            double xs, double ys, double zs, float scale) {
+        if (level.isClientSide) {
+            Minecraft mc = Minecraft.getInstance();
+            Particle p = mc.particleEngine.createParticle(options, x, y, z, xs, ys, zs);
+            if (p != null) {
+                p.scale(scale);
+                mc.particleEngine.add(p);
+            }
+        }
+    }
 
     private static void spawnSmokeNormal(Level level, RandomSource random, double baseX, double baseY, double baseZ,
-                                         double spread, int count, boolean withFlame) {
+                                         double spread, int count, boolean withFlame, float scale) {
         for (int i = 0; i < count; i++) {
             double ranX = random.nextDouble() * spread - spread / 2.0D;
             double ranY = random.nextDouble() * spread - spread / 2.0D;
             double ranZ = random.nextDouble() * spread - spread / 2.0D;
-            level.addParticle(ParticleTypes.SMOKE, baseX + ranX, baseY + ranY, baseZ + ranZ, 0.0D,
-                    HEALTH_PARTICLE_UP_SPEED, 0.0D);
+            spawnScaledParticle(level, ParticleTypes.SMOKE, baseX + ranX, baseY + ranY, baseZ + ranZ, 0.0D,
+                    HEALTH_PARTICLE_UP_SPEED * scale, 0.0D, scale);
             if (withFlame) {
-                level.addParticle(ParticleTypes.FLAME, baseX + ranZ, baseY + ranY, baseZ + ranX, 0.0D,
-                        HEALTH_PARTICLE_UP_SPEED, 0.0D);
+                spawnScaledParticle(level, ParticleTypes.FLAME, baseX + ranZ, baseY + ranY, baseZ + ranX, 0.0D,
+                        HEALTH_PARTICLE_UP_SPEED * scale, 0.0D, scale);
             }
         }
     }
 
     private static void spawnSmokeLarge(Level level, RandomSource random, double baseX, double baseY, double baseZ,
-                                        double spread, int count, boolean withFlame) {
+                                        double spread, int count, boolean withFlame, float scale) {
         for (int i = 0; i < count; i++) {
             double ranX = random.nextDouble() * spread - spread / 2.0D;
             double ranY = random.nextDouble() * spread - spread / 2.0D;
             double ranZ = random.nextDouble() * spread - spread / 2.0D;
-            level.addParticle(ParticleTypes.LARGE_SMOKE, baseX + ranX, baseY + ranY, baseZ + ranZ, 0.0D,
-                    0.0D, 0.0D);
+            spawnScaledParticle(level, ParticleTypes.LARGE_SMOKE, baseX + ranX, baseY + ranY, baseZ + ranZ, 0.0D,
+                    0.0D, 0.0D, scale);
             if (withFlame) {
-                level.addParticle(ParticleTypes.FLAME, baseX + ranZ, baseY + ranY, baseZ + ranX, 0.0D,
-                        HEALTH_PARTICLE_UP_SPEED, 0.0D);
+                spawnScaledParticle(level, ParticleTypes.FLAME, baseX + ranZ, baseY + ranY, baseZ + ranX, 0.0D,
+                        HEALTH_PARTICLE_UP_SPEED * scale, 0.0D, scale);
             }
         }
     }

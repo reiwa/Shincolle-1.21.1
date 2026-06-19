@@ -1,10 +1,12 @@
 package org.trp.shincolle.event;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -18,6 +20,7 @@ import org.trp.shincolle.client.particle.*;
 import org.trp.shincolle.client.renderer.*;
 import org.trp.shincolle.client.renderer.block.RenderLargeShipyard;
 import org.trp.shincolle.client.renderer.block.RenderSmallShipyard;
+import org.trp.shincolle.client.renderer.layer.PlayerAccessoryLayer;
 import org.trp.shincolle.client.renderer.layer.ShipHeldItemLayer;
 import org.trp.shincolle.client.screen.CraneScreen;
 import org.trp.shincolle.client.screen.LargeShipyardScreen;
@@ -161,31 +164,51 @@ public class ClientModEventBusEvents {
         event.registerEntityRenderer(ModEntities.PROJECTILE_BEAM.get(), RendererProjectileBeam::new);
         event.registerEntityRenderer(ModEntities.SHIP_GRUDGE.get(), RendererShipGrudge::new);
         event.registerEntityRenderer(ModEntities.SHIP_FISHING_HOOK.get(), RendererShipFishingHook::new);
+        event.registerEntityRenderer(ModEntities.SEAT.get(), net.minecraft.client.renderer.entity.NoopRenderer::new);
 
         event.registerBlockEntityRenderer(ModBlockEntities.SMALL_SHIPYARD.get(), RenderSmallShipyard::new);
         event.registerBlockEntityRenderer(ModBlockEntities.LARGE_SHIPYARD.get(), RenderLargeShipyard::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DESK.get(), org.trp.shincolle.client.renderer.block.RenderDesk::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.CHAIR.get(), org.trp.shincolle.client.renderer.block.RenderChair::new);
     }
 
-        @SubscribeEvent
-        public static void addRenderLayers(EntityRenderersEvent.AddLayers event) {
-                for (var entry : ModEntities.ENTITY_TYPES.getEntries()) {
-                        EntityType<?> type = entry.get();
-                        EntityRenderer<?> renderer = event.getRenderer(type);
-                        if (renderer instanceof LivingEntityRenderer<?, ?> livingRenderer
-                                        && livingRenderer.getModel() instanceof ShipModelBaseAdv) {
-                                addHeldItemLayerUnchecked(livingRenderer);
-                        }
-                }
-        }
+        public static final net.minecraft.client.model.geom.ModelLayerLocation ACCESSORY_LAYER =
+            new net.minecraft.client.model.geom.ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "player_accessory"), "main");
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        private static void addHeldItemLayerUnchecked(LivingEntityRenderer renderer) {
-                renderer.addLayer(new ShipHeldItemLayer(renderer));
-        }
+	@SubscribeEvent
+	public static void addRenderLayers(EntityRenderersEvent.AddLayers event) {
+		for (var entry : ModEntities.ENTITY_TYPES.getEntries()) {
+			EntityType<?> type = entry.get();
+			EntityRenderer<?> renderer = event.getRenderer(type);
+			if (renderer instanceof LivingEntityRenderer<?, ?> livingRenderer
+					&& livingRenderer.getModel() instanceof ShipModelBaseAdv) {
+				addHeldItemLayerUnchecked(livingRenderer);
+			}
+		}
+
+		net.minecraft.client.renderer.entity.EntityRenderer<? extends Player> defaultRenderer = event.getSkin(net.minecraft.client.resources.PlayerSkin.Model.WIDE);
+		if (defaultRenderer instanceof LivingEntityRenderer<?, ?> livingRenderer) {
+			addPlayerAccessoryLayerUnchecked(livingRenderer, event.getEntityModels().bakeLayer(ACCESSORY_LAYER));
+		}
+		net.minecraft.client.renderer.entity.EntityRenderer<? extends Player> slimRenderer = event.getSkin(net.minecraft.client.resources.PlayerSkin.Model.SLIM);
+		if (slimRenderer instanceof LivingEntityRenderer<?, ?> livingRenderer) {
+			addPlayerAccessoryLayerUnchecked(livingRenderer, event.getEntityModels().bakeLayer(ACCESSORY_LAYER));
+		}
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private static void addHeldItemLayerUnchecked(LivingEntityRenderer renderer) {
+		renderer.addLayer(new ShipHeldItemLayer(renderer));
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private static void addPlayerAccessoryLayerUnchecked(LivingEntityRenderer renderer, net.minecraft.client.model.geom.ModelPart part) {
+		renderer.addLayer(new PlayerAccessoryLayer(renderer, part));
+	}
 
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(ACCESSORY_LAYER, ModelPlayerAccessory::createBodyLayer);
         event.registerLayerDefinition(ModelDestroyerI.LAYER_LOCATION, ModelDestroyerI::createBodyLayer);
         event.registerLayerDefinition(ModelDestroyerRo.LAYER_LOCATION, ModelDestroyerRo::createBodyLayer);
         event.registerLayerDefinition(ModelDestroyerHa.LAYER_LOCATION, ModelDestroyerHa::createBodyLayer);
@@ -254,6 +277,7 @@ public class ClientModEventBusEvents {
                 event.registerLayerDefinition(ModelVortex.LAYER_LOCATION, ModelVortex::createBodyLayer);
                 event.registerLayerDefinition(ModelBlockDesk.LAYER_LOCATION, ModelBlockDesk::createBodyLayer);
                 event.registerLayerDefinition(ModelBlockDeskLarge.LAYER_LOCATION, ModelBlockDeskLarge::createBodyLayer);
+                event.registerLayerDefinition(ModelBlockChair.LAYER_LOCATION, ModelBlockChair::createBodyLayer);
     }
 
     @SubscribeEvent
@@ -270,6 +294,8 @@ public class ClientModEventBusEvents {
 
     @SubscribeEvent
     public static void registerParticles(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(ModParticles.PARTICLE_SHINE.get(), ParticleShine.Provider::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_FOG.get(), ParticleFog.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_EMOTION.get(), ParticleEmotion.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_HEAL_SPARKLE.get(), ParticleHealSparkle.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_GODDESS.get(), ParticleGoddess.Provider::new);
@@ -277,6 +303,7 @@ public class ClientModEventBusEvents {
         event.registerSpriteSet(ModParticles.PARTICLE_LIGHTNING.get(), ParticleLightning.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_SPRAY_RED.get(), ParticleSprayRed.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_SPRAY.get(), ParticleSpray.Provider::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_SPRAY_CYAN.get(), ParticleSprayCyan.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_CRANING.get(), ParticleCraning.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM.get(), ParticleTeam.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED.get(),
@@ -299,5 +326,81 @@ public class ClientModEventBusEvents {
         event.registerSpriteSet(ModParticles.PARTICLE_CUBE.get(), org.trp.shincolle.client.particle.ParticleCube.Provider::new);
         event.registerSpecial(ModParticles.PARTICLE_BEAM.get(), new ParticleBeam.Provider());
         event.registerSpecial(ModParticles.PARTICLE_SPHERE_LIGHT.get(), new ParticleSphereLight.Provider());
+    }
+
+    private static final ResourceLocation HUD_TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guihud.png");
+
+    @SubscribeEvent
+    public static void registerGuiLayers(net.neoforged.neoforge.client.event.RegisterGuiLayersEvent event) {
+        event.registerAboveAll(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "mount_hud"), (guiGraphics, deltaTracker) -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.options.hideGui || mc.screen != null) return;
+            Player player = mc.player;
+            if (player == null) return;
+            if (!(player.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase mount)) return;
+            org.trp.shincolle.entity.base.EntityShipBase ship = mount.getHost();
+            if (ship == null) return;
+
+            int width = mc.getWindow().getGuiScaledWidth();
+            int height = mc.getWindow().getGuiScaledHeight();
+
+            int px = (int) (width * 0.5);
+            int py = (int) (height * 0.6);
+
+            boolean[] drawBtn = new boolean[4];
+            int[] drawCD = new int[4];
+            int[] drawCDMax = new int[4];
+            int[] drawAirNum = new int[2];
+
+            drawBtn[0] = ship.isStateLightAttack();
+            drawBtn[1] = ship.isStateHeavyAttack();
+            drawBtn[2] = ship.isStateLightAircraftAttack();
+            drawBtn[3] = ship.isStateHeavyAircraftAttack();
+
+            drawCD[0] = ship.getStateTimer(16);
+            drawCD[1] = ship.getStateTimer(17);
+            drawCD[2] = ship.getStateTimer(18);
+            drawCD[3] = ship.getStateTimer(19);
+
+            drawCDMax[0] = org.trp.shincolle.entity.base.LegacyShipStats.getAttackDelay(ship.getLegacyShipStats().getReloadSpeed(), 1);
+            drawCDMax[1] = org.trp.shincolle.entity.base.LegacyShipStats.getAttackDelay(ship.getLegacyShipStats().getReloadSpeed(), 2);
+            drawCDMax[2] = org.trp.shincolle.entity.base.LegacyShipStats.getAttackDelay(ship.getLegacyShipStats().getReloadSpeed(), 3);
+            drawCDMax[3] = org.trp.shincolle.entity.base.LegacyShipStats.getAttackDelay(ship.getLegacyShipStats().getReloadSpeed(), 4);
+
+            drawAirNum[0] = ship.getNumAircraftLight();
+            drawAirNum[1] = ship.getNumAircraftHeavy();
+
+            for (int k = 0; k < 4; ++k) {
+                if (!drawBtn[k]) continue;
+
+                int px2 = px - 40 + k * 21;
+                int maxCd = Math.max(1, drawCDMax[k]);
+                int len = (int) ((float) drawCD[k] / (float) maxCd * 18.0F);
+
+                guiGraphics.blit(HUD_TEXTURE, px2, py, k * 18, 0, 18, 18, 256, 256);
+
+                if (len > 0) {
+                    guiGraphics.blit(HUD_TEXTURE, px2, py + 18 - len, 0, 36 - len, 18, len, 256, 256);
+                    
+                    String cdText = String.format("%.1f", drawCD[k] * 0.05F);
+                    guiGraphics.drawString(mc.font, cdText, px2 + 5, py + 18, 0xFFFFAA00, true);
+                }
+
+                if (mc.options.keyHotbarSlots[k].isDown()) {
+                    guiGraphics.fill(px2, py, px2 + 18, py + 18, 0x3FFFFFFF);
+                }
+
+                if (k == 2) {
+                    guiGraphics.drawString(mc.font, String.valueOf(drawAirNum[0]), px2 + 7, py - 8, 0xFF55FF55, true);
+                } else if (k == 3) {
+                    guiGraphics.drawString(mc.font, String.valueOf(drawAirNum[1]), px2 + 7, py - 8, 0xFF55FFFF, true);
+                }
+            }
+
+            int centerX = width / 2;
+            int centerY = height / 2;
+            guiGraphics.blit(HUD_TEXTURE, centerX, centerY - 4, 0, 7, 1, 9, 256, 256);
+            guiGraphics.blit(HUD_TEXTURE, centerX - 4, centerY, 7, 0, 9, 1, 256, 256);
+        });
     }
 }

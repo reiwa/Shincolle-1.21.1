@@ -452,4 +452,9 @@ protected Item getShipSpawnEggItem() {
         }
     }
 
+    @Override
+    protected net.minecraft.world.BossEvent.BossBarColor getBossBarColor() {
+        return net.minecraft.world.BossEvent.BossBarColor.PINK;
+    }
+
 }

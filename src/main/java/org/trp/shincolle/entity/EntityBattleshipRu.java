@@ -90,6 +90,7 @@ public class EntityBattleshipRu extends EntityShipBase {
         }
 
         this.setAttackTick(50);
+        this.playAttackSound();
         this.applyEmotesReaction(3);
 
         Vec3 targetPos = target.position().add(0.0D, target.getBbHeight() * 0.35D, 0.0D);

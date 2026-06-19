@@ -44,6 +44,11 @@ public final class ModDataAttachments {
                     .copyOnDeath()
                     .build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> PARTICLE_TIMER =
+            ATTACHMENT_TYPES.register("particle_timer", () -> AttachmentType.builder(() -> 0)
+                    .serialize(Codec.INT)
+                    .build());
+
     private static HashSet<Integer> readSet(net.minecraft.nbt.Tag tag, net.neoforged.neoforge.attachment.IAttachmentHolder holder) {
         HashSet<Integer> set = new HashSet<>();
         if (tag instanceof net.minecraft.nbt.IntArrayTag array) {

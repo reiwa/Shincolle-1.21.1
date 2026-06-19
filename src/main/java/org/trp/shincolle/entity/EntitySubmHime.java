@@ -75,6 +75,7 @@ public class EntitySubmHime extends EntityShipBase {
         }
 
         this.setAttackTick(50);
+        this.playAttackSound();
         this.applyEmotesReaction(3);
         spawnTorpedoes(target);
         return true;

@@ -22,6 +22,11 @@ public class ModItems {
             .alwaysEdible()
             .build();
 
+    private static final FoodProperties TOY_AIRPLANE_FOOD = new FoodProperties.Builder()
+            .nutrition(1)
+            .saturationModifier(0.5F)
+            .build();
+
         private static final int[] EQUIP_AIRPLANE_TYPES = new int[]{6, 6, 6, 7, 8, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 9, 11, 9, 11, 11, 9};
         private static final int[] EQUIP_AIRPLANE_MODELS = new int[]{0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 0, 1, 2, 1, 2, 2, 1};
         private static final int[] EQUIP_AMMO_TYPES = new int[]{28, 29, 28, 29, 29, 29, 29, 29, 29};
@@ -202,7 +207,7 @@ public class ModItems {
             () -> new BucketRepairItem(new Item.Properties().stacksTo(1)));
 
     public static final DeferredItem<Item> TOY_AIRPLANE = ITEMS.register("toyairplane",
-            () -> new ToyAirplaneItem(new Item.Properties().stacksTo(16)));
+            () -> new ToyAirplaneItem(new Item.Properties().stacksTo(16).food(TOY_AIRPLANE_FOOD)));
 
     public static final DeferredItem<Item> INSTANT_CON_MAT = ITEMS.register("instantconmat",
             () -> new Item(new Item.Properties()));
@@ -238,7 +243,11 @@ public class ModItems {
             () -> new LegacyEquipItem(new Item.Properties(), "EquipDrum", EQUIP_DRUM_TYPES, EQUIP_DRUM_MODELS));
 
     public static final DeferredItem<Item> SHIP_TANK = ITEMS.register("shiptank",
-            () -> new ShipTankItem(new Item.Properties().stacksTo(1)));
+            () -> {
+                net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+                tag.putInt("LegacyVariant", 0);
+                return new ShipTankItem(new Item.Properties().stacksTo(1).component(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag)));
+            });
 
     public static final DeferredItem<Item> EQUIP_FLARE = ITEMS.register("equipflare",
             () -> new LegacyEquipItem(new Item.Properties(), "EquipFlare", EQUIP_FLARE_TYPES));
@@ -270,6 +279,10 @@ public class ModItems {
 
     public static final DeferredItem<Item> RECIPE_PAPER = ITEMS.register("recipepaper",
             () -> new RecipePaperItem(new Item.Properties()));
+
+    public static final DeferredItem<Item> OWNER_PAPER = ITEMS.register("ownerpaper",
+            () -> new OwnerPaperItem(new Item.Properties()));
+
 
     public static final DeferredItem<Item> AMMO_LIGHT = ITEMS.register("ammo",
             () -> new Item(new Item.Properties()));
@@ -316,17 +329,32 @@ public class ModItems {
     public static final DeferredItem<Item> POLYMETAL_GRAVEL = ITEMS.register("polymetal_gravel",
             () -> new BlockItem(ModBlocks.POLYMETAL_GRAVEL.get(), new Item.Properties()));
 
+    public static final DeferredItem<Item> ABYSS_NUGGET = ITEMS.register("abyss_nugget",
+            () -> new Item(new Item.Properties()));
+
+    public static final DeferredItem<Item> POLYMETAL_NUGGET = ITEMS.register("polymetal_nugget",
+            () -> new Item(new Item.Properties()));
+
+    public static final DeferredItem<Item> NETHER_ABYSS = ITEMS.register("nether_abyss",
+            () -> new BlockItem(ModBlocks.NETHER_ABYSS.get(), new Item.Properties()));
+
     public static final DeferredItem<Item> SMALL_SHIPYARD = ITEMS.register("small_shipyard",
             () -> new SmallShipyardBlockItem(ModBlocks.SMALL_SHIPYARD.get(), new Item.Properties()));
 
     public static final DeferredItem<Item> VOL_CORE = ITEMS.register("blockvolcore",
             () -> new BlockItem(ModBlocks.VOL_CORE.get(), new Item.Properties()));
 
+    public static final DeferredItem<Item> VOL_BLOCK = ITEMS.register("blockvolblock",
+            () -> new BlockItem(ModBlocks.VOL_BLOCK.get(), new Item.Properties()));
+
     public static final DeferredItem<Item> WAYPOINT = ITEMS.register("blockwaypoint",
             () -> new BlockItem(ModBlocks.WAYPOINT.get(), new Item.Properties()));
 
     public static final DeferredItem<Item> CRANE = ITEMS.register("blockcrane",
             () -> new BlockItem(ModBlocks.CRANE.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> CHAIR = ITEMS.register("blockchair",
+            () -> new org.trp.shincolle.item.ChairBlockItem(ModBlocks.CHAIR.get(), new Item.Properties()));
 
     public static final DeferredItem<Item> FRAME = ITEMS.register("blockframe",
             () -> new BlockItem(ModBlocks.FRAME.get(), new Item.Properties()));

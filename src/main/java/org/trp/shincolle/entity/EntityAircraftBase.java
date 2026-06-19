@@ -6,16 +6,17 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.trp.shincolle.Config;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.GoalShipAircraftAttack;
 import org.trp.shincolle.init.ModSounds;
@@ -56,8 +57,19 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     private static final int INITIAL_AMMO_LIGHT = 9;
     private static final int INITIAL_AMMO_HEAVY = 3;
 
-    private static final int BASE_ATTACK_SPEED_AIRCRAFT = 100;
-    private static final int FIXED_ATTACK_DELAY_AIRCRAFT = 35;
+    private int getBaseAttackSpeed() {
+        if (Config.baseAttackSpeed != null && Config.baseAttackSpeed.length > 4) {
+            return Config.baseAttackSpeed[4];
+        }
+        return 100;
+    }
+
+    private int getFixedAttackDelay() {
+        if (Config.fixedAttackDelay != null && Config.fixedAttackDelay.length > 4) {
+            return Config.fixedAttackDelay[4];
+        }
+        return 35;
+    }
 
     private UUID carrierId;
     private UUID targetId;
@@ -124,7 +136,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         }
 
         float attackSpeed = carrier.getLegacyShipStats().getReloadSpeed();
-        this.maxAttackDelay = (int) (BASE_ATTACK_SPEED_AIRCRAFT / attackSpeed) + FIXED_ATTACK_DELAY_AIRCRAFT;
+        this.maxAttackDelay = (int) (getBaseAttackSpeed() / attackSpeed) + getFixedAttackDelay();
         this.attackDelay = 0;
 
         float range = lightAircraft ? ATTACK_RANGE_LIGHT : ATTACK_RANGE_HEAVY;
@@ -179,7 +191,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
             this.attackRangeSq *= this.attackRangeSq;
         }
         if (this.maxAttackDelay <= 0) {
-            this.maxAttackDelay = FIXED_ATTACK_DELAY_AIRCRAFT + BASE_ATTACK_SPEED_AIRCRAFT;
+            this.maxAttackDelay = getFixedAttackDelay() + getBaseAttackSpeed();
         }
         if (this.attackDelay <= 0) {
             this.attackDelay = this.maxAttackDelay + HOST_CHECK_TIMEOUT;
@@ -357,7 +369,10 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         this.attackDelay = this.maxAttackDelay;
         this.playSound(ModSounds.SHIP_MACHINEGUN.get(), 1.0F, 1.0F);
         float atk = Math.max(2.0F, carrier.getLegacyShipStats().getFirepower() * 0.35F);
-        target.hurt(this.damageSources().mobProjectile(this, carrier), atk);
+        boolean hurt = target.hurt(this.damageSources().mobProjectile(this, carrier), atk);
+        if (hurt && target instanceof LivingEntity livingTarget) {
+            carrier.applyAttackEffects(livingTarget);
+        }
     }
 
     public void attackWithHeavyAmmo(Entity target) {
@@ -524,7 +539,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
 
     @Nullable
-    private EntityShipBase getCarrier() {
+    public EntityShipBase getCarrier() {
         if (this.carrierId == null || !(this.level() instanceof ServerLevel serverLevel)) {
             return null;
         }

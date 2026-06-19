@@ -5,7 +5,12 @@
       "item": "minecraft:obsidian"
     },
     "t": {
-      "item": "shincolle:shiptank"
+      "type": "neoforge:components",
+      "items": "shincolle:shiptank",
+      "components": {
+        "minecraft:custom_data": "{LegacyVariant:0}"
+      },
+      "strict": false
     }
   },
   "pattern": [

@@ -15,7 +15,7 @@ public class ModernKitItem extends Item {
 
     @Override
     public String getDescriptionId() {
-        return "item.shincolle.ModernKit.name";
+        return "item.shincolle.modernkit.name";
     }
 
     @Override

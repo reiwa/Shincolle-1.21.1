@@ -1,6 +1,6 @@
 package org.trp.shincolle.item;
 
-import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -13,15 +13,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.menu.FormationMenu;
 import org.trp.shincolle.network.C2SPointerActionPayload;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.Optional;
 
 public class PointerItem extends Item {
+
     private static final String TAG_VARIANT = "LegacyVariant";
 
     public static final int MODE_SINGLE = 0;
@@ -45,7 +45,11 @@ public class PointerItem extends Item {
     }
 
     public int getModelVariant(ItemStack stack) {
-        return getMode(stack);
+        int mode = getMode(stack);
+        if (isPetting(stack)) {
+            return mode + 3;
+        }
+        return mode;
     }
 
     public int cycleMode(ItemStack stack) {
@@ -61,42 +65,90 @@ public class PointerItem extends Item {
             return;
         }
 
-        stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY,
-                data -> data.update(tag -> tag.putInt(TAG_VARIANT, clamped)));
+        stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, data ->
+            data.update(tag -> tag.putInt(TAG_VARIANT, clamped))
+        );
     }
 
-    public static void updateServerSideMode(Player player, ItemStack stack, int nextMode) {
+    public static void updateServerSideMode(
+        Player player,
+        ItemStack stack,
+        int nextMode
+    ) {
         if (player.level().isClientSide) return;
 
         if (nextMode == MODE_SINGLE) {
             double radius = 100.0;
-            net.minecraft.world.phys.AABB searchArea = player.getBoundingBox().inflate(radius);
-            List<org.trp.shincolle.entity.base.EntityShipBase> ships = player.level().getEntitiesOfClass(org.trp.shincolle.entity.base.EntityShipBase.class, searchArea,
-                    ship -> ship.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose());
+            net.minecraft.world.phys.AABB searchArea = player
+                .getBoundingBox()
+                .inflate(radius);
+            List<org.trp.shincolle.entity.base.EntityShipBase> ships = player
+                .level()
+                .getEntitiesOfClass(
+                    org.trp.shincolle.entity.base.EntityShipBase.class,
+                    searchArea,
+                    ship ->
+                        ship.isOwnedBy(player) &&
+                        ship.isPointerSelected() &&
+                        !ship.isInDeadPose()
+                );
             if (ships.size() > 1) {
-                ships.sort((a, b) -> Double.compare(a.distanceToSqr(player), b.distanceToSqr(player)));
-                org.trp.shincolle.entity.base.EntityShipBase keep = ships.get(0);
+                ships.sort((a, b) ->
+                    Double.compare(
+                        a.distanceToSqr(player),
+                        b.distanceToSqr(player)
+                    )
+                );
+                org.trp.shincolle.entity.base.EntityShipBase keep = ships.get(
+                    0
+                );
                 clearOwnedPointerSelection(player, keep, radius);
                 keep.setPointerSelected(true);
             }
         } else if (nextMode == MODE_FORMATION) {
-            org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+            org.trp.shincolle.attachment.AdmiralData data = player.getData(
+                org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA
+            );
             int teamId = data.getCurrentTeamID();
             double radius = 100.0;
-            net.minecraft.world.phys.AABB searchArea = player.getBoundingBox().inflate(radius);
-            List<org.trp.shincolle.entity.base.EntityShipBase> ships = player.level().getEntitiesOfClass(org.trp.shincolle.entity.base.EntityShipBase.class, searchArea,
-                    ship -> ship.isOwnedBy(player) && !ship.isInDeadPose());
+            net.minecraft.world.phys.AABB searchArea = player
+                .getBoundingBox()
+                .inflate(radius);
+            List<org.trp.shincolle.entity.base.EntityShipBase> ships = player
+                .level()
+                .getEntitiesOfClass(
+                    org.trp.shincolle.entity.base.EntityShipBase.class,
+                    searchArea,
+                    ship -> ship.isOwnedBy(player) && !ship.isInDeadPose()
+                );
             for (org.trp.shincolle.entity.base.EntityShipBase ship : ships) {
                 ship.setPointerSelected(ship.getFormationTeam() == teamId);
             }
         }
-        player.displayClientMessage(Component.translatable(getModeTranslationKey(nextMode)), true);
+        player.displayClientMessage(
+            Component.translatable(getModeTranslationKey(nextMode)),
+            true
+        );
     }
 
-    public static void clearOwnedPointerSelection(Player player, org.trp.shincolle.entity.base.EntityShipBase keepSelected, double radius) {
-        net.minecraft.world.phys.AABB searchArea = player.getBoundingBox().inflate(radius);
-        List<org.trp.shincolle.entity.base.EntityShipBase> ships = player.level().getEntitiesOfClass(org.trp.shincolle.entity.base.EntityShipBase.class, searchArea,
-                ship -> ship.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose());
+    public static void clearOwnedPointerSelection(
+        Player player,
+        org.trp.shincolle.entity.base.EntityShipBase keepSelected,
+        double radius
+    ) {
+        net.minecraft.world.phys.AABB searchArea = player
+            .getBoundingBox()
+            .inflate(radius);
+        List<org.trp.shincolle.entity.base.EntityShipBase> ships = player
+            .level()
+            .getEntitiesOfClass(
+                org.trp.shincolle.entity.base.EntityShipBase.class,
+                searchArea,
+                ship ->
+                    ship.isOwnedBy(player) &&
+                    ship.isPointerSelected() &&
+                    !ship.isInDeadPose()
+            );
         for (org.trp.shincolle.entity.base.EntityShipBase ship : ships) {
             if (ship == keepSelected) continue;
             ship.setPointerSelected(false);
@@ -125,65 +177,39 @@ public class PointerItem extends Item {
         };
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        int mode = getMode(stack);
-        
-        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-        if (mc.player == null) return;
-        
-        org.trp.shincolle.attachment.AdmiralData data = mc.player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
-        int teamId = data.getCurrentTeamID();
-        int fid = data.getFormationID(teamId);
-        
-        Component modeComp = Component.translatable(getModeTranslationKey(mode)).withStyle(getModeStyle(mode));
-        if (mode == MODE_FORMATION) {
-            Component formationComp = Component.translatable("gui.shincolle.formation.format" + fid).withStyle(ChatFormatting.GOLD);
-            tooltipComponents.add(modeComp.copy().append(" : ").append(formationComp));
-        } else {
-            tooltipComponents.add(modeComp);
+    public boolean isPetting(ItemStack stack) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return false;
         }
-        
-        tooltipComponents.add(Component.translatable("gui.shincolle.pointer3").withStyle(ChatFormatting.GRAY));
-        
-        tooltipComponents.add(Component.translatable("gui.shincolle.pointer4")
-                .append(" " + (teamId + 1))
-                .withStyle(ChatFormatting.YELLOW, ChatFormatting.UNDERLINE));
-        
-        int displayedCount = 1;
-        for (int i = 0; i < org.trp.shincolle.attachment.AdmiralData.SLOT_COUNT; i++) {
-            java.util.UUID uuid = data.getShipUUID(teamId, i);
-            if (uuid != null) {
-                String name = null;
-                int level = 0;
-                if (mc.level != null) {
-                    for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
-                        if (e.getUUID().equals(uuid) && e instanceof org.trp.shincolle.entity.base.EntityShipBase ship) {
-                            name = ship.hasCustomName() ? ship.getCustomName().getString() : ship.getDisplayName().getString();
-                            level = ship.getLevel();
-                            break;
-                        }
-                    }
-                }
-                
-                if (name != null) {
-                    ChatFormatting color = data.isSelected(teamId, i) ? ChatFormatting.WHITE : ChatFormatting.GRAY;
-                    tooltipComponents.add(Component.literal(displayedCount + ": " + name + " - Lv " + level).withStyle(color));
-                } else {
-                    tooltipComponents.add(Component.translatable("gui.shincolle.formation.nosignal").withStyle(ChatFormatting.DARK_RED, ChatFormatting.OBFUSCATED));
-                }
-                displayedCount++;
-            }
-        }
+        return customData.copyTag().getBoolean("IsPetting");
     }
 
-    private ChatFormatting getModeStyle(int mode) {
-        return switch (mode) {
-            case MODE_GROUP -> ChatFormatting.RED;
-            case MODE_FORMATION -> ChatFormatting.GOLD;
-            default -> ChatFormatting.AQUA;
-        };
+    public void setPetting(ItemStack stack, boolean petting) {
+        if (!petting) {
+            stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, data ->
+                data.update(tag -> tag.remove("IsPetting"))
+            );
+            return;
+        }
+        stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, data ->
+            data.update(tag -> tag.putBoolean("IsPetting", true))
+        );
+    }
+
+    @Override
+    public void appendHoverText(
+        ItemStack stack,
+        Item.TooltipContext context,
+        List<Component> tooltipComponents,
+        TooltipFlag tooltipFlag
+    ) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        int mode = getMode(stack);
+
+        if (net.neoforged.fml.loading.FMLEnvironment.dist == net.neoforged.api.distmarker.Dist.CLIENT) {
+            org.trp.shincolle.client.ClientProxy.appendPointerTooltip(stack, tooltipComponents, mode);
+        }
     }
 
     @Override
@@ -192,14 +218,20 @@ public class PointerItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(
+        Level level,
+        Player player,
+        InteractionHand hand
+    ) {
         ItemStack stack = player.getItemInHand(hand);
         if (!level.isClientSide) {
             if (player.isShiftKeyDown() && getMode(stack) == MODE_FORMATION) {
-                player.openMenu(new net.minecraft.world.SimpleMenuProvider(
+                player.openMenu(
+                    new net.minecraft.world.SimpleMenuProvider(
                         (id, inv, p) -> new FormationMenu(id, inv),
                         Component.translatable("gui.shincolle.formation.title")
-                ));
+                    )
+                );
                 return InteractionResultHolder.success(stack);
             }
         }
@@ -207,7 +239,9 @@ public class PointerItem extends Item {
     }
 
     @Override
-    public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+    public net.minecraft.world.InteractionResult useOn(
+        net.minecraft.world.item.context.UseOnContext context
+    ) {
         Player player = context.getPlayer();
         if (player != null && player.isShiftKeyDown()) {
             return net.minecraft.world.InteractionResult.PASS;
@@ -219,7 +253,13 @@ public class PointerItem extends Item {
             if (mode == MODE_FORMATION) {
                 BlockPos blockPos = context.getClickedPos();
                 Vec3 pos = Vec3.atBottomCenterOf(blockPos).add(0, 1.0, 0);
-                org.trp.shincolle.network.ModNetwork.sendToServer(new C2SPointerActionPayload(2, Optional.empty(), Optional.of(pos)));
+                org.trp.shincolle.network.ModNetwork.sendToServer(
+                    new C2SPointerActionPayload(
+                        2,
+                        Optional.empty(),
+                        Optional.of(pos)
+                    )
+                );
                 return net.minecraft.world.InteractionResult.SUCCESS;
             }
         }
@@ -227,18 +267,68 @@ public class PointerItem extends Item {
     }
 
     @Override
-    public net.minecraft.world.InteractionResult interactLivingEntity(ItemStack stack, Player player, net.minecraft.world.entity.LivingEntity target, InteractionHand hand) {
+    public net.minecraft.world.InteractionResult interactLivingEntity(
+        ItemStack stack,
+        Player player,
+        net.minecraft.world.entity.LivingEntity target,
+        InteractionHand hand
+    ) {
         if (player.isShiftKeyDown()) {
             return net.minecraft.world.InteractionResult.PASS;
+        }
+
+        if (isPetting(stack)) {
+            if (
+                target instanceof
+                    org.trp.shincolle.entity.base.EntityShipBase ship
+            ) {
+                if (player.level().isClientSide) {
+                    int hitHeight =
+                        org.trp.shincolle.utility.CalcHelper.getEntityHitHeight(
+                            player,
+                            ship
+                        );
+                    int hitAngle =
+                        org.trp.shincolle.utility.CalcHelper.getEntityHitSide(
+                            player,
+                            ship
+                        );
+                    ship.setHitHeight(hitHeight);
+                    ship.setHitAngle(hitAngle);
+                    ship.checkCaressed();
+                    org.trp.shincolle.network.ModNetwork.sendToServer(
+                        new org.trp.shincolle.network.C2SPetShipPayload(
+                            ship.getUUID(),
+                            hitHeight,
+                            hitAngle
+                        )
+                    );
+                }
+                return net.minecraft.world.InteractionResult.sidedSuccess(
+                    player.level().isClientSide
+                );
+            }
         }
 
         if (player.level().isClientSide) {
             int mode = getMode(stack);
             if (mode == MODE_FORMATION) {
-                if (target instanceof org.trp.shincolle.entity.base.EntityShipBase ship && ship.isOwnedBy(player)) {
-                    return player.level().isClientSide ? net.minecraft.world.InteractionResult.SUCCESS : net.minecraft.world.InteractionResult.PASS;
+                if (
+                    target instanceof
+                        org.trp.shincolle.entity.base.EntityShipBase ship &&
+                    ship.isOwnedBy(player)
+                ) {
+                    return player.level().isClientSide
+                        ? net.minecraft.world.InteractionResult.SUCCESS
+                        : net.minecraft.world.InteractionResult.PASS;
                 } else {
-                    org.trp.shincolle.network.ModNetwork.sendToServer(new C2SPointerActionPayload(1, Optional.of(target.getUUID()), Optional.empty()));
+                    org.trp.shincolle.network.ModNetwork.sendToServer(
+                        new C2SPointerActionPayload(
+                            1,
+                            Optional.of(target.getUUID()),
+                            Optional.empty()
+                        )
+                    );
                     return net.minecraft.world.InteractionResult.SUCCESS;
                 }
             }
@@ -248,7 +338,13 @@ public class PointerItem extends Item {
 
     public void onSwingMiss(Player player, ItemStack stack) {
         if (player.level().isClientSide) {
-            org.trp.shincolle.network.ModNetwork.sendToServer(new C2SPointerActionPayload(0, Optional.empty(), Optional.empty()));
+            org.trp.shincolle.network.ModNetwork.sendToServer(
+                new C2SPointerActionPayload(
+                    0,
+                    Optional.empty(),
+                    Optional.empty()
+                )
+            );
         }
     }
 }

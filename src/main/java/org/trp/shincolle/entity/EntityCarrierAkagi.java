@@ -119,5 +119,10 @@ public class EntityCarrierAkagi extends EntityShipBase {
         ));
         return list;
     }
+
+    @Override
+    protected net.minecraft.world.BossEvent.BossBarColor getBossBarColor() {
+        return net.minecraft.world.BossEvent.BossBarColor.RED;
+    }
 }
 

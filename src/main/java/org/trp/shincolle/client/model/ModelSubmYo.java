@@ -809,7 +809,7 @@ public class ModelSubmYo<T extends EntityShipBase> extends ShipModelHumanoidBase
             this.EquipHeadBack00.xRot += 0.4F;
         }
 
-        if (isSitting && !isPassenger) {
+        if (isSitting && (!isPassenger || (entity != null && entity.getVehicle() instanceof org.trp.shincolle.entity.EntitySeat))) {
             boolean showEquip = entity != null && entity.getEquipFlag(org.trp.shincolle.entity.EntitySubmYo.EQUIP_BASE);
             float angleX = net.minecraft.util.Mth.cos(ageInTicks * 0.08F);
             if (entity != null && hasLegacyState(entity, 1, 4)) {

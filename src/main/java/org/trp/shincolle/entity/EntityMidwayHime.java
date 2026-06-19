@@ -8,6 +8,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
 
 import java.util.List;
@@ -18,14 +19,31 @@ public class EntityMidwayHime extends EntityShipBase {
     public static final String EQUIP_RIGGING = "equip_rigging";
     public static final String EQUIP_COLLAR = "equip_collar";
 
-    public EntityMidwayHime(EntityType<? extends TamableAnimal> type, Level level) {
+    public EntityMidwayHime(
+        EntityType<? extends TamableAnimal> type,
+        Level level
+    ) {
         super(type, level);
-        setModelPos(new float[]{-6, 30, 0, 40});
+        setModelPos(new float[] { -6, 30, 0, 40 });
         setStateMinor(STATE_MINOR_FACTION_ID, 10);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 30);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 2);
         setStateCanRide(true);
+    }
+
+    @Override
+    public boolean supportsAircraftCombat() {
+        return true;
+    }
+
+    @Override
+    public EntityType<? extends TamableAnimal> getAttackAircraftType(
+        boolean isLightAircraft
+    ) {
+        return isLightAircraft
+            ? ModEntities.AIRPLANE.get()
+            : ModEntities.TAKOYAKI.get();
     }
 
     @Override
@@ -50,7 +68,10 @@ public class EntityMidwayHime extends EntityShipBase {
         int duration = 100 + this.getStateMinor(0);
         int amp = Math.max(0, this.getStateMinor(0) / 80);
         AABB range = this.getBoundingBox().inflate(14.0D, 8.0D, 14.0D);
-        List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class, range);
+        List<EntityShipBase> ships = this.level().getEntitiesOfClass(
+            EntityShipBase.class,
+            range
+        );
         for (EntityShipBase ship : ships) {
             if (ship == this) {
                 continue;
@@ -58,16 +79,37 @@ public class EntityMidwayHime extends EntityShipBase {
             if (!Objects.equals(ship.getOwnerUUID(), this.getOwnerUUID())) {
                 continue;
             }
-            ship.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, duration, amp, false, false));
+            ship.addEffect(
+                new MobEffectInstance(
+                    MobEffects.ABSORPTION,
+                    duration,
+                    amp,
+                    false,
+                    false
+                )
+            );
         }
-        if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
-            this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.ABSORPTION, duration, amp, false, false));
+        if (
+            this.getOwnerPlayer() != null &&
+            this.distanceToSqr(this.getOwnerPlayer()) < 256.0D
+        ) {
+            this.getOwnerPlayer().addEffect(
+                new MobEffectInstance(
+                    MobEffects.ABSORPTION,
+                    duration,
+                    amp,
+                    false,
+                    false
+                )
+            );
         }
     }
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        List<EquipOption> list = new java.util.ArrayList<>(
+            super.getEquipOptions()
+        );
         list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
         list.add(new EquipOption(EQUIP_COLLAR, "gui.shincolle.equip.collar"));
         return list;
@@ -85,7 +127,9 @@ public class EntityMidwayHime extends EntityShipBase {
 
     @Override
     public org.trp.shincolle.entity.base.EntityMountBase summonMountEntity() {
-        return new EntityMountMiH(org.trp.shincolle.init.ModEntities.MOUNT_MI_H.get(), this.level());
+        return new EntityMountMiH(
+            org.trp.shincolle.init.ModEntities.MOUNT_MI_H.get(),
+            this.level()
+        );
     }
 }
-

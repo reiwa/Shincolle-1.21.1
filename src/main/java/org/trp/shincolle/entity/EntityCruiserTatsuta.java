@@ -61,5 +61,10 @@ public class EntityCruiserTatsuta extends EntityShipBase {
     protected Item getShipSpawnEggItem() {
         return ModItems.CRUISER_TATSUTA_SPAWN_EGG.get();
     }
+
+    @Override
+    protected net.minecraft.world.BossEvent.BossBarColor getBossBarColor() {
+        return net.minecraft.world.BossEvent.BossBarColor.PURPLE;
+    }
 }
 

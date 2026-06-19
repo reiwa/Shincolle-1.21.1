@@ -122,7 +122,7 @@ public final class LegacyPoseOffsets {
             case "ModelBBHiei" -> 0.55F * 3;
             case "ModelSubmHime" -> 0.495F * 3.2F;
             case "ModelSubmRo500" -> 0.41F * 3.2F;
-            case "ModelSubmU511" -> 0.4F * 3.2F;
+            case "ModelSubmU511" -> 0.4F * 3.6F;
             case "ModelSubmSo" -> 0.45F * 3;
             case "ModelSubmKa" -> 0.45F * 3;
             case "ModelSSNH" -> 0.26F * 3.2F;

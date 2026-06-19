@@ -216,7 +216,7 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("tile.shincolle.BlockVolCore.name");
+        return Component.translatable("tile.shincolle.blockvolcore.name");
     }
 
     @Override

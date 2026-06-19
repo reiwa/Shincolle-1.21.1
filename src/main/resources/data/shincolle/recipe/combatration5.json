@@ -2,7 +2,14 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    { "item": "shincolle:combatration", "components": { "minecraft:custom_data": "{LegacyVariant:4}" } },
+    {
+      "type": "neoforge:components",
+      "items": "shincolle:combatration",
+      "components": {
+        "minecraft:custom_data": "{LegacyVariant:4}"
+      },
+      "strict": false
+    },
     { "item": "shincolle:grudge_block" }
   ],
   "result": {

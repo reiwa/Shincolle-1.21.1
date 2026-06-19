@@ -1,6 +1,5 @@
 package org.trp.shincolle.entity.base;
 
-import java.util.UUID;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameRules;
 import org.trp.shincolle.entity.EntityShipGrudge;
+
+import java.util.UUID;
 
 class EntityShipBaseDeathHelper {
 

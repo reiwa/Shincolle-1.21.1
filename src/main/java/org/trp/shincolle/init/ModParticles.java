@@ -46,6 +46,9 @@ public class ModParticles {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_SPRAY =
             PARTICLES.register("particle_spray", () -> new SimpleParticleType(false));
 
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_SPRAY_CYAN =
+            PARTICLES.register("particle_spray_cyan", () -> new SimpleParticleType(false));
+
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_GODDESS =
             PARTICLES.register("particle_goddess", () -> new SimpleParticleType(false));
 
@@ -81,6 +84,13 @@ public class ModParticles {
 
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_SPHERE_LIGHT =
             PARTICLES.register("particle_sphere_light", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_SHINE =
+            PARTICLES.register("particle_shine", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_FOG =
+            PARTICLES.register("particle_fog", () -> new SimpleParticleType(false));
+
 
     private ModParticles() {
     }

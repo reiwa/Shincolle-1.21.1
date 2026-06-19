@@ -16,11 +16,20 @@ final class EntityShipBaseSerialization {
         builder.define(EntityShipBase.SHIP_EXP, 0);
         builder.define(EntityShipBase.FACE_ID, 0);
         builder.define(EntityShipBase.MOUTH_ID, 0);
-        builder.define(EntityShipBase.EMOTION_PRIMARY, EntityShipBase.EMOTION_NORMAL);
-        builder.define(EntityShipBase.EMOTION_SECONDARY, EntityShipBase.EMOTION_NORMAL);
+        builder.define(
+            EntityShipBase.EMOTION_PRIMARY,
+            EntityShipBase.EMOTION_NORMAL
+        );
+        builder.define(
+            EntityShipBase.EMOTION_SECONDARY,
+            EntityShipBase.EMOTION_NORMAL
+        );
         builder.define(EntityShipBase.EMOTION_PARTICLE, 0);
         builder.define(EntityShipBase.NO_FUEL, false);
-        builder.define(EntityShipBase.MORALE, EntityShipBase.getMoraleDefaultValue());
+        builder.define(
+            EntityShipBase.MORALE,
+            EntityShipBase.getMoraleDefaultValue()
+        );
         builder.define(EntityShipBase.FUEL, 0);
         builder.define(EntityShipBase.AMMO_LIGHT, 0);
         builder.define(EntityShipBase.AMMO_HEAVY, 0);
@@ -44,10 +53,17 @@ final class EntityShipBaseSerialization {
         builder.define(EntityShipBase.LEGACY_ATTACK_TICK_2, 0);
         builder.define(EntityShipBase.LEGACY_RIDING_STATE, 0);
         builder.define(EntityShipBase.LEGACY_SCALE_LEVEL, 0);
+        builder.define(EntityShipBase.MOUNT_ATTACK_CD_0, 0);
+        builder.define(EntityShipBase.MOUNT_ATTACK_CD_1, 0);
+        builder.define(EntityShipBase.MOUNT_ATTACK_CD_2, 0);
+        builder.define(EntityShipBase.MOUNT_ATTACK_CD_3, 0);
     }
 
     void addAdditionalSaveData(CompoundTag compound) {
-        compound.put("ShipInventory", this.ship.getInventory().serializeNBT(this.ship.registryAccess()));
+        compound.put(
+            "ShipInventory",
+            this.ship.getInventory().serializeNBT(this.ship.registryAccess())
+        );
 
         compound.putInt("ShipLevel", this.ship.getLevel());
         compound.putInt("ShipExp", this.ship.getExp());
@@ -64,28 +80,61 @@ final class EntityShipBaseSerialization {
         compound.putBoolean("PointerSelected", this.ship.isPointerSelected());
         compound.putInt("FormationTeam", this.ship.getFormationTeam());
         compound.putInt("FormationSlot", this.ship.getFormationSlot());
-        compound.putIntArray("StateEmotion", this.ship.getLegacyEmotionSnapshotInternal());
+        compound.putIntArray(
+            "StateEmotion",
+            this.ship.getLegacyEmotionSnapshotInternal()
+        );
         compound.putInt("AttackTick", this.ship.getAttackTick());
         compound.putInt("AttackTick2", this.ship.getAttackTick2());
         compound.putInt("RidingState", this.ship.getRidingState());
         compound.putInt("ScaleLevel", this.ship.getScaleLevel());
 
         CompoundTag legacyPoint = new CompoundTag();
-        legacyPoint.putByte("HP", (byte) this.ship.getLegacyShipStats().getBonus(0));
-        legacyPoint.putByte("ATK", (byte) this.ship.getLegacyShipStats().getBonus(1));
-        legacyPoint.putByte("DEF", (byte) this.ship.getLegacyShipStats().getBonus(2));
-        legacyPoint.putByte("SPD", (byte) this.ship.getLegacyShipStats().getBonus(3));
-        legacyPoint.putByte("MOV", (byte) this.ship.getLegacyShipStats().getBonus(4));
-        legacyPoint.putByte("HIT", (byte) this.ship.getLegacyShipStats().getBonus(5));
+        legacyPoint.putByte(
+            "HP",
+            (byte) this.ship.getLegacyShipStats().getBonus(0)
+        );
+        legacyPoint.putByte(
+            "ATK",
+            (byte) this.ship.getLegacyShipStats().getBonus(1)
+        );
+        legacyPoint.putByte(
+            "DEF",
+            (byte) this.ship.getLegacyShipStats().getBonus(2)
+        );
+        legacyPoint.putByte(
+            "SPD",
+            (byte) this.ship.getLegacyShipStats().getBonus(3)
+        );
+        legacyPoint.putByte(
+            "MOV",
+            (byte) this.ship.getLegacyShipStats().getBonus(4)
+        );
+        legacyPoint.putByte(
+            "HIT",
+            (byte) this.ship.getLegacyShipStats().getBonus(5)
+        );
         compound.put("LegacyPoint", legacyPoint);
 
-        compound.putBoolean("LegacyStateInit", this.ship.isLegacyStateInitializedInternal());
+        compound.putBoolean(
+            "LegacyStateInit",
+            this.ship.isLegacyStateInitializedInternal()
+        );
         EntityShipLegacyState legacyState = this.ship.getLegacyStateInternal();
         compound.putIntArray("LegacyStateMinor", legacyState.stateMinor);
         compound.putIntArray("LegacyStateTimer", legacyState.stateTimer);
-        compound.putByteArray("LegacyStateFlags", legacyState.toByteArray(legacyState.stateFlag));
-        compound.putByteArray("LegacyUpdateFlags", legacyState.toByteArray(legacyState.updateFlag));
-        compound.putByteArray("LegacyBodyHeightStand", legacyState.bodyHeightStand);
+        compound.putByteArray(
+            "LegacyStateFlags",
+            legacyState.toByteArray(legacyState.stateFlag)
+        );
+        compound.putByteArray(
+            "LegacyUpdateFlags",
+            legacyState.toByteArray(legacyState.updateFlag)
+        );
+        compound.putByteArray(
+            "LegacyBodyHeightStand",
+            legacyState.bodyHeightStand
+        );
         compound.putByteArray("LegacyBodyHeightSit", legacyState.bodyHeightSit);
         compound.putIntArray("LegacyModelPos", legacyState.getModelPosBits());
         compound.putIntArray("LegacyWaypoints", legacyState.getWaypointBits());
@@ -94,7 +143,12 @@ final class EntityShipBaseSerialization {
 
     void readAdditionalSaveData(CompoundTag compound) {
         if (compound.contains("ShipInventory")) {
-            this.ship.getInventory().deserializeNBT(this.ship.registryAccess(), compound.getCompound("ShipInventory"));
+            this.ship
+                .getInventory()
+                .deserializeNBT(
+                    this.ship.registryAccess(),
+                    compound.getCompound("ShipInventory")
+                );
         }
 
         this.ship.setLevel(compound.getInt("ShipLevel"));
@@ -109,7 +163,9 @@ final class EntityShipBaseSerialization {
         }
 
         if (compound.contains("PointerSelected")) {
-            this.ship.setPointerSelected(compound.getBoolean("PointerSelected"));
+            this.ship.setPointerSelected(
+                compound.getBoolean("PointerSelected")
+            );
         } else {
             this.ship.setPointerSelected(false);
         }
@@ -124,7 +180,9 @@ final class EntityShipBaseSerialization {
         }
 
         if (compound.contains("StateEmotion")) {
-            this.ship.applyLegacyEmotionSnapshotInternal(compound.getIntArray("StateEmotion"));
+            this.ship.applyLegacyEmotionSnapshotInternal(
+                compound.getIntArray("StateEmotion")
+            );
             this.ship.setLegacyStateInitializedInternal(true);
         }
         if (compound.contains("AttackTick")) {
@@ -151,40 +209,70 @@ final class EntityShipBaseSerialization {
         }
 
         if (compound.contains("LegacyStateInit")) {
-            this.ship.setLegacyStateInitializedInternal(compound.getBoolean("LegacyStateInit"));
+            this.ship.setLegacyStateInitializedInternal(
+                compound.getBoolean("LegacyStateInit")
+            );
         }
 
         EntityShipLegacyState legacyState = this.ship.getLegacyStateInternal();
         if (compound.contains("LegacyStateMinor")) {
-            legacyState.applyIntArray(legacyState.stateMinor, compound.getIntArray("LegacyStateMinor"));
+            legacyState.applyIntArray(
+                legacyState.stateMinor,
+                compound.getIntArray("LegacyStateMinor")
+            );
         }
 
-        int fuel = compound.contains("Fuel") ? compound.getInt("Fuel") : legacyState.getInt(legacyState.stateMinor, 6);
+        int fuel = compound.contains("Fuel")
+            ? compound.getInt("Fuel")
+            : legacyState.getInt(legacyState.stateMinor, 6);
         this.ship.setFuel(fuel);
-        int airLight = compound.contains("AircraftLight") ? compound.getInt("AircraftLight") : legacyState.getInt(legacyState.stateMinor, 7);
+        int airLight = compound.contains("AircraftLight")
+            ? compound.getInt("AircraftLight")
+            : legacyState.getInt(legacyState.stateMinor, 7);
         this.ship.setNumAircraftLight(airLight);
-        int airHeavy = compound.contains("AircraftHeavy") ? compound.getInt("AircraftHeavy") : legacyState.getInt(legacyState.stateMinor, 8);
+        int airHeavy = compound.contains("AircraftHeavy")
+            ? compound.getInt("AircraftHeavy")
+            : legacyState.getInt(legacyState.stateMinor, 8);
         this.ship.setNumAircraftHeavy(airHeavy);
         if (compound.contains("LegacyStateTimer")) {
-            legacyState.applyIntArray(legacyState.stateTimer, compound.getIntArray("LegacyStateTimer"));
+            legacyState.applyIntArray(
+                legacyState.stateTimer,
+                compound.getIntArray("LegacyStateTimer")
+            );
         }
         if (compound.contains("LegacyStateFlags")) {
-            legacyState.applyByteArray(legacyState.stateFlag, compound.getByteArray("LegacyStateFlags"));
+            legacyState.applyByteArray(
+                legacyState.stateFlag,
+                compound.getByteArray("LegacyStateFlags")
+            );
         }
         if (compound.contains("LegacyUpdateFlags")) {
-            legacyState.applyByteArray(legacyState.updateFlag, compound.getByteArray("LegacyUpdateFlags"));
+            legacyState.applyByteArray(
+                legacyState.updateFlag,
+                compound.getByteArray("LegacyUpdateFlags")
+            );
         }
         if (compound.contains("LegacyBodyHeightStand")) {
-            legacyState.applyByteArray(legacyState.bodyHeightStand, compound.getByteArray("LegacyBodyHeightStand"));
+            legacyState.applyByteArray(
+                legacyState.bodyHeightStand,
+                compound.getByteArray("LegacyBodyHeightStand")
+            );
         }
         if (compound.contains("LegacyBodyHeightSit")) {
-            legacyState.applyByteArray(legacyState.bodyHeightSit, compound.getByteArray("LegacyBodyHeightSit"));
+            legacyState.applyByteArray(
+                legacyState.bodyHeightSit,
+                compound.getByteArray("LegacyBodyHeightSit")
+            );
         }
         if (compound.contains("LegacyModelPos")) {
-            legacyState.applyModelPosBits(compound.getIntArray("LegacyModelPos"));
+            legacyState.applyModelPosBits(
+                compound.getIntArray("LegacyModelPos")
+            );
         }
         if (compound.contains("LegacyWaypoints")) {
-            legacyState.applyWaypointBits(compound.getIntArray("LegacyWaypoints"));
+            legacyState.applyWaypointBits(
+                compound.getIntArray("LegacyWaypoints")
+            );
         }
 
         this.ship.refreshDimensions();
@@ -198,5 +286,9 @@ final class EntityShipBaseSerialization {
         }
 
         this.ship.recalculateLegacyShipStats();
+
+        if (compound.contains("Health")) {
+            this.ship.setHealth(compound.getFloat("Health"));
+        }
     }
 }

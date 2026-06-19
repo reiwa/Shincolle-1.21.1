@@ -2,18 +2,15 @@ package org.trp.shincolle.entity.projectile;
 
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -22,10 +19,10 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.trp.shincolle.entity.base.EntityShipBase;
-import org.trp.shincolle.entity.projectile.EntityProjectileStatic;
+import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.init.ModEntities;
+import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.init.ModSounds;
 
 import java.util.List;
@@ -34,6 +31,8 @@ import java.util.UUID;
 
 public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpawn {
     public static final int SPECIAL_EFFECT_NONE = 0;
+    public static final int SPECIAL_EFFECT_CLUSTER = 3;
+    public static final int SPECIAL_EFFECT_SUBMUNITION = 4;
     public static final int SPECIAL_EFFECT_PULL_FIELD = 5;
 
     private static final double MIN_DIST_FOR_ARC = 4.0D;
@@ -216,6 +215,9 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
                 onImpact(null);
                 return;
             }
+            if (this.specialEffectType == SPECIAL_EFFECT_CLUSTER) {
+                spawnSubmunitions();
+            }
         }
 
         updateVelocityByMoveType();
@@ -243,10 +245,44 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
 
         move(MoverType.SELF, delta);
         updateRotationFromMovement(delta);
+
+        if (this.level().isClientSide) {
+            spawnClientParticles();
+        }
+    }
+
+    private void spawnClientParticles() {
+        if (this.tickCount < 2) {
+            return;
+        }
+
+        double px = this.getX();
+        double py = this.getY() + this.getBbHeight() * 0.5D;
+        double pz = this.getZ();
+
+        if (this.isInWater()) {
+            for (int i = 0; i < 3; i++) {
+                double ox = (this.random.nextDouble() - 0.5D) * 0.3D;
+                double oy = (this.random.nextDouble() - 0.5D) * 0.3D;
+                double oz = (this.random.nextDouble() - 0.5D) * 0.3D;
+                this.level().addParticle(ParticleTypes.BUBBLE, px + ox, py + oy, pz + oz, -this.velX * 0.1D, -this.velY * 0.1D, -this.velZ * 0.1D);
+            }
+            if (this.random.nextInt(2) == 0) {
+                this.level().addParticle(ModParticles.PARTICLE_SPRAY_CYAN.get(), px, py, pz, -this.velX * 0.25D, -this.velY * 0.25D, -this.velZ * 0.25D);
+            }
+        } else {
+            for (int i = 0; i < 4; i++) {
+                double ox = (this.random.nextDouble() - 0.5D) * 0.2D;
+                double oy = (this.random.nextDouble() - 0.5D) * 0.2D;
+                double oz = (this.random.nextDouble() - 0.5D) * 0.2D;
+                this.level().addParticle(ModParticles.PARTICLE_SPRAY_CYAN.get(), px + ox, py + oy, pz + oz, -this.velX * 0.15D, -this.velY * 0.15D, -this.velZ * 0.15D);
+            }
+        }
     }
 
     @Override
     public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
+        buffer.writeInt(this.specialEffectType);
         buffer.writeEnum(this.moveType);
         buffer.writeDouble(this.velX);
         buffer.writeDouble(this.velY);
@@ -265,6 +301,7 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
 
     @Override
     public void readSpawnData(RegistryFriendlyByteBuf buffer) {
+        this.specialEffectType = buffer.readInt();
         this.moveType = buffer.readEnum(MoveType.class);
         this.velX = buffer.readDouble();
         this.velY = buffer.readDouble();
@@ -333,6 +370,20 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         this.moveType = moveType == null ? MoveType.DIRECT : moveType;
         this.accY1 = accY1;
         this.accY2 = accY2;
+
+        if (this.moveType != MoveType.PRESET_VELOCITY && getOwnerEntity() instanceof EntityShipBase ship) {
+            if (this.targetPos != null && getTargetEntity() != null) {
+                double distance = ship.position().distanceTo(this.targetPos);
+                if (ship.getRandom().nextFloat() <= org.trp.shincolle.utility.CombatHelper.calcMissRate(ship, (float) distance)) {
+                    double offsetX = (ship.getRandom().nextDouble() - 0.5D) * 10.0D;
+                    double offsetY = ship.getRandom().nextDouble() * 5.0D;
+                    double offsetZ = (ship.getRandom().nextDouble() - 0.5D) * 10.0D;
+                    this.targetPos = this.targetPos.add(offsetX, offsetY, offsetZ);
+                    this.entityData.set(TARGET_UUID, java.util.Optional.empty());
+                    ship.spawnCombatTextParticle(EntityShipBase.COMBAT_TEXT_MISS);
+                }
+            }
+        }
 
         Vec3 targetVector = resolveTargetVector();
         if (this.moveType == MoveType.PRESET_VELOCITY && presetVelocity != null) {
@@ -458,7 +509,11 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
             }
             case TORPEDO -> updateTorpedoMovement();
             case PRESET_VELOCITY -> {
-
+                if (this.specialEffectType == SPECIAL_EFFECT_SUBMUNITION) {
+                    this.velX *= 0.95D;
+                    this.velY += this.accY1;
+                    this.velZ *= 0.95D;
+                }
             }
         }
     }
@@ -477,6 +532,18 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
 
         if (this.torpedoDelay > 0) {
             this.torpedoDelay--;
+            if (this.torpedoDelay == 0) {
+                Vec3 targetVector = resolveTargetVector();
+                if (targetVector != null) {
+                    Vec3 dir = targetVector.normalize();
+                    this.velX = dir.x * getSpeed() * 0.25D;
+                    this.velY = dir.y * getSpeed() * 0.25D;
+                    this.velZ = dir.z * getSpeed() * 0.25D;
+                    if (this.velY > 0.003D) {
+                        this.velY = 0.003D;
+                    }
+                }
+            }
             return;
         }
 
@@ -526,6 +593,25 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         serverLevel.addFreshEntity(effect);
     }
 
+    private void spawnSubmunitions() {
+        boolean canSpawn = this.tickCount > 6 && this.tickCount < 41 && (this.tickCount & 7) == 0;
+        if (!canSpawn) {
+            return;
+        }
+        Entity owner = getOwnerEntity();
+        Entity target = getTargetEntity();
+        Vec3 presetVel = this.getDeltaMovement();
+        
+        EntityAbyssMissile subMissile = new EntityAbyssMissile(
+            this.level(), owner, target, this.getDamage() * 0.5F,
+            MoveType.PRESET_VELOCITY, 0.5F, -0.06F, -0.06F, presetVel,
+            140, this.getExplosionRadius() * 0.5F
+        );
+        subMissile.specialEffectType = SPECIAL_EFFECT_SUBMUNITION;
+        subMissile.setPos(this.getX(), this.getY() - 0.65D - Math.abs(presetVel.y), this.getZ());
+        this.level().addFreshEntity(subMissile);
+    }
+
     private void spawnImpactParticles(ServerLevel serverLevel) {
         double posX = this.getX();
         double posY = this.getY();
@@ -549,18 +635,37 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
                 ? this.damageSources().mobAttack(livingOwner)
                 : this.damageSources().generic();
 
+        org.trp.shincolle.entity.base.EntityShipBase ship = null;
+        if (owner instanceof org.trp.shincolle.entity.base.EntityShipBase) {
+            ship = (org.trp.shincolle.entity.base.EntityShipBase) owner;
+        } else if (owner instanceof org.trp.shincolle.entity.EntityAircraftBase aircraft) {
+            ship = aircraft.getCarrier();
+        }
+
         List<Entity> targets = serverLevel.getEntities(this, this.getBoundingBox().inflate(radius),
                 entity -> entity.isAlive() && entity.isPickable() && !(entity instanceof EntityAbyssMissile) && !isFriendlyTarget(owner, entity));
         for (Entity entity : targets) {
-            boolean hurt = entity.hurt(source, damage);
-            if (hurt && owner instanceof org.trp.shincolle.entity.base.EntityShipBase ship && entity instanceof LivingEntity livingTarget) {
-                ship.applyAttackEffects(livingTarget);
+            float finalDmg = damage;
+            if (ship != null) {
+                finalDmg = org.trp.shincolle.utility.CombatHelper.applyCombatRateToDamage(ship, false, 1.0F, damage);
+            }
+            if (finalDmg > 0.0F) {
+                boolean hurt = entity.hurt(source, finalDmg);
+                if (hurt && ship != null && entity instanceof LivingEntity livingTarget) {
+                    ship.applyAttackEffects(livingTarget);
+                }
             }
         }
         if (directHit != null && directHit.isAlive() && !isFriendlyTarget(owner, directHit)) {
-            boolean hurt = directHit.hurt(source, damage);
-            if (hurt && owner instanceof org.trp.shincolle.entity.base.EntityShipBase ship && directHit instanceof LivingEntity livingTarget) {
-                ship.applyAttackEffects(livingTarget);
+            float finalDmg = damage;
+            if (ship != null) {
+                finalDmg = org.trp.shincolle.utility.CombatHelper.applyCombatRateToDamage(ship, false, 1.0F, damage);
+            }
+            if (finalDmg > 0.0F) {
+                boolean hurt = directHit.hurt(source, finalDmg);
+                if (hurt && ship != null && directHit instanceof LivingEntity livingTarget) {
+                    ship.applyAttackEffects(livingTarget);
+                }
             }
         }
     }

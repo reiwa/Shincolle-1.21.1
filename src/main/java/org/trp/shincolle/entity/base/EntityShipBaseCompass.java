@@ -1,9 +1,10 @@
 package org.trp.shincolle.entity.base;
 
-import java.util.HashSet;
-import java.util.Set;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+
+import java.util.HashSet;
+import java.util.Set;
 
 class EntityShipBaseCompass {
 

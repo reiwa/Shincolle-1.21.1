@@ -1,12 +1,10 @@
 package org.trp.shincolle.entity.base;
 
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -21,10 +19,13 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.inventory.ShipInventoryHandler;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.menu.ShipContainerMenu;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Optional;
 
 class EntityShipBaseInventoryHelper {
 
@@ -111,13 +112,21 @@ class EntityShipBaseInventoryHelper {
             pickRange * 0.5D + 1.0D,
             pickRange
         );
+        LivingEntity owner = this.ship.getOwner();
         List<ItemEntity> items = this.ship.level().getEntitiesOfClass(
             ItemEntity.class,
             scanBox,
-            item ->
-                item.isAlive() &&
-                !item.getItem().isEmpty() &&
-                !item.hasPickUpDelay()
+            item -> {
+                if (!item.isAlive() || item.getItem().isEmpty() || item.hasPickUpDelay()) {
+                    return false;
+                }
+                if (owner != null) {
+                    if (item.distanceToSqr(owner) > followCap * followCap) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         );
         if (items.isEmpty()) {
             return null;
@@ -155,6 +164,7 @@ class EntityShipBaseInventoryHelper {
                     0.7F +
                 1.0F) * 2.0F
         );
+        this.ship.playItemPickupSound();
     }
 
     private ItemStack insertIntoCargo(ItemStack stack) {

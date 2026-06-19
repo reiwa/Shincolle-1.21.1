@@ -67,6 +67,7 @@ public class EntityCruiserAtago extends EntityShipBase {
 
         this.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.getSoundVolume(),
                 this.getRandom().nextFloat() * 0.12F + 0.83F);
+        this.playAttackSound();
         this.setAttackTick(50);
         this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
         this.applyEmotesReaction(3);
@@ -83,6 +84,11 @@ public class EntityCruiserAtago extends EntityShipBase {
     @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.CRUISER_ATAGO_SPAWN_EGG.get();
+    }
+
+    @Override
+    protected net.minecraft.world.BossEvent.BossBarColor getBossBarColor() {
+        return net.minecraft.world.BossEvent.BossBarColor.YELLOW;
     }
 }
 

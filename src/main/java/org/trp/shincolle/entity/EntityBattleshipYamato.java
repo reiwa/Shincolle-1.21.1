@@ -105,6 +105,7 @@ public class EntityBattleshipYamato extends EntityShipBase {
             float baseDamage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
             float damage = Math.max(6.0F, baseDamage * 1.6F);
             this.playSound(org.trp.shincolle.init.ModSounds.SHIP_YAMATO_SHOT.get(), 1.0F, 1.0F);
+            this.playAttackSound();
             spawnBeamEntity(serverLevel, target, damage);
             this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
         } else {
@@ -188,6 +189,11 @@ public class EntityBattleshipYamato extends EntityShipBase {
     @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.BATTLESHIP_YAMATO_SPAWN_EGG.get();
+    }
+
+    @Override
+    protected net.minecraft.world.BossEvent.BossBarColor getBossBarColor() {
+        return net.minecraft.world.BossEvent.BossBarColor.PINK;
     }
 }
 

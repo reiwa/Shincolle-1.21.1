@@ -27,11 +27,7 @@ import org.trp.shincolle.Config;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.block.entity.CraneBlockEntity;
 import org.trp.shincolle.client.tooltip.ScaledTextClientTooltip;
-import org.trp.shincolle.entity.EntityAirfieldHime;
-import org.trp.shincolle.entity.EntityBattleshipRu;
-import org.trp.shincolle.entity.EntityDestroyerIkazuchi;
-import org.trp.shincolle.entity.EntityNorthernHime;
-import org.trp.shincolle.entity.EntityAircraftBase;
+import org.trp.shincolle.entity.*;
 import org.trp.shincolle.entity.base.EntityShincolleSimpleMob;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.EntityShipBaseSimple;
@@ -116,7 +112,36 @@ public class ModEventBusEvents {
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
-        HostileSpawnManager.tickPlayer(event.getEntity());
+        Player player = event.getEntity();
+        HostileSpawnManager.tickPlayer(player);
+
+        if (!player.level().isClientSide) {
+            int timer = org.trp.shincolle.item.BucketRepairItem.getParticleTimer(player);
+            if (timer > 0) {
+                org.trp.shincolle.item.BucketRepairItem.setParticleTimer(player, timer - 1);
+
+                if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                    double px = player.getX();
+                    double py = player.getY();
+                    double pz = player.getZ();
+                    net.minecraft.util.RandomSource rand = player.getRandom();
+
+                    for (int i = 0; i < 3; i++) {
+                        double x = px + (rand.nextDouble() - 0.5D) * 1.5D;
+                        double y = py + rand.nextDouble() * 2.0D;
+                        double z = pz + (rand.nextDouble() - 0.5D) * 1.5D;
+
+                        serverLevel.sendParticles(
+                            org.trp.shincolle.init.ModParticles.PARTICLE_FOG.get(),
+                            x, y, z,
+                            1,
+                            0.0D, 0.0D, 0.0D,
+                            0.0D
+                        );
+                    }
+                }
+            }
+        }
     }
 
     @SubscribeEvent
@@ -131,6 +156,25 @@ public class ModEventBusEvents {
                 data.setHasReceivedBook(true);
             }
             net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer, new org.trp.shincolle.network.S2CAdmiralDataSyncPayload(data.serializeNBT()));
+            
+            java.util.HashSet<Integer> collected = serverPlayer.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS);
+            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer, new org.trp.shincolle.network.S2CCollectedShipsSyncPayload(new java.util.ArrayList<>(collected)));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerClone(net.neoforged.neoforge.event.entity.player.PlayerEvent.Clone event) {
+        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer newPlayer) {
+            java.util.HashSet<Integer> collected = newPlayer.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS);
+            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(newPlayer, new org.trp.shincolle.network.S2CCollectedShipsSyncPayload(new java.util.ArrayList<>(collected)));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerChangedDimension(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            java.util.HashSet<Integer> collected = serverPlayer.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS);
+            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer, new org.trp.shincolle.network.S2CCollectedShipsSyncPayload(new java.util.ArrayList<>(collected)));
         }
     }
 
@@ -149,7 +193,7 @@ public class ModEventBusEvents {
             return;
         }
 
-        ItemStack pointerStack = getPointerStack(player);
+        ItemStack pointerStack = getPointerStackForLeftClick(player);
         if (pointerStack.isEmpty()) {
             return;
         }
@@ -270,7 +314,7 @@ public class ModEventBusEvents {
     public static void onPointerItemLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         Player player = event.getEntity();
         if (player == null) return;
-        ItemStack pointerStack = getPointerStack(player);
+        ItemStack pointerStack = getPointerStackForLeftClick(player);
         if (pointerStack.isEmpty()) return;
 
         if (player.level().isClientSide) {
@@ -285,8 +329,9 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void onPointerItemRightClickItem(PlayerInteractEvent.RightClickItem event) {
         Player player = event.getEntity();
-        ItemStack pointerStack = player == null ? ItemStack.EMPTY : getPointerStack(player);
-        if (player == null || pointerStack.isEmpty() || player.isShiftKeyDown()) {
+        if (player == null) return;
+        ItemStack pointerStack = event.getItemStack();
+        if (!isPointerItem(pointerStack) || player.isShiftKeyDown()) {
             return;
         }
 
@@ -298,8 +343,9 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void onPointerItemRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();
-        ItemStack pointerStack = player == null ? ItemStack.EMPTY : getPointerStack(player);
-        if (player == null || pointerStack.isEmpty() || player.isShiftKeyDown()) {
+        if (player == null) return;
+        ItemStack pointerStack = event.getItemStack();
+        if (!isPointerItem(pointerStack) || player.isShiftKeyDown()) {
             return;
         }
 
@@ -329,7 +375,7 @@ public class ModEventBusEvents {
             ship.addShipExp(Config.shipExpGainKill);
         }
 
-        float dropRate = Math.max(0.0F, Config.hostileDropGrudgeRate);
+        float dropRate = Math.max(0.0F, Config.dropGrudge);
         if (dropRate <= 0.0F) {
             return;
         }
@@ -360,6 +406,18 @@ public class ModEventBusEvents {
         }
         ItemStack off = player.getOffhandItem();
         if (isPointerItem(off)) {
+            return off;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    private static ItemStack getPointerStackForLeftClick(Player player) {
+        ItemStack main = player.getMainHandItem();
+        if (isPointerItem(main)) {
+            return main;
+        }
+        ItemStack off = player.getOffhandItem();
+        if (isPointerItem(off) && main.isEmpty()) {
             return off;
         }
         return ItemStack.EMPTY;
@@ -522,5 +580,53 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void registerTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(ScaledTextTooltipData.class, ScaledTextClientTooltip::new);
+    }
+
+    @SubscribeEvent
+    public static void onRegisterCommands(net.neoforged.neoforge.event.RegisterCommandsEvent event) {
+        org.trp.shincolle.command.ModCommands.register(event.getDispatcher(), event.getBuildContext());
+    }
+
+    @SubscribeEvent
+    public static void onLootTableLoad(net.neoforged.neoforge.event.LootTableLoadEvent event) {
+        if (event.getName().getNamespace().equals(org.trp.shincolle.Shincolle.MODID)) {
+            float rate = 1.0f;
+            int level = org.trp.shincolle.Config.consumptionLevel;
+            if (level == 1) {
+                rate = 0.5f;
+            } else if (level == 2) {
+                rate = 0.1f;
+            }
+            if (rate < 1.0f) {
+                net.minecraft.world.level.storage.loot.predicates.LootItemCondition cond = 
+                    net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition.randomChance(rate).build();
+                try {
+                    java.lang.reflect.Field poolsField = net.minecraft.world.level.storage.loot.LootTable.class.getDeclaredField("pools");
+                    poolsField.setAccessible(true);
+                    @SuppressWarnings("unchecked")
+                    java.util.List<net.minecraft.world.level.storage.loot.LootPool> pools = 
+                        (java.util.List<net.minecraft.world.level.storage.loot.LootPool>) poolsField.get(event.getTable());
+                    
+                    if (pools != null) {
+                        for (net.minecraft.world.level.storage.loot.LootPool pool : pools) {
+                            java.lang.reflect.Field condsField = net.minecraft.world.level.storage.loot.LootPool.class.getDeclaredField("conditions");
+                            condsField.setAccessible(true);
+                            @SuppressWarnings("unchecked")
+                            java.util.List<net.minecraft.world.level.storage.loot.predicates.LootItemCondition> conds = 
+                                (java.util.List<net.minecraft.world.level.storage.loot.predicates.LootItemCondition>) condsField.get(pool);
+                            
+                            java.util.List<net.minecraft.world.level.storage.loot.predicates.LootItemCondition> newConds = new java.util.ArrayList<>();
+                            if (conds != null) {
+                                newConds.addAll(conds);
+                            }
+                            newConds.add(cond);
+                            condsField.set(pool, newConds);
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

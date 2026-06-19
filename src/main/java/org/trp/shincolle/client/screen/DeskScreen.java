@@ -101,11 +101,12 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         this.tickGUI++;
         if ((chapId == 4 || chapId == 5) && entityTemp instanceof EntityShipBase ship) {
             ship.tickCount++;
+            ship.tickEmotions();
             if (ship.getAttackTick() > 0) {
                 ship.setAttackTick(ship.getAttackTick() - 1);
             }
             if (ship.isSprinting()) {
-                ship.travel(new net.minecraft.world.phys.Vec3(1.0, 0.0, 0.0));
+                ship.walkAnimation.update(0.8F, 0.4F);
             } else {
                 ship.walkAnimation.setSpeed(0.0F);
             }
@@ -200,13 +201,32 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
             BookRenderer.drawBookContent(guiGraphics, 0, 0, pageId, chapId);
             
             if (chapId == 4 || chapId == 5) {
-                updateEntityTemp();
-                updateModelTransforms();
-                renderBookEntity(guiGraphics, 0, 0, partialTick);
-                renderShipNameIcons(guiGraphics, 0, 0);
-                renderPoseControls(guiGraphics, 0, 0);
-                BookRenderer.drawStateFlags(guiGraphics, 0, 0, entityTemp);
-                drawNoText(guiGraphics, 0, 0);
+                int classID = -1;
+                if (pageId > 0) {
+                    if (chapId == 4 && pageId - 1 < Values.ShipBookList.size()) {
+                        classID = Values.ShipBookList.get(pageId - 1);
+                    } else if (chapId == 5 && pageId - 1 < Values.EnemyBookList.size()) {
+                        classID = Values.EnemyBookList.get(pageId - 1);
+                    }
+                }
+
+                if (pageId > 0) {
+                    if (!isCollected(classID)) {
+                        entityTemp = null;
+                        guiGraphics.blit(BookRenderer.GUI_BOOK2, 20, 48, 0, 148, 87, 108);
+                    } else {
+                        int u = (chapId == 4) ? 0 : 105;
+                        guiGraphics.blit(BookRenderer.GUI_BOOK2, 20, 48, u, 0, 87, 130);
+
+                        updateEntityTemp();
+                        updateModelTransforms();
+                        renderBookEntity(guiGraphics, 0, 0, partialTick);
+                        renderShipNameIcons(guiGraphics, 0, 0);
+                        renderPoseControls(guiGraphics, 0, 0);
+                        BookRenderer.drawStateFlags(guiGraphics, 0, 0, entityTemp);
+                        drawNoText(guiGraphics, 0, 0);
+                    }
+                }
             }
 
             drawPageButtons(guiGraphics, (int)((mouseX - leftPos) * GUI_SCALE_INV), (int)((mouseY - topPos) * GUI_SCALE_INV));
@@ -499,25 +519,17 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
     }
 
     private boolean isCollected(int classID) {
+        if (classID < 0) return false;
         if (this.minecraft == null || this.minecraft.player == null) return false;
-        if (this.minecraft.player.isCreative()) return true;
         return this.minecraft.player.getData(ModDataAttachments.COLLECTED_SHIPS).contains(classID);
     }
 
     private void renderBookEntity(GuiGraphics guiGraphics, int x, int y, float partialTick) {
         if (entityTemp != null) {
-            int classID = -1;
-            if (chapId == 4 && pageId - 1 < Values.ShipBookList.size()) {
-                classID = Values.ShipBookList.get(pageId - 1);
-            } else if (chapId == 5 && pageId - 1 < Values.EnemyBookList.size()) {
-                classID = Values.EnemyBookList.get(pageId - 1);
-            }
-
-            boolean collected = isCollected(classID);
-            
             float renderScale = this.prevScale + (this.currentScale - this.prevScale) * partialTick;
             float rotX = this.prevRotateX + (this.currentRotateX - this.prevRotateX) * partialTick;
             float rotY = this.prevRotateY + (this.currentRotateY - this.prevRotateY) * partialTick;
+            float baseYaw = entityTemp.getType() == ModEntities.DESTROYER_I.get() ? -120.0f : -30.0f;
             
             int px = x + 72;
             int py = y + 110 + (int)(renderScale * 1.1f);
@@ -527,14 +539,10 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
             guiGraphics.pose().scale(-renderScale, renderScale, renderScale);
             guiGraphics.pose().mulPose(new org.joml.Quaternionf().rotateZ((float)Math.toRadians(180)));
             guiGraphics.pose().translate(0.0f, 0.7f, 0.0f);
-            guiGraphics.pose().mulPose(new org.joml.Quaternionf().rotateY((float)Math.toRadians(rotY)));
+            guiGraphics.pose().mulPose(new org.joml.Quaternionf().rotateY((float)Math.toRadians(rotY + baseYaw)));
             guiGraphics.pose().mulPose(new org.joml.Quaternionf().rotateX((float)Math.toRadians(rotX)));
 
             guiGraphics.pose().translate(0.0D, -0.7D, 0.0D);
-            
-            if (!collected) {
-                com.mojang.blaze3d.systems.RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
-            }
 
             net.minecraft.client.renderer.entity.EntityRenderDispatcher dispatcher = this.minecraft.getEntityRenderDispatcher();
             dispatcher.setRenderShadow(false);
@@ -552,10 +560,6 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
             });
             guiGraphics.flush();
             dispatcher.setRenderShadow(true);
-            
-            if (!collected) {
-                com.mojang.blaze3d.systems.RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            }
             
             guiGraphics.pose().popPose();
         }
