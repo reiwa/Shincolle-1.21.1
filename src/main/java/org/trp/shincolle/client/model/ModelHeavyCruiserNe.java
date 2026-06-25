@@ -561,4 +561,9 @@ public class ModelHeavyCruiserNe<T extends EntityShipBase> extends ShipModelHuma
         this.TailR06.yRot = 0.1F;
         this.TailR06.zRot = this.TailR06.yRot * 0.25F;
     }
+
+    @Override
+    public float getBaseScale() {
+        return 0.4f;
+    }
 }

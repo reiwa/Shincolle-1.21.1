@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityBattleshipRe;
 
 public class RendererBattleshipRe extends MobRenderer<EntityBattleshipRe, ModelBattleshipRe<EntityBattleshipRe>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/battleship_re.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererBattleshipRe(EntityRendererProvider.Context context) {
         super(context, new ModelBattleshipRe<>(context.bakeLayer(ModelBattleshipRe.LAYER_LOCATION)), 0.5f);

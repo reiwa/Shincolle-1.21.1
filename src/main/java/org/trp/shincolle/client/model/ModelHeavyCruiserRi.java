@@ -413,4 +413,9 @@ public class ModelHeavyCruiserRi<T extends EntityShipBase> extends ShipModelHuma
         this.LegRight.yRot = -0.15F;
         this.LegRight.zRot = -1.2F;
     }
+
+    @Override
+    public float getBaseScale() {
+        return 0.41f;
+    }
 }

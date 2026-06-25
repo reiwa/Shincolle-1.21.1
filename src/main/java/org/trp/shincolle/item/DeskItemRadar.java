@@ -18,18 +18,13 @@ public class DeskItemRadar extends Item {
     }
 
     @Override
-    public String getDescriptionId() {
-        return "item.shincolle.deskitemradar.name";
-    }
-
-    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
             serverPlayer.openMenu(new SimpleMenuProvider(
                 (id, inv, p) -> new DeskMenu(id, inv, 1),
-                Component.translatable("item.shincolle.deskitemradar.name")
+                Component.translatable(this.getDescriptionId())
             ), buffer -> {
                 buffer.writeInt(1);
                 buffer.writeInt(0);

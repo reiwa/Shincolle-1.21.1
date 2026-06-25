@@ -15,11 +15,11 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "bb_hiei"), "main");
 
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelBBHiei");
-    private static final float SITTING_ALT_TRANSLATE_Y = LegacyPoseOffsets.sittingAltY("ModelBBHiei");
-    private static final float RIDING_TRANSLATE_Y = LegacyPoseOffsets.ridingY("ModelBBHiei");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelBBHiei");
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelBBHiei");
+    private static final float SITTING_TRANSLATE_Y = 0.55F * 3;
+    private static final float SITTING_ALT_TRANSLATE_Y = 0.69F * 2.7F;
+    private static final float RIDING_TRANSLATE_Y = 0.53F * 3;
+    private static final float SNEAK_TRANSLATE_Y = 0.14F;
+    private static final float DEAD_TRANSLATE_Y = 0.6F * 3;
     private static final float OFFSET_SCALE = 16.0F;
 
     private boolean isDeadPose;
@@ -1198,5 +1198,10 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.45f;
     }
 }

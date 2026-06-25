@@ -1,10 +1,11 @@
 package org.trp.shincolle.client.model;
 
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.Entity;
 import org.trp.shincolle.entity.base.EntityMountBase;
-import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.IShipRenderState;
 
-public abstract class ShipModelHumanoidBase<T extends EntityShipBase> extends ShipModelBaseAdv<T> {
+public abstract class ShipModelHumanoidBase<T extends Entity & IShipRenderState> extends ShipModelBaseAdv<T> {
 
     protected static final class PoseContext {
         public final float angleX;
@@ -36,7 +37,7 @@ public abstract class ShipModelHumanoidBase<T extends EntityShipBase> extends Sh
         return new PoseContext(angleX, angleAdd1, angleAdd2, addk1, addk2, isSitting);
     }
 
-    protected void applyFaceAndMouth(EntityShipBase entity) {
+    protected void applyFaceAndMouth(IShipRenderState entity) {
         if (entity == null) {
             return;
         }

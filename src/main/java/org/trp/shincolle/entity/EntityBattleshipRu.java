@@ -37,11 +37,11 @@ public class EntityBattleshipRu extends EntityShipBase {
     public EntityBattleshipRu(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{-6, 25, 0, 40});
-        setStateMinor(STATE_MINOR_FACTION_ID, 6);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 13);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
-        setStateMinor(STATE_MINOR_RARITY, 2);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
+        getStateComponent().setFactionId(6);
+        getStateComponent().setShipClassId(13);
+        getStateComponent().setSpecialEquip(2);
+        getStateComponent().setRarity(2);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeBB);
     }
 
     @Override
@@ -165,7 +165,7 @@ public class EntityBattleshipRu extends EntityShipBase {
 
     private void updateServerEffects() {
         if ((this.tickCount & 0x7F) == 0 && this.level().isDay() && this.isStateRingEffect()) {
-            this.addEffect(new MobEffectInstance(MobEffects.LUCK, 150, Math.max(0, this.getStateMinor(0) / 140), false, false));
+            this.addEffect(new MobEffectInstance(MobEffects.LUCK, 150, Math.max(0, this.getStateComponent().getAffectionLegacy() / 140), false, false));
         }
         if (this.getStateEmotion(EMOTION_SKILL_PHASE) > 0) {
             updateSkillEffect();

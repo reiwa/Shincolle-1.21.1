@@ -15,11 +15,11 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "bb_haruna"), "main");
 
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelBBHaruna");
-    private static final float SITTING_ALT_TRANSLATE_Y = LegacyPoseOffsets.sittingAltY("ModelBBHaruna");
+    private static final float SITTING_TRANSLATE_Y = 0.55F * 3;
+    private static final float SITTING_ALT_TRANSLATE_Y = 0.69F * 3.0F;
     private static final float SITTING_IDLE_TRANSLATE_Y = 0.39F * 3;
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelBBHaruna");
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelBBHaruna");
+    private static final float SNEAK_TRANSLATE_Y = 0.14F;
+    private static final float DEAD_TRANSLATE_Y = 0.72F * 3;
     private static final float OFFSET_SCALE = 16.0F;
 
     private boolean isDeadPose;
@@ -1155,5 +1155,10 @@ public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBa
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.45f;
     }
 }

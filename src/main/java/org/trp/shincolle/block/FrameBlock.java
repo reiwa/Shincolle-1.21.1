@@ -18,7 +18,6 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class FrameBlock extends Block {
@@ -55,6 +54,8 @@ public class FrameBlock extends Block {
         return true;
     }
 
+    private static final VoxelShape COLLISION_SHAPE = Block.box(0.01D, 0.0D, 0.01D, 15.99D, 16.0D, 15.99D);
+
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
@@ -62,11 +63,14 @@ public class FrameBlock extends Block {
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return Shapes.block();
+        return COLLISION_SHAPE;
     }
 
     @Override
     public void entityInside(BlockState state, Level level, BlockPos pos, net.minecraft.world.entity.Entity entity) {
+        if (level.isClientSide) {
+            org.trp.shincolle.client.ClientProxy.applyFrameBlockClimbVelocity(entity);
+        }
         Vec3 delta = entity.getDeltaMovement();
         double vy = delta.y;
         if (vy < -0.1) {

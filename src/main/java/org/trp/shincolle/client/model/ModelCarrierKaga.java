@@ -14,9 +14,9 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 public class ModelCarrierKaga<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "carrier_kaga"), "main");
 
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelCarrierKaga");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelCarrierKaga");
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelCarrierKaga");
+    private static final float DEAD_TRANSLATE_Y = 0.48F * 3;
+    private static final float SNEAK_TRANSLATE_Y = 0.1F;
+    private static final float SITTING_TRANSLATE_Y = 0.36F * 3.2F;
     private static final float OFFSET_SCALE = 16.0F;
 
     private boolean isDeadPose;
@@ -825,5 +825,10 @@ public class ModelCarrierKaga<T extends EntityShipBase> extends ShipModelHumanoi
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.46f;
     }
 }

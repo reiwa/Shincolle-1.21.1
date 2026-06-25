@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityCAHime;
 
 public class RendererCAHime extends MobRenderer<EntityCAHime, ModelCAHime<EntityCAHime>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/ca_hime.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererCAHime(EntityRendererProvider.Context context) {
         super(context, new ModelCAHime<>(context.bakeLayer(ModelCAHime.LAYER_LOCATION)), 0.5f);

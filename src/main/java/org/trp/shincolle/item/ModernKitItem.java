@@ -14,11 +14,6 @@ public class ModernKitItem extends Item {
     }
 
     @Override
-    public String getDescriptionId() {
-        return "item.shincolle.modernkit.name";
-    }
-
-    @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
         tooltipComponents.add(Component.translatable("gui.shincolle.modernkit").withStyle(ChatFormatting.GOLD));

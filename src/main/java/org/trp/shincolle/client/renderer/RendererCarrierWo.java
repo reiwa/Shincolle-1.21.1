@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityCarrierWo;
 
 public class RendererCarrierWo extends MobRenderer<EntityCarrierWo, ModelCarrierWo<EntityCarrierWo>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/carrier_wo.png");
-    private static final float MODEL_SCALE = 1.0f;
 
     public RendererCarrierWo(EntityRendererProvider.Context context) {
         super(context, new ModelCarrierWo<>(context.bakeLayer(ModelCarrierWo.LAYER_LOCATION)), 0.5f);

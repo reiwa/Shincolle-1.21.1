@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityHeavyCruiserNe;
 
 public class RendererHeavyCruiserNe extends MobRenderer<EntityHeavyCruiserNe, ModelHeavyCruiserNe<EntityHeavyCruiserNe>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/heavy_cruiser_ne.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererHeavyCruiserNe(EntityRendererProvider.Context context) {
         super(context, new ModelHeavyCruiserNe<>(context.bakeLayer(ModelHeavyCruiserNe.LAYER_LOCATION)), 0.5f);

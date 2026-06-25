@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityDestroyerIkazuchi;
 
 public class RendererDestroyerIkazuchi extends MobRenderer<EntityDestroyerIkazuchi, ModelDestroyerIkazuchi<EntityDestroyerIkazuchi>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/destroyer_ikazuchi.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererDestroyerIkazuchi(EntityRendererProvider.Context context) {
         super(context, new ModelDestroyerIkazuchi<>(context.bakeLayer(ModelDestroyerIkazuchi.LAYER_LOCATION)), 0.5f);

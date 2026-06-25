@@ -12,7 +12,6 @@ import org.trp.shincolle.entity.EntityDestroyerAkatsuki;
 
 public class RendererDestroyerAkatsuki extends MobRenderer<EntityDestroyerAkatsuki, ModelDestroyerAkatsuki<EntityDestroyerAkatsuki>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/destroyer_akatsuki.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererDestroyerAkatsuki(EntityRendererProvider.Context context) {
         super(context, new ModelDestroyerAkatsuki<>(context.bakeLayer(ModelDestroyerAkatsuki.LAYER_LOCATION)), 0.5f);

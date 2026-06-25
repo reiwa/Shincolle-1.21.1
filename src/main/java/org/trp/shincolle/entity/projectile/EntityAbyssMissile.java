@@ -20,7 +20,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import org.trp.shincolle.entity.base.EntityShipBase;
-import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.init.ModSounds;

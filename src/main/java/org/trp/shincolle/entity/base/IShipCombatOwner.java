@@ -1,0 +1,70 @@
+package org.trp.shincolle.entity.base;
+
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.level.Level;
+import org.trp.shincolle.inventory.ShipInventoryHandler;
+
+public interface IShipCombatOwner {
+    boolean isStateGuiBtn1();
+    boolean isStateLightAttack();
+    int getAmmoLight();
+    void setAmmoLight(int val);
+    boolean isStateGuiBtn2();
+    boolean isStateHeavyAttack();
+    int getAmmoHeavy();
+    void setAmmoHeavy(int val);
+    boolean isStateCanMelee();
+    boolean isStateGuiBtn3();
+    boolean isStateLightAircraftAttack();
+    boolean hasAirLight();
+    boolean supportsAircraftCombat();
+    boolean isStateGuiBtn4();
+    boolean isStateHeavyAircraftAttack();
+    boolean hasAirHeavy();
+    boolean isCombatSuppressed();
+    int getNumAircraftLight();
+    int getNumAircraftHeavy();
+    void setNumAircraftLight(int count);
+    void setNumAircraftHeavy(int count);
+    int getTickCount();
+    Level level();
+    LegacyShipStats getLegacyShipStats();
+    ShipInventoryHandler getInventory();
+    boolean isSubmarine();
+    
+    double getX();
+    double getY();
+    double getZ();
+    float getYRot();
+    float getXRot();
+    float getBbHeight();
+    
+    void playSound(SoundEvent sound, float volume, float pitch);
+    float getShipSoundVolume();
+    RandomSource getRandom();
+    void playAttackSound();
+    void setAttackTick(int ticks);
+    int getFuel();
+    void setFuel(int fuel);
+    void applyEmotesReaction(int reactionId);
+    void decrMorale(int type);
+    float distanceTo(Entity target);
+    DamageSources damageSources();
+    void applyAttackEffects(LivingEntity target);
+    void spawnLightAttackTargetParticles(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.Entity target);
+    void spawnLightAttackMuzzleParticles(net.minecraft.server.level.ServerLevel serverLevel, net.minecraft.world.entity.Entity target);
+    void setCombatTick(int tick);
+    float getAircraftLightLevelBonus();
+    float getAircraftHeavyLevelBonus();
+    int getLevel();
+    EntityType<? extends TamableAnimal> getAttackAircraftType(boolean lightAircraft);
+    double getAircraftLaunchHeight();
+    EntityShipBase asShipEntity();
+    LivingEntity asLivingEntity();
+}

@@ -6,13 +6,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
+import org.trp.shincolle.Config;
 import org.trp.shincolle.block.entity.CraneBlockEntity;
 import org.trp.shincolle.block.entity.IWaypoint;
 import org.trp.shincolle.block.entity.WayPointBlockEntity;
 import org.trp.shincolle.item.CombatRationItem;
-import org.trp.shincolle.menu.ShipContainerMenu;
+import org.trp.shincolle.utility.BlockHelper;
 
 class EntityShipBaseMovementHelper {
 
@@ -23,7 +25,7 @@ class EntityShipBaseMovementHelper {
     }
 
     public int getWpStayTimeMax() {
-        int wpstay = this.ship.getStateMinor(44);
+        int wpstay = this.ship.getStateComponent().getWpStay();
         if (wpstay >= 1 && wpstay <= 5) return wpstay * 100;
         if (wpstay >= 6 && wpstay <= 10) return (wpstay - 5) * 1200;
         if (wpstay >= 11 && wpstay <= 16) return (wpstay - 10) * 12000;
@@ -32,8 +34,8 @@ class EntityShipBaseMovementHelper {
 
     protected void tickWaypointMove() {
         if (
-            this.ship.getStateFlag(11) ||
-            this.ship.getStateMinor(15) <= 0 ||
+            this.ship.getStateComponent().isStateDisableGuardPos() ||
+            this.ship.getStateComponent().getGuardY() <= 0 ||
             this.ship.isOrderedToSit() ||
             this.ship.isLeashed() ||
             this.ship.isVehicle()
@@ -42,9 +44,9 @@ class EntityShipBaseMovementHelper {
         }
 
         BlockPos pos = new BlockPos(
-            this.ship.getStateMinor(14),
-            this.ship.getStateMinor(15),
-            this.ship.getStateMinor(16)
+            this.ship.getStateComponent().getGuardX(),
+            this.ship.getStateComponent().getGuardY(),
+            this.ship.getStateComponent().getGuardZ()
         );
         double distSq = this.ship.distanceToSqr(
             pos.getX() + 0.5D,
@@ -56,11 +58,11 @@ class EntityShipBaseMovementHelper {
             this.ship.level().getBlockEntity(pos);
         if (be instanceof CraneBlockEntity) {
             if (distSq < 64.0D) {
-                if (this.ship.getStateMinor(43) == 0) {
-                    this.ship.setStateMinor(43, 1);
+                if (this.ship.getStateComponent().getCraning() == 0) {
+                    this.ship.getStateComponent().setCraning(1);
                     this.ship.ejectPassengers();
                 }
-            } else if (this.ship.getStateMinor(6) > 0) {
+            } else if (this.ship.getFuel() > 0) {
                 this.ship.getNavigation().moveTo(
                     pos.getX() + 0.5D,
                     pos.getY() - 2.0D,
@@ -69,17 +71,17 @@ class EntityShipBaseMovementHelper {
                 );
             }
         } else {
-            this.ship.setStateMinor(43, 0);
+            this.ship.getStateComponent().setCraning(0);
         }
 
         if (be instanceof IWaypoint wp) {
             if (
-                this.ship.getStateMinor(26) > 0 && this.ship.getStateMinor(27) > 0
+                this.ship.getStateComponent().getEquipFlare() > 0 && this.ship.getStateComponent().getEquipSearchlight() > 0
             ) return;
             if (distSq < 9.0D) {
                 try {
                     boolean timeout = false;
-                    int wpstay = this.ship.getStateTimer(4);
+                    int wpstay = this.ship.getStateComponent().getWpStayTimer();
                     int staytimemax = Math.max(
                         this.getWpStayTimeMax(),
                         wp instanceof WayPointBlockEntity wp2
@@ -87,12 +89,12 @@ class EntityShipBaseMovementHelper {
                             : 0
                     );
                     if (wpstay < staytimemax) {
-                        this.ship.setStateTimer(4, wpstay + 16);
+                        this.ship.getStateComponent().setWpStayTimer(wpstay + 16);
                     } else {
                         timeout = true;
                     }
                     if (timeout) {
-                        this.ship.setStateTimer(4, 0);
+                        this.ship.getStateComponent().setWpStayTimer(0);
                         BlockPos next = wp.getNextPos();
                         BlockPos last = wp.getLastPos();
                         BlockPos[] wps = this.ship.getWaypoints();
@@ -108,11 +110,11 @@ class EntityShipBaseMovementHelper {
                             targetPos = next;
                         }
                         if (targetPos != null) {
-                            this.ship.setStateMinor(14, targetPos.getX());
-                            this.ship.setStateMinor(15, targetPos.getY());
-                            this.ship.setStateMinor(16, targetPos.getZ());
-                            if (this.ship.getStateMinor(6) > 0) {
-                                this.ship.setStateMinor(10, 2);
+                            this.ship.getStateComponent().setGuardX(targetPos.getX());
+                            this.ship.getStateComponent().setGuardY(targetPos.getY());
+                            this.ship.getStateComponent().setGuardZ(targetPos.getZ());
+                            if (this.ship.getFuel() > 0) {
+                                this.ship.getStateComponent().setFollowMin(2);
                                 this.ship.getNavigation().moveTo(
                                     targetPos.getX() + 0.5D,
                                     targetPos.getY(),
@@ -132,7 +134,7 @@ class EntityShipBaseMovementHelper {
                     e.printStackTrace();
                 }
             } else if (
-                (this.ship.tickCount & 0x7F) == 0 && this.ship.getStateMinor(6) > 0
+                (this.ship.tickCount & 0x7F) == 0 && this.ship.getFuel() > 0
             ) {
                 this.ship.getNavigation().moveTo(
                     pos.getX() + 0.5D,
@@ -164,15 +166,11 @@ class EntityShipBaseMovementHelper {
             return false;
         }
 
-        int configuredMin = this.ship.getStateMinor(
-            ShipContainerMenu.STATE_MINOR_FOLLOW_MIN
-        );
+        int configuredMin = this.ship.getStateComponent().getFollowMin();
         float minDist =
             configuredMin <= 0 ? 6.0F : (float) Mth.clamp(configuredMin, 1, 31);
 
-        int configuredMax = this.ship.getStateMinor(
-            ShipContainerMenu.STATE_MINOR_FOLLOW_MAX
-        );
+        int configuredMax = this.ship.getStateComponent().getFollowMax();
         float maxDist =
             configuredMax <= 0
                 ? Math.max(12.0F, minDist + 1.0F)
@@ -214,15 +212,11 @@ class EntityShipBaseMovementHelper {
             return false;
         }
 
-        int configuredMin = this.ship.getStateMinor(
-            ShipContainerMenu.STATE_MINOR_FOLLOW_MIN
-        );
+        int configuredMin = this.ship.getStateComponent().getFollowMin();
         float minDist =
             configuredMin <= 0 ? 6.0F : (float) Mth.clamp(configuredMin, 1, 31);
 
-        int configuredMax = this.ship.getStateMinor(
-            ShipContainerMenu.STATE_MINOR_FOLLOW_MAX
-        );
+        int configuredMax = this.ship.getStateComponent().getFollowMax();
         float maxDist =
             configuredMax <= 0
                 ? Math.max(12.0F, minDist + 1.0F)
@@ -260,7 +254,7 @@ class EntityShipBaseMovementHelper {
             return false;
         }
         int fleeHp = Mth.clamp(
-            this.ship.getStateMinor(ShipContainerMenu.STATE_MINOR_FLEE_HP),
+            this.ship.getStateComponent().getFleeHp(),
             0,
             100
         );
@@ -337,5 +331,26 @@ class EntityShipBaseMovementHelper {
         }
 
         return pos.getY() + fluid.getHeight(level, pos);
+    }
+    void tickSearchlightAssist() {
+        if (!Config.canSearchlight) {
+            return;
+        }
+        if ((this.ship.tickCount % Config.searchlightCD) != 0) {
+            return;
+        }
+        if (!this.ship.hasSearchlightEquip() || !this.ship.isAlive()) {
+            return;
+        }
+        if (this.ship.level().isClientSide) {
+            return;
+        }
+
+        BlockPos pos = this.ship.blockPosition();
+        if (this.ship.level().getBrightness(LightLayer.BLOCK, pos) < 10) {
+            BlockHelper.placeLightBlock(this.ship.level(), pos);
+        } else {
+            BlockHelper.updateNearbyLightBlock(this.ship.level(), pos);
+        }
     }
 }

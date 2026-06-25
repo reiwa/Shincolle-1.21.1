@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityDestroyerInazuma;
 
 public class RendererDestroyerInazuma extends MobRenderer<EntityDestroyerInazuma, ModelDestroyerInazuma<EntityDestroyerInazuma>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/destroyer_inazuma.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererDestroyerInazuma(EntityRendererProvider.Context context) {
         super(context, new ModelDestroyerInazuma<>(context.bakeLayer(ModelDestroyerInazuma.LAYER_LOCATION)), 0.5f);

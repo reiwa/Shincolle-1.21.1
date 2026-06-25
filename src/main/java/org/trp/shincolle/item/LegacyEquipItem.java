@@ -1,7 +1,10 @@
 package org.trp.shincolle.item;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Mth;
@@ -10,9 +13,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.core.Holder;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import org.trp.shincolle.utility.EnchantHelper;
 
 import java.util.List;
@@ -95,7 +95,7 @@ public class LegacyEquipItem extends Item {
     public Component getName(ItemStack stack) {
         int variant = getVariant(stack);
         String suffix = variant > 0 ? String.valueOf(variant) : "";
-        return Component.translatable("item.shincolle." + this.legacyNameBase.toLowerCase(java.util.Locale.ROOT) + suffix + ".name");
+        return Component.translatable("item.shincolle." + this.legacyNameBase.toLowerCase(java.util.Locale.ROOT) + suffix);
     }
 
     @Override

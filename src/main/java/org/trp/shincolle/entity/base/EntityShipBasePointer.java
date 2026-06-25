@@ -278,13 +278,13 @@ class EntityShipBasePointer {
             tag.putUUID("PEId", this.pointerTargetEntityId);
             tag.putLong("PEUntil", this.pointerTargetEntityUntil);
         }
-        this.ship.getEntityData().set(EntityShipBase.POINTER_TARGET_DATA, tag);
+        this.ship.getEntityData().set(EntityShipData.POINTER_TARGET_DATA, tag);
     }
 
     private void readSynchedData() {
         if (!this.ship.level().isClientSide) return;
 
-        CompoundTag tag = this.ship.getEntityData().get(EntityShipBase.POINTER_TARGET_DATA);
+        CompoundTag tag = this.ship.getEntityData().get(EntityShipData.POINTER_TARGET_DATA);
         if (tag.isEmpty()) {
             this.pointerTarget = null;
             this.pointerTargetUntil = 0L;

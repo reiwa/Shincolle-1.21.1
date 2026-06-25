@@ -27,7 +27,7 @@ public class RecipeEnchantShell extends CustomRecipe {
     @Override
     public boolean matches(CraftingInput input, Level level) {
         if (input.width() == 3 && input.height() == 3) {
-            ItemStack stack0 = input.getItem(0); // Top-left corner (0, 0)
+            ItemStack stack0 = input.getItem(0);
             if (!stack0.is(Items.POTION) && !stack0.is(Items.SPLASH_POTION) && !stack0.is(Items.LINGERING_POTION)) {
                 return false;
             }
@@ -63,8 +63,8 @@ public class RecipeEnchantShell extends CustomRecipe {
 
     @Override
     public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
-        ItemStack ammo = input.getItem(4); // Center (1, 1) is index 4
-        ItemStack potion = input.getItem(0); // Top-left (0, 0) is index 0
+        ItemStack ammo = input.getItem(4);
+        ItemStack potion = input.getItem(0);
         if (ammo.is(ModItems.EQUIP_AMMO.get()) && (potion.is(Items.POTION) || potion.is(Items.SPLASH_POTION) || potion.is(Items.LINGERING_POTION))) {
             ItemStack ammoNew = ammo.copy();
             PotionContents contents = potion.get(DataComponents.POTION_CONTENTS);

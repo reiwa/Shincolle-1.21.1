@@ -16,9 +16,9 @@ public class ModelCruiserTakao<T extends EntityShipBase> extends ShipModelHumano
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "cruiser_takao"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelCruiserTakao");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelCruiserTakao");
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelCruiserTakao");
+    private static final float DEAD_TRANSLATE_Y = 1.5F;
+    private static final float SNEAK_TRANSLATE_Y = 0.06F;
+    private static final float SITTING_TRANSLATE_Y = 0.35F * 3.1F;
 
     private static final float BODY_BASE_X_ROT = -0.1047F;
     private static final float BUTT_BASE_X_ROT = 0.35F;
@@ -826,5 +826,10 @@ public class ModelCruiserTakao<T extends EntityShipBase> extends ShipModelHumano
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.43f;
     }
 }

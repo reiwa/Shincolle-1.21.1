@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityCruiserAtago;
 
 public class RendererCruiserAtago extends MobRenderer<EntityCruiserAtago, ModelCruiserAtago<EntityCruiserAtago>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/cruiser_atago.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererCruiserAtago(EntityRendererProvider.Context context) {
         super(context, new ModelCruiserAtago<>(context.bakeLayer(ModelCruiserAtago.LAYER_LOCATION)), 0.5f);

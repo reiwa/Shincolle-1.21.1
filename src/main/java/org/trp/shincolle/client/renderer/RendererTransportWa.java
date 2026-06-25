@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityTransportWa;
 
 public class RendererTransportWa extends MobRenderer<EntityTransportWa, ModelTransportWa<EntityTransportWa>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/transport_wa.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererTransportWa(EntityRendererProvider.Context context) {
         super(context, new ModelTransportWa<>(context.bakeLayer(ModelTransportWa.LAYER_LOCATION)), 0.5f);

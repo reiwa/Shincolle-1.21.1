@@ -21,7 +21,6 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import org.trp.shincolle.inventory.ShipInventoryHandler;
 import org.trp.shincolle.item.LegacyEquipItem;
-import org.trp.shincolle.menu.ShipContainerMenu;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -39,7 +38,7 @@ class EntityShipBaseInventoryHelper {
         if (!this.ship.supportsItemPickup()) {
             return;
         }
-        if (!this.ship.getStateFlag(ShipContainerMenu.STATE_FLAG_PICK_ITEM)) {
+        if (!this.ship.getStateComponent().isStatePickItem()) {
             return;
         }
         if ((this.ship.tickCount % EntityShipBase.PICK_ITEM_SCAN_INTERVAL_TICKS) != 0) {
@@ -99,7 +98,7 @@ class EntityShipBaseInventoryHelper {
     private ItemEntity findNearestPickItem() {
         double followCap = Math.max(
             2.0D,
-            this.ship.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MAX)
+            this.ship.getStateComponent().getFollowMax()
         );
         double statRange = Math.max(
             2.0D,
@@ -204,7 +203,7 @@ class EntityShipBaseInventoryHelper {
     }
 
     void tickAutoPump() {
-        if (!this.ship.getStateFlag(ShipContainerMenu.STATE_FLAG_AUTO_PUMP)) {
+        if (!this.ship.getStateComponent().isStateAutoPump()) {
             return;
         }
         if (!hasLiquidDrumEquip()) {
@@ -420,9 +419,8 @@ class EntityShipBaseInventoryHelper {
                         .scale(0.25D);
                     orb.setDeltaMovement(orb.getDeltaMovement().add(pull));
                 } else {
-                    this.ship.setStateMinor(
-                        EntityShipBase.STATE_MINOR_PUMPED_XP,
-                        this.ship.getStateMinor(EntityShipBase.STATE_MINOR_PUMPED_XP) +
+                    this.ship.getStateComponent().setPumpedXp(
+                        this.ship.getStateComponent().getPumpedXp() +
                             orb.getValue()
                     );
                     orb.discard();
@@ -433,7 +431,7 @@ class EntityShipBaseInventoryHelper {
         int bottleSlot = findFirstCargoItem(Items.GLASS_BOTTLE);
         while (
             bottleSlot >= 0 &&
-            this.ship.getStateMinor(EntityShipBase.STATE_MINOR_PUMPED_XP) >= EntityShipBase.XP_BOTTLE_COST
+            this.ship.getStateComponent().getPumpedXp() >= EntityShipBase.XP_BOTTLE_COST
         ) {
             ItemStack extracted = this.ship.inventory.extractItem(
                 bottleSlot,
@@ -444,9 +442,8 @@ class EntityShipBaseInventoryHelper {
                 break;
             }
 
-            this.ship.setStateMinor(
-                EntityShipBase.STATE_MINOR_PUMPED_XP,
-                this.ship.getStateMinor(EntityShipBase.STATE_MINOR_PUMPED_XP) - EntityShipBase.XP_BOTTLE_COST
+            this.ship.getStateComponent().setPumpedXp(
+                this.ship.getStateComponent().getPumpedXp() - EntityShipBase.XP_BOTTLE_COST
             );
 
             ItemStack remaining = insertIntoCargo(

@@ -6,10 +6,8 @@ import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-@EventBusSubscriber(modid = Shincolle.MODID)
 public class Config {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
@@ -88,7 +86,6 @@ public class Config {
     private static final ModConfigSpec.IntValue DMGTAKEN_SVS;
     private static final ModConfigSpec.IntValue EXP_MODIFIER;
 
-    // 1.21.1 specific fields to keep
     private static final ModConfigSpec.IntValue TRAINING_BOOK_LEVEL_MIN;
     private static final ModConfigSpec.IntValue TRAINING_BOOK_LEVEL_MAX;
     private static final ModConfigSpec.IntValue SHIP_EXP_GAIN_KILL;
@@ -171,7 +168,7 @@ public class Config {
     public static double[] scaleBossLarge = {3200.0, 240.0, 0.75, 2.0, 0.35, 22.0};
     public static double[] scaleMobSmall = {250.0, 25.0, 0.15, 0.7, 0.45, 12.0};
     public static double[] scaleMobLarge = {500.0, 50.0, 0.3, 0.9, 0.4, 15.0};
-    public static double[] scaleHeldItemArray = {2.5, 0.0, 0.0, 0.0};
+    public static double[] scaleHeldItemArray = {1.0, 0.0, 0.0, 0.0};
     public static float scaleHeldItem = 1.0F;
     public static float offsetHeldItemX = 0.0F;
     public static float offsetHeldItemY = 0.0F;
@@ -193,7 +190,6 @@ public class Config {
     public static int dmgSvS = 100;
     public static int shipExpModifier = 20;
 
-    // 1.21.1 specific fields to keep
     public static int trainingBookLevelMin = 5;
     public static int trainingBookLevelMax = 10;
     public static int shipExpGainMelee = 4;
@@ -218,7 +214,6 @@ public class Config {
     // buff
     public static int buffSaturation = 100;
 
-    // Compatibility variables (read from mapped arrays/configs)
     public static int fuelConsumeDD = 5;
     public static int fuelConsumeCL = 7;
     public static int fuelConsumeCA = 8;
@@ -418,7 +413,6 @@ public class Config {
         EXP_MODIFIER = BUILDER.comment("ship experience modifier, 20 = level 150: 150*20+20 = 3020")
             .defineInRange("EXP_Modifier", shipExpModifier, 1, 10000);
 
-        // 1.21.1 specific fields to keep
         TRAINING_BOOK_LEVEL_MIN = BUILDER.comment("Training book minimum level gain")
             .defineInRange("trainingBookLevelMin", trainingBookLevelMin, 1, 50);
 
@@ -636,7 +630,6 @@ public class Config {
         dmgSvS = DMGTAKEN_SVS.get();
         shipExpModifier = EXP_MODIFIER.get();
 
-        // 1.21.1 specific fields to keep
         trainingBookLevelMin = TRAINING_BOOK_LEVEL_MIN.get();
         trainingBookLevelMax = TRAINING_BOOK_LEVEL_MAX.get();
         shipExpGainMelee = expGain[0];
@@ -661,7 +654,6 @@ public class Config {
         // buff
         buffSaturation = BUFF_SATURATION.get();
 
-        // Compatibility updates
         fuelConsumeDD = consumeGrudgeShip[0];
         fuelConsumeCL = consumeGrudgeShip[1];
         fuelConsumeCA = consumeGrudgeShip[2];

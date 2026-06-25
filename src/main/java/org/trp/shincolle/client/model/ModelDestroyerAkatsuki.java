@@ -16,8 +16,8 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 public class ModelDestroyerAkatsuki<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "destroyer_akatsuki"), "main");
 
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelDestroyerAkatsuki");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelDestroyerAkatsuki");
+    private static final float DEAD_TRANSLATE_Y = 1.9F;
+    private static final float SNEAK_TRANSLATE_Y = 0.05F;
     private static final float OFFSET_SCALE = 16.0F;
 
     private static final float BODY_BASE_X_ROT = -0.1047F;
@@ -1073,5 +1073,10 @@ public class ModelDestroyerAkatsuki<T extends EntityShipBase> extends ShipModelH
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.4f;
     }
 }

@@ -9,11 +9,6 @@ public class CalcHelper {
 
     private CalcHelper() {}
 
-    /**
-     * Computes what percentage of the target entity's height the player's crosshair is aimed at.
-     * Returns 0-100 (0 = feet, 100+ = above head), with -10 if looking too far down and 110 if too far up.
-     * Ported from 1.12.2 CalcHelper.getEntityHitHeight.
-     */
     public static int getEntityHitHeight(Player host, Entity target) {
         if (target == null || host == null || target.getBbHeight() < 0.1f) {
             return 0;
@@ -29,10 +24,6 @@ public class CalcHelper {
         return (int) (x / target.getBbHeight() * 100.0f);
     }
 
-    /**
-     * Computes the horizontal angle offset (0-359) from the player's yaw to the target entity's yaw.
-     * Ported from 1.12.2 CalcHelper.getEntityHitSideByClientPlayer.
-     */
     public static int getEntityHitSide(Player host, Entity target) {
         if (host == null || target == null) return 0;
         float angHost = host.yHeadRot;

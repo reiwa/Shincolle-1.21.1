@@ -21,11 +21,11 @@ public class EntityHeavyCruiserRi extends EntityShipBase {
     public EntityHeavyCruiserRi(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 20, 0, 40});
-        setStateMinor(STATE_MINOR_FACTION_ID, 2);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 9);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4);
-        setStateMinor(STATE_MINOR_RARITY, 4);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeCA);
+        getStateComponent().setFactionId(2);
+        getStateComponent().setShipClassId(9);
+        getStateComponent().setSpecialEquip(4);
+        getStateComponent().setRarity(4);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeCA);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
     }
@@ -49,8 +49,8 @@ public class EntityHeavyCruiserRi extends EntityShipBase {
     private void updateServerLogic() {
         if (!this.level().isDay() && this.isStateRingEffect()) {
             int duration = 150;
-            int ampSpeed = Math.max(0, this.getStateMinor(0) / 50);
-            int ampJump = Math.max(0, this.getStateMinor(0) / 40);
+            int ampSpeed = Math.max(0, this.getStateComponent().getAffectionLegacy() / 50);
+            int ampJump = Math.max(0, this.getStateComponent().getAffectionLegacy() / 40);
             this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, ampSpeed, false, false));
             this.addEffect(new MobEffectInstance(MobEffects.JUMP, duration, ampJump, false, false));
         }

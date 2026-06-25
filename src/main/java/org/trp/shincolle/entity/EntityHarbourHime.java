@@ -20,10 +20,10 @@ public class EntityHarbourHime extends EntityShipBase {
     ) {
         super(type, level);
         setModelPos(new float[] { -6, 30, 0, 40 });
-        setStateMinor(STATE_MINOR_FACTION_ID, 10);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 28);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
-        setStateMinor(STATE_MINOR_RARITY, 1);
+        getStateComponent().setFactionId(10);
+        getStateComponent().setShipClassId(28);
+        getStateComponent().setSpecialEquip(2);
+        getStateComponent().setRarity(1);
         setStateCanRide(true);
     }
 
@@ -55,7 +55,7 @@ public class EntityHarbourHime extends EntityShipBase {
             return;
         }
 
-        float baseHeal = 1.0F + this.getStateMinor(0) * 0.01F;
+        float baseHeal = 1.0F + this.getStateComponent().getAffectionLegacy() * 0.01F;
         if (this.getHealth() < this.getMaxHealth()) {
             this.heal(baseHeal);
         }

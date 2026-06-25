@@ -110,7 +110,7 @@ class EntityShipBaseKaitai {
     }
 
     private ItemStack[] createKaitaiDrops() {
-        int shipClass = this.ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
+        int shipClass = this.ship.getStateComponent().getShipClassId();
         return ShipyardRecipes.getKaitaiDrops(shipClass, this.ship.getRandom());
     }
 }

@@ -10,6 +10,9 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.FaceExpressionConfig;
+import org.trp.shincolle.entity.base.FaceStep;
+import org.trp.shincolle.entity.base.FaceTimeline;
 import org.trp.shincolle.init.ModItems;
 
 import java.util.List;
@@ -28,10 +31,10 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
         super(type, level);
         setModelPos(new float[]{0, 25, 0, 50});
         setStateCanRide(true);
-        setStateMinor(STATE_MINOR_FACTION_ID, -1);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 52);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
-        setStateMinor(STATE_MINOR_RARITY, 5);
+        getStateComponent().setFactionId(-1);
+        getStateComponent().setShipClassId(52);
+        getStateComponent().setSpecialEquip(5);
+        getStateComponent().setRarity(5);
         setStateGuiBtn4(false);
         this.riderType = 0;
     }
@@ -106,11 +109,11 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
     }
 
     private void applyBuffToOwner() {
-        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateComponent().getFuel() > 0) {
             if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
-                int amp = this.getStateMinor(0) / 45 + 1;
+                int amp = this.getStateComponent().getAffectionLegacy() / 45 + 1;
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.JUMP,
-                        80 + this.getStateMinor(0), amp, false, false));
+                        80 + this.getStateComponent().getAffectionLegacy(), amp, false, false));
             }
         }
     }
@@ -162,99 +165,45 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
     }
 
     @Override
-    protected void setFaceNormal() {
-        this.setFaceId(FACE_EYES_OPEN);
-        int tick = this.tickCount & EMOTION_TICK_MASK_8BIT;
-        if (this.getStateEmotion(7) == 4 && tick > 200) {
-            this.setMouthId(mapLegacyMouth(0));
-        } else {
-            this.setMouthId(mapLegacyMouth(3));
-        }
-    }
-
-    @Override
-    protected void setFaceCry() {
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT);
-        if (tick < 128) {
-            this.setFaceId(FACE_DOT_EYES_TEAR);
-            this.setMouthId(mapLegacyMouth(tick < 64 ? 2 : 1));
-        } else {
-            this.setFaceId(FACE_CRY);
-            this.setMouthId(mapLegacyMouth(2));
-        }
-    }
-
-    @Override
-    protected void setFaceDamaged() {
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_9BIT);
-        if (tick < 200) {
-            this.setFaceId(FACE_DOT_EYES_TEAR);
-            this.setMouthId(mapLegacyMouth(tick < 60 ? 2 : 1));
-        } else if (tick < 400) {
-            this.setFaceId(FACE_TENSION);
-            this.setMouthId(mapLegacyMouth(tick < 250 ? 0 : 3));
-        } else {
-            this.setFaceId(FACE_SOFT);
-            this.setMouthId(mapLegacyMouth(tick < 450 ? 0 : 1));
-        }
-    }
-
-    @Override
-    protected void setFaceScorn() {
-        this.setFaceId(FACE_EYES_HALF);
-        this.setMouthId(mapLegacyMouth(1));
-    }
-
-    @Override
-    protected void setFaceHungry() {
-        this.setFaceId(FACE_DESPAIR);
-        this.setMouthId(mapLegacyMouth(2));
-    }
-
-    @Override
-    protected void setFaceAngry() {
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT);
-        if (tick < 128) {
-            this.setFaceId(FACE_EYES_CLOSED);
-            this.setMouthId(mapLegacyMouth(tick < 64 ? 3 : 1));
-        } else {
-            this.setFaceId(FACE_EYES_HALF);
-            this.setMouthId(mapLegacyMouth(tick < 170 ? 1 : 3));
-        }
-    }
-
-    @Override
-    protected void setFaceBored() {
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_9BIT);
-        if (tick < 170) {
-            this.setFaceId(FACE_EYES_CLOSED);
-            this.setMouthId(mapLegacyMouth(tick < 80 ? 0 : 3));
-        } else if (tick < 340) {
-            this.setFaceId(FACE_WINK);
-            this.setMouthId(mapLegacyMouth(tick < 250 ? 0 : 3));
-        } else {
-            this.setFaceId(FACE_EYES_OPEN);
-            this.setMouthId(mapLegacyMouth(tick < 420 ? 0 : 3));
-        }
-    }
-
-    @Override
-    protected void setFaceShy() {
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT);
-        this.setFaceId(FACE_EYES_OPEN);
-        this.setMouthId(mapLegacyMouth(tick < 150 ? 3 : 2));
-    }
-
-    @Override
-    protected void setFaceHappy() {
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT);
-        if (tick < 140) {
-            this.setFaceId(FACE_TENSION);
-            this.setMouthId(mapLegacyMouth(tick < 80 ? 3 : 4));
-        } else {
-            this.setFaceId(FACE_WINK);
-            this.setMouthId(mapLegacyMouth(0));
-        }
+    protected FaceExpressionConfig createFaceExpressionConfig() {
+        return FaceExpressionConfig.builder()
+            .normal(new FaceTimeline(0xFF, new FaceStep[0], FACE_EYES_OPEN, mapLegacyMouth(3)))
+            .normalBored(new FaceTimeline(0xFF, new FaceStep[] {
+                new FaceStep(200, FACE_EYES_OPEN, mapLegacyMouth(3))
+            }, FACE_EYES_OPEN, mapLegacyMouth(0)))
+            .cry(new FaceTimeline(EMOTION_TICK_MASK_8BIT, new FaceStep[] {
+                new FaceStep(64, FACE_DOT_EYES_TEAR, mapLegacyMouth(2)),
+                new FaceStep(128, FACE_DOT_EYES_TEAR, mapLegacyMouth(1))
+            }, FACE_CRY, mapLegacyMouth(2)))
+            .damaged(new FaceTimeline(EMOTION_TICK_MASK_9BIT, new FaceStep[] {
+                new FaceStep(60, FACE_DOT_EYES_TEAR, mapLegacyMouth(2)),
+                new FaceStep(200, FACE_DOT_EYES_TEAR, mapLegacyMouth(1)),
+                new FaceStep(250, FACE_TENSION, mapLegacyMouth(0)),
+                new FaceStep(400, FACE_TENSION, mapLegacyMouth(3)),
+                new FaceStep(450, FACE_SOFT, mapLegacyMouth(0))
+            }, FACE_SOFT, mapLegacyMouth(1)))
+            .scorn(new FaceTimeline(0, new FaceStep[0], FACE_EYES_HALF, mapLegacyMouth(1)))
+            .hungry(new FaceTimeline(0, new FaceStep[0], FACE_DESPAIR, mapLegacyMouth(2)))
+            .angry(new FaceTimeline(EMOTION_TICK_MASK_8BIT, new FaceStep[] {
+                new FaceStep(64, FACE_EYES_CLOSED, mapLegacyMouth(3)),
+                new FaceStep(128, FACE_EYES_CLOSED, mapLegacyMouth(1)),
+                new FaceStep(170, FACE_EYES_HALF, mapLegacyMouth(1))
+            }, FACE_EYES_HALF, mapLegacyMouth(3)))
+            .bored(new FaceTimeline(EMOTION_TICK_MASK_9BIT, new FaceStep[] {
+                new FaceStep(80, FACE_EYES_CLOSED, mapLegacyMouth(0)),
+                new FaceStep(170, FACE_EYES_CLOSED, mapLegacyMouth(3)),
+                new FaceStep(250, FACE_WINK, mapLegacyMouth(0)),
+                new FaceStep(340, FACE_WINK, mapLegacyMouth(3)),
+                new FaceStep(420, FACE_EYES_OPEN, mapLegacyMouth(0))
+            }, FACE_EYES_OPEN, mapLegacyMouth(3)))
+            .shy(new FaceTimeline(EMOTION_TICK_MASK_8BIT, new FaceStep[] {
+                new FaceStep(150, FACE_EYES_OPEN, mapLegacyMouth(3))
+            }, FACE_EYES_OPEN, mapLegacyMouth(2)))
+            .happy(new FaceTimeline(EMOTION_TICK_MASK_8BIT, new FaceStep[] {
+                new FaceStep(80, FACE_TENSION, mapLegacyMouth(3)),
+                new FaceStep(140, FACE_TENSION, mapLegacyMouth(4))
+            }, FACE_WINK, mapLegacyMouth(0)))
+            .build();
     }
 
 

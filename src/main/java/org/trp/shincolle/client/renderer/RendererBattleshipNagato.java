@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityBattleshipNagato;
 
 public class RendererBattleshipNagato extends MobRenderer<EntityBattleshipNagato, ModelBattleshipNagato<EntityBattleshipNagato>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/battleship_nagato.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererBattleshipNagato(EntityRendererProvider.Context context) {
         super(context, new ModelBattleshipNagato<>(context.bakeLayer(ModelBattleshipNagato.LAYER_LOCATION)), 0.5f);

@@ -122,4 +122,17 @@ public class ClientProxy {
             default -> ChatFormatting.AQUA;
         };
     }
+
+    public static void applyFrameBlockClimbVelocity(net.minecraft.world.entity.Entity entity) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null && (entity.equals(mc.player) || entity.equals(mc.player.getVehicle()))) {
+            if (mc.options.keyUp.isDown() || mc.options.keyDown.isDown() || mc.options.keyLeft.isDown() || mc.options.keyRight.isDown()) {
+                mc.player.setDeltaMovement(mc.player.getDeltaMovement().add(0.0, 0.4, 0.0));
+                net.minecraft.world.entity.Entity vehicle = mc.player.getVehicle();
+                if (vehicle != null) {
+                    vehicle.setDeltaMovement(vehicle.getDeltaMovement().add(0.0, 0.4, 0.0));
+                }
+            }
+        }
+    }
 }

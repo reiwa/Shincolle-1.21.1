@@ -25,10 +25,10 @@ public class EntityMidwayHime extends EntityShipBase {
     ) {
         super(type, level);
         setModelPos(new float[] { -6, 30, 0, 40 });
-        setStateMinor(STATE_MINOR_FACTION_ID, 10);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 30);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
-        setStateMinor(STATE_MINOR_RARITY, 2);
+        getStateComponent().setFactionId(10);
+        getStateComponent().setShipClassId(30);
+        getStateComponent().setSpecialEquip(2);
+        getStateComponent().setRarity(2);
         setStateCanRide(true);
     }
 
@@ -60,13 +60,13 @@ public class EntityMidwayHime extends EntityShipBase {
             return;
         }
 
-        float baseHeal = 1.0F + this.getStateMinor(0) * 0.01F;
+        float baseHeal = 1.0F + this.getStateComponent().getAffectionLegacy() * 0.01F;
         if (this.getHealth() < this.getMaxHealth()) {
             this.heal(baseHeal);
         }
 
-        int duration = 100 + this.getStateMinor(0);
-        int amp = Math.max(0, this.getStateMinor(0) / 80);
+        int duration = 100 + this.getStateComponent().getAffectionLegacy();
+        int amp = Math.max(0, this.getStateComponent().getAffectionLegacy() / 80);
         AABB range = this.getBoundingBox().inflate(14.0D, 8.0D, 14.0D);
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(
             EntityShipBase.class,

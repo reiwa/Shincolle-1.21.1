@@ -22,11 +22,11 @@ public class EntityCruiserTenryuu extends EntityShipBase {
     public EntityCruiserTenryuu(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 22, 0, 42});
-        setStateMinor(STATE_MINOR_FACTION_ID, 1);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 56);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4);
-        setStateMinor(STATE_MINOR_RARITY, 5);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeCL);
+        getStateComponent().setFactionId(1);
+        getStateComponent().setShipClassId(56);
+        getStateComponent().setSpecialEquip(4);
+        getStateComponent().setRarity(5);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeCL);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
     }

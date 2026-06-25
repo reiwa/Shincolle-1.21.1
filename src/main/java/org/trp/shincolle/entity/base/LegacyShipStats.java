@@ -9,6 +9,28 @@ import java.util.Map;
 import java.util.Random;
 
 public class LegacyShipStats {
+    public static final int STAT_MAX_HP = 0;
+    public static final int STAT_FIREPOWER = 1;
+    public static final int STAT_HEAVY_FIREPOWER = 2;
+    public static final int STAT_LIGHT_AIRCRAFT_FIREPOWER = 3;
+    public static final int STAT_HEAVY_AIRCRAFT_FIREPOWER = 4;
+    public static final int STAT_ARMOR = 5;
+    public static final int STAT_RELOAD_SPEED = 6;
+    public static final int STAT_MOVE_SPEED = 7;
+    public static final int STAT_ATTACK_RANGE = 8;
+    public static final int STAT_CRITICAL_RATE = 9;
+    public static final int STAT_DOUBLE_HIT_RATE = 10;
+    public static final int STAT_TRIPLE_HIT_RATE = 11;
+    public static final int STAT_ACCURACY = 12;
+    public static final int STAT_ANTI_AIR = 13;
+    public static final int STAT_ANTI_SUB = 14;
+    public static final int STAT_DODGE = 15;
+    public static final int STAT_XP_MULTIPLIER = 16;
+    public static final int STAT_FUEL_CONSUMPTION = 17;
+    public static final int STAT_AMMO_CONSUMPTION = 18;
+    public static final int STAT_HEALING_MODIFIER = 19;
+    public static final int STAT_KNOCKBACK_RESISTANCE = 20;
+
     private static final float LV_SCALE_DEF = 0.00133F;
     private static final float LV_SCALE_SPD = 0.004F;
     private static final float LV_SCALE_MOV = 0.002F;
@@ -96,8 +118,8 @@ public class LegacyShipStats {
     }
 
     private final byte[] bonus = new byte[6];
-    private final float[] raw = new float[21];
-    private final float[] buffed = new float[21];
+    private final float[] raw = new float[StatType.values().length];
+    private final float[] buffed = new float[StatType.values().length];
 
     public void copyBonusFrom(byte[] data) {
         if (data == null) {
@@ -271,13 +293,13 @@ public class LegacyShipStats {
             }
         }
 
-        if (data[0] < 1.0F) data[0] = 1.0F;
-        if (data[1] < 1.0F) data[1] = 1.0F;
-        if (data[2] < 1.0F) data[2] = 1.0F;
-        if (data[3] < 1.0F) data[3] = 1.0F;
-        if (data[4] < 1.0F) data[4] = 1.0F;
-        if (data[8] < 1.0F) data[8] = 1.0F;
-        if (data[6] < 0.2F) data[6] = 0.2F;
+        if (data[STAT_MAX_HP] < 1.0F) data[STAT_MAX_HP] = 1.0F;
+        if (data[STAT_FIREPOWER] < 1.0F) data[STAT_FIREPOWER] = 1.0F;
+        if (data[STAT_HEAVY_FIREPOWER] < 1.0F) data[STAT_HEAVY_FIREPOWER] = 1.0F;
+        if (data[STAT_LIGHT_AIRCRAFT_FIREPOWER] < 1.0F) data[STAT_LIGHT_AIRCRAFT_FIREPOWER] = 1.0F;
+        if (data[STAT_HEAVY_AIRCRAFT_FIREPOWER] < 1.0F) data[STAT_HEAVY_AIRCRAFT_FIREPOWER] = 1.0F;
+        if (data[STAT_ATTACK_RANGE] < 1.0F) data[STAT_ATTACK_RANGE] = 1.0F;
+        if (data[STAT_RELOAD_SPEED] < 0.2F) data[STAT_RELOAD_SPEED] = 0.2F;
     }
 
     private static void zero(float[] data) {
@@ -287,27 +309,27 @@ public class LegacyShipStats {
     }
 
     public float getMaxHealth() {
-        return buffed[0];
+        return buffed[STAT_MAX_HP];
     }
 
     public float getFirepower() {
-        return buffed[1];
+        return buffed[STAT_FIREPOWER];
     }
 
     public float getArmor() {
-        return buffed[5];
+        return buffed[STAT_ARMOR];
     }
 
     public float getReloadSpeed() {
-        return Math.max(0.001F, buffed[6]);
+        return Math.max(0.001F, buffed[STAT_RELOAD_SPEED]);
     }
 
     public float getMoveSpeed() {
-        return buffed[7];
+        return buffed[STAT_MOVE_SPEED];
     }
 
     public float getAttackRange() {
-        return buffed[8];
+        return buffed[STAT_ATTACK_RANGE];
     }
 
     public float getDefenseReducedDamage(float incoming, RandomSource random) {
@@ -347,10 +369,18 @@ public class LegacyShipStats {
         return this.buffed[index];
     }
 
+    public float getBuffedAttr(StatType type) {
+        return getBuffedAttr(type.getIndex());
+    }
+
     public float getRawAttr(int index) {
         if (index < 0 || index >= this.raw.length) {
             return 0.0F;
         }
         return this.raw[index];
+    }
+
+    public float getRawAttr(StatType type) {
+        return getRawAttr(type.getIndex());
     }
 }

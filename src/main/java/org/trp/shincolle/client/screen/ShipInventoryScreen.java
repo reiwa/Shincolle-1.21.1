@@ -54,6 +54,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private static final int SLIDER_FOLLOW_MAX = 1;
     private static final int SLIDER_FLEE_HP = 2;
     private static final int SLIDER_RATION_MORALE = 3;
+    private static final int SLIDER_WPSTAY = 4;
     private static final int MODEL_BOX_HALF_WIDTH = 150;
     private static final int MODEL_BOX_TOP = 170;
     private static final int MODEL_BOX_BOTTOM = 110;
@@ -213,9 +214,12 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 drawLabel(guiGraphics, tr("gui.shincolle.followmin"), 174, 134);
                 drawLabel(guiGraphics, tr("gui.shincolle.followmax"), 174, 158);
                 drawLabel(guiGraphics, tr("gui.shincolle.fleehp"), 174, 182);
-                drawValueLeft(guiGraphics, String.valueOf(getFollowMinDisplayValue()), 174, 145, 0xFFFFFF);
-                drawValueLeft(guiGraphics, String.valueOf(getFollowMaxDisplayValue()), 174, 169, 0xFFFFFF);
-                drawValueLeft(guiGraphics, String.valueOf(getFleeHpDisplayValue()), 174, 193, 0xFFFFFF);
+                int followMinColor = this.activeSlider == SLIDER_FOLLOW_MIN ? 0xAA0000 : 0xFFFF00;
+                int followMaxColor = this.activeSlider == SLIDER_FOLLOW_MAX ? 0xFF3333 : 0xFFFF00;
+                int fleeHpColor   = this.activeSlider == SLIDER_FLEE_HP    ? 0xFF3333 : 0xFFFF00;
+                drawValueLeft(guiGraphics, String.valueOf(getFollowMinDisplayValue()), 174, 145, followMinColor);
+                drawValueLeft(guiGraphics, String.valueOf(getFollowMaxDisplayValue()), 174, 169, followMaxColor);
+                drawValueLeft(guiGraphics, String.valueOf(getFleeHpDisplayValue()), 174, 193, fleeHpColor);
             }
             case 3 -> {
                 drawLabel(guiGraphics, tr("gui.shincolle.targetAI"), 187, 133);
@@ -234,8 +238,10 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             case 5 -> {
                 drawLabel(guiGraphics, tr("gui.shincolle.ai.wpstay"), 174, 134);
                 drawLabel(guiGraphics, tr("gui.shincolle.autocombatration"), 174, 158);
-                drawValueLeft(guiGraphics, getWpStayDisplay(), 174, 145, 0xFFFFFF);
-                drawValueLeft(guiGraphics, getRationMoraleDisplay(), 174, 169, 0xFFFFFF);
+                int wpStayColor  = this.activeSlider == SLIDER_WPSTAY        ? 0xFF3333 : 0xFFFF00;
+                int rationColor  = this.activeSlider == SLIDER_RATION_MORALE ? 0xFF3333 : 0xFFFF00;
+                drawValueLeft(guiGraphics, getWpStayDisplay(), 174, 145, wpStayColor);
+                drawValueLeft(guiGraphics, getRationMoraleDisplay(), 174, 169, rationColor);
             }
             case 6 -> {
                 drawLabel(guiGraphics, tr("gui.shincolle.showhelditem"), 187, 133);
@@ -469,10 +475,17 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             }
         }
 
-        if (this.activeSettingsTab == 5 && inside(x, y, 187, 169, 237, 178)) {
-            this.activeSlider = SLIDER_RATION_MORALE;
-            this.sliderBarPos = Mth.clamp(x - 191, 0, 42);
-            return true;
+        if (this.activeSettingsTab == 5) {
+            if (inside(x, y, 187, 145, 237, 154)) {
+                this.activeSlider = SLIDER_WPSTAY;
+                this.sliderBarPos = Mth.clamp(x - 191, 0, 42);
+                return true;
+            }
+            if (inside(x, y, 187, 169, 237, 178)) {
+                this.activeSlider = SLIDER_RATION_MORALE;
+                this.sliderBarPos = Mth.clamp(x - 191, 0, 42);
+                return true;
+            }
         }
 
         return false;
@@ -491,6 +504,10 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             case SLIDER_FLEE_HP -> {
                 int value = (int) (this.sliderBarPos / 42.0f * 100.0f);
                 sendMenuButton(ShipContainerMenu.SLIDER_FLEE_HP_BASE + value);
+            }
+            case SLIDER_WPSTAY -> {
+                int value = (int) (this.sliderBarPos / 42.0f * 16.0f);
+                sendMenuButton(ShipContainerMenu.SLIDER_WPSTAY_BASE + value);
             }
             case SLIDER_RATION_MORALE -> {
                 int value = Math.max(1, Math.min(4, (this.sliderBarPos / 14) + 1));
@@ -654,7 +671,9 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private void drawRationSliderTab(GuiGraphics guiGraphics) {
-        int wpStayPos = (int) (Math.max(0, this.menu.getShip().getStateMinor(44)) * 0.0625f * 42.0f);
+        int wpStayPos = this.activeSlider == SLIDER_WPSTAY
+                ? this.sliderBarPos
+                : (int) (Math.max(0, this.menu.getShip().getStateComponent().getWpStay()) * 0.0625f * 42.0f);
         int rationPos = this.activeSlider == SLIDER_RATION_MORALE
                 ? this.sliderBarPos
                 : (int) ((Math.max(1, Math.min(4, this.rationMorale)) - 1) * 14.0f);
@@ -765,7 +784,12 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private String getWpStayDisplay() {
-        int wpStay = Math.max(0, this.menu.getShip().getStateMinor(44));
+        int wpStay;
+        if (this.activeSlider == SLIDER_WPSTAY) {
+            wpStay = (int) (this.sliderBarPos / 42.0f * 16.0f);
+        } else {
+            wpStay = Math.max(0, this.menu.getShip().getStateComponent().getWpStay());
+        }
         int seconds = wpStay * 5;
         if (seconds >= 60) {
             return (seconds / 60) + "m";
@@ -1006,8 +1030,8 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
     private void drawShipAndNameIcons(GuiGraphics guiGraphics) {
         EntityShipBase ship = this.menu.getShip();
-        int shipType = ship.getStateMinor(EntityShipBase.STATE_MINOR_FACTION_ID);
-        int shipClass = ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
+        int shipType = ship.getStateComponent().getFactionId();
+        int shipClass = ship.getStateComponent().getShipClassId();
 
         if (isRaidenGattaiState(ship)) {
             shipType = 2;
@@ -1017,7 +1041,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         int[] shipTypeIconUv = SHIP_TYPE_ICON_MAP.getOrDefault((byte) shipType, DEFAULT_SHIP_TYPE_ICON);
         int[] shipNameIconData = SHIP_NAME_ICON_MAP.getOrDefault(shipClass, DEFAULT_SHIP_NAME_ICON);
 
-        int rarity = ship.getStateMinor(EntityShipBase.STATE_MINOR_RARITY);
+        int rarity = ship.getStateComponent().getRarity();
         int frameU = 0;
         int frameV = rarity > 99 ? 0 : 43;
         int frameW = rarity > 99 ? 40 : 30;

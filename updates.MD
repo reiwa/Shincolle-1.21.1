@@ -1,3 +1,12 @@
+## v0.9.1(2026/06/25 JST)
+- Fixed minion entities drowning issue
+- Restored BlockFrame functionality
+- Restored entity warp behavior
+- Replaced BlockNetherAbyss texture
+- Fixed an issue where HP was low upon spawning
+- Various program refinements
+- Several bug fixes
+
 ## v0.9.0(2026/06/11 JST)
 - Added new blocks, items and recipes
 - Implemented idle, attack, and item pickup voice lines for entities

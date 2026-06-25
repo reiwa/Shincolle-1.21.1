@@ -20,11 +20,11 @@ public class EntityCarrierWDemon extends EntityShipBase {
     public EntityCarrierWDemon(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{-6, 30, 0, 40});
-        setStateMinor(STATE_MINOR_FACTION_ID, 9);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 33);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1);
-        setStateMinor(STATE_MINOR_RARITY, 2);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeCV);
+        getStateComponent().setFactionId(9);
+        getStateComponent().setShipClassId(33);
+        getStateComponent().setSpecialEquip(1);
+        getStateComponent().setRarity(2);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeCV);
         setStateGuiBtn2(false);
     }
 
@@ -38,12 +38,12 @@ public class EntityCarrierWDemon extends EntityShipBase {
     }
 
     private void updateServerLogic() {
-        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateComponent().getFuel() > 0) {
             List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
                     this.getBoundingBox().inflate(16.0D, 16.0D, 16.0D));
             if (!ships.isEmpty()) {
-                int duration = 50 + this.getStateMinor(0);
-                int amp = Math.max(0, this.getStateMinor(0) / 70);
+                int duration = 50 + this.getStateComponent().getAffectionLegacy();
+                int amp = Math.max(0, this.getStateComponent().getAffectionLegacy() / 70);
                 for (EntityShipBase ship : ships) {
                     if (ship == this) {
                         continue;

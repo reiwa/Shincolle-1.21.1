@@ -32,7 +32,7 @@ public class ShipInventoryHandler extends ItemStackHandler {
     }
 
     public int getUnlockedExtraPages() {
-        return Mth.clamp(this.ship.getStateMinor(STATE_MINOR_EQUIP_DRUM), 0, STORAGE_EXTRA_PAGES_MAX);
+        return Mth.clamp(this.ship.getStateComponent().getEquipDrum(), 0, STORAGE_EXTRA_PAGES_MAX);
     }
 
     public int getAccessibleSlotCount() {

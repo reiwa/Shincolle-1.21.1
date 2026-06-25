@@ -15,9 +15,8 @@ public class ModelCarrierHime<T extends EntityShipBase> extends ShipModelHumanoi
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "carrier_hime"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelCarrierHime");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelCarrierHime");
-    private static final float MODEL_SCALE = 0.47F;
+    private static final float DEAD_TRANSLATE_Y = 0.49F * 3;
+    private static final float SNEAK_TRANSLATE_Y = 0.05F;
     private static final float MODEL_OFFSET_Y = 1.7F;
 
     private boolean isDeadPose;
@@ -839,5 +838,10 @@ public class ModelCarrierHime<T extends EntityShipBase> extends ShipModelHumanoi
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.46f;
     }
 }

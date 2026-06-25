@@ -27,11 +27,11 @@ public class EntityCarrierAkagi extends EntityShipBase {
     public EntityCarrierAkagi(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 20, 0, 40});
-        setStateMinor(STATE_MINOR_FACTION_ID, 5);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 48);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1);
-        setStateMinor(STATE_MINOR_RARITY, 8);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeCV);
+        getStateComponent().setFactionId(5);
+        getStateComponent().setShipClassId(48);
+        getStateComponent().setSpecialEquip(1);
+        getStateComponent().setRarity(8);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeCV);
         setStateGuiBtn1(false);
         setStateGuiBtn2(false);
 }
@@ -61,8 +61,8 @@ public class EntityCarrierAkagi extends EntityShipBase {
             return;
         }
 
-        int duration = 50 + this.getStateMinor(0);
-        int amp = Math.max(0, this.getStateMinor(0) / 85);
+        int duration = 50 + this.getStateComponent().getAffectionLegacy();
+        int amp = Math.max(0, this.getStateComponent().getAffectionLegacy() / 85);
         for (EntityShipBase ship : ships) {
             if (ship == this) {
                 continue;

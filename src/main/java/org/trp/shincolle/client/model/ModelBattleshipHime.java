@@ -15,12 +15,12 @@ public class ModelBattleshipHime<T extends EntityShipBase> extends ShipModelHuma
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "battleship_hime"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float BASE_TRANSLATE_Y = LegacyPoseOffsets.baseY("ModelBattleshipHime");
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelBattleshipHime");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelBattleshipHime");
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelBattleshipHime");
-    private static final float RIDING_TRANSLATE_Y = LegacyPoseOffsets.ridingY("ModelBattleshipHime");
-    private static final float RIDING_TRANSLATE_Z = LegacyPoseOffsets.ridingZ("ModelBattleshipHime");
+    private static final float BASE_TRANSLATE_Y = 0.5F;
+    private static final float DEAD_TRANSLATE_Y = 1.05F * 1.5F;
+    private static final float SNEAK_TRANSLATE_Y = 0.58F;
+    private static final float SITTING_TRANSLATE_Y = 0.83F / 2;
+    private static final float RIDING_TRANSLATE_Y = 1.01F;
+    private static final float RIDING_TRANSLATE_Z = -0.05F;
 
     private boolean isDeadPose;
     private boolean isSittingPose;
@@ -599,5 +599,10 @@ public class ModelBattleshipHime<T extends EntityShipBase> extends ShipModelHuma
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.5f;
     }
 }

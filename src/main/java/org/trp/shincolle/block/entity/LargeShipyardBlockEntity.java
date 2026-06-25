@@ -265,7 +265,6 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
         tag.putInt("InvMode", this.invMode);
         tag.putInt("SelectMat", this.selectMat);
         tag.putIntArray("MatsBuild", this.matsBuild);
-        // MatsStock is stored globally in LargeShipyardSavedData, not per block entity.
     }
 
     @Override
@@ -281,8 +280,6 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
         this.invMode = tag.getInt("InvMode");
         this.selectMat = Math.max(0, Math.min(tag.getInt("SelectMat"), MAT_COUNT - 1));
         this.matsBuild = sanitizeMatsArray(tag.getIntArray("MatsBuild"));
-        // MatsStock is stored globally in LargeShipyardSavedData, not per block entity.
-        // Legacy migration: if an old save has MatsStock in the block entity, migrate it to the global store.
         if (tag.contains("MatsStock")) {
             int[] legacy = sanitizeMatsArray(tag.getIntArray("MatsStock"));
             boolean hasAny = legacy[0] != 0 || legacy[1] != 0 || legacy[2] != 0 || legacy[3] != 0;
@@ -297,7 +294,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("tile.shincolle:BlockLargeShipyard.name");
+        return Component.translatable("block.shincolle.large_shipyard");
     }
 
     @Override

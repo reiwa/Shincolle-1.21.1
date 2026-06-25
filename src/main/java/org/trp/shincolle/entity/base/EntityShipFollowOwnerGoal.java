@@ -5,7 +5,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
-import org.trp.shincolle.menu.ShipContainerMenu;
 
 import java.util.EnumSet;
 
@@ -147,7 +146,7 @@ final class EntityShipFollowOwnerGoal extends Goal {
     }
 
     private float resolveFollowMinDistance() {
-        int configured = this.ship.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MIN);
+        int configured = this.ship.getStateComponent().getFollowMin();
         if (configured <= 0) {
             return this.defaultMinDist;
         }
@@ -156,7 +155,7 @@ final class EntityShipFollowOwnerGoal extends Goal {
     }
 
     private float resolveFollowMaxDistance(float minDist) {
-        int configured = this.ship.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MAX);
+        int configured = this.ship.getStateComponent().getFollowMax();
         if (configured <= 0) {
             return Math.max(this.defaultMaxDist, minDist + 1.0F);
         }

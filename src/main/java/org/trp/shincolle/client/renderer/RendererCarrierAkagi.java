@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityCarrierAkagi;
 
 public class RendererCarrierAkagi extends MobRenderer<EntityCarrierAkagi, ModelCarrierAkagi<EntityCarrierAkagi>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/carrier_akagi.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererCarrierAkagi(EntityRendererProvider.Context context) {
         super(context, new ModelCarrierAkagi<>(context.bakeLayer(ModelCarrierAkagi.LAYER_LOCATION)), 0.5f);

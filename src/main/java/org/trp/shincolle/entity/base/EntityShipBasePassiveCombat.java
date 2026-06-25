@@ -8,7 +8,6 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import org.trp.shincolle.entity.EntityAircraftBase;
-import org.trp.shincolle.menu.ShipContainerMenu;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ final class EntityShipBasePassiveCombat {
     private static final int STATE_FLAG_PASSIVE_ATTACK = 21;
 
     private static final int STATE_MINOR_FLEE_HP =
-        ShipContainerMenu.STATE_MINOR_FLEE_HP;
+        EntityShipBase.STATE_MINOR_FLEE_HP;
 
     private static final int PASSIVE_TARGET_SCAN_INTERVAL = 8;
     private static final int PASSIVE_PATH_RECALC_INTERVAL = 10;
@@ -91,7 +90,7 @@ final class EntityShipBasePassiveCombat {
             return;
         }
 
-        if (this.ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK)) {
+        if (this.ship.getStateComponent().isStatePassiveAttack()) {
             return;
         }
 
@@ -136,7 +135,7 @@ final class EntityShipBasePassiveCombat {
             this.passiveTargetSightTick++;
         } else {
             this.passiveTargetSightTick = 0;
-            if (this.ship.getStateFlag(STATE_FLAG_ON_SIGHT)) {
+            if (this.ship.getStateComponent().isStateOnSight()) {
                 clearTarget(true);
                 return;
             }
@@ -352,7 +351,7 @@ final class EntityShipBasePassiveCombat {
 
         List<LivingEntity> prioritized = new ArrayList<>();
 
-        if (this.ship.getStateFlag(STATE_FLAG_ANTI_AIR)) {
+        if (this.ship.getStateComponent().isStateAntiAir()) {
             for (LivingEntity target : candidates) {
                 if (isAntiAirTarget(target)) {
                     prioritized.add(target);
@@ -361,7 +360,7 @@ final class EntityShipBasePassiveCombat {
         }
 
         if (
-            prioritized.isEmpty() && this.ship.getStateFlag(STATE_FLAG_ANTI_SUB)
+            prioritized.isEmpty() && this.ship.getStateComponent().isStateAntiSub()
         ) {
             for (LivingEntity target : candidates) {
                 if (isAntiSubTarget(target)) {
@@ -370,7 +369,7 @@ final class EntityShipBasePassiveCombat {
             }
         }
 
-        if (prioritized.isEmpty() && this.ship.getStateFlag(STATE_FLAG_PVP)) {
+        if (prioritized.isEmpty() && this.ship.getStateComponent().isStatePvp()) {
             for (LivingEntity target : candidates) {
                 if (isPlayerOrShip(target)) {
                     prioritized.add(target);
@@ -438,7 +437,7 @@ final class EntityShipBasePassiveCombat {
             return false;
         }
         int fleeHp = Mth.clamp(
-            this.ship.getStateMinor(STATE_MINOR_FLEE_HP),
+            this.ship.getStateComponent().getFleeHp(),
             0,
             100
         );
@@ -489,7 +488,7 @@ final class EntityShipBasePassiveCombat {
             return false;
         }
 
-        boolean pvpEnabled = this.ship.getStateFlag(STATE_FLAG_PVP);
+        boolean pvpEnabled = this.ship.getStateComponent().isStatePvp();
 
         if (isPlayerOrShip(target) && !pvpEnabled) {
             return false;
@@ -501,8 +500,8 @@ final class EntityShipBasePassiveCombat {
 
         if (
             target.isInvisible() &&
-            this.ship.getStateMinor(38) < 1 &&
-            this.ship.getStateMinor(39) < 1
+            this.ship.getStateComponent().getEquipFlare() < 1 &&
+            this.ship.getStateComponent().getEquipSearchlight() < 1
         ) {
             return false;
         }
@@ -705,6 +704,6 @@ final class EntityShipBasePassiveCombat {
 
         if (isRevenge || isCommanded) return true;
 
-        return !this.ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK);
+        return !this.ship.getStateComponent().isStatePassiveAttack();
     }
 }

@@ -7,7 +7,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -346,12 +345,9 @@ public final class ClientPointerItemParticles {
                     .add(0, ship.getBbHeight() * 0.5, 0);
                 Vec3 dir = targetPos.subtract(start);
                 double dist = dir.length();
-                if (dist > 1.0) {
-                    ParticleType<?> particle = isEntity
-                        ? ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get()
-                        : ModParticles.PARTICLE_WAYPOINT_LINE.get();
+                if (dist > 1.0 && !isEntity) {
                     level.addParticle(
-                        (SimpleParticleType) particle,
+                        ModParticles.PARTICLE_WAYPOINT_LINE.get(),
                         start.x,
                         start.y,
                         start.z,
@@ -578,11 +574,6 @@ public final class ClientPointerItemParticles {
         );
     }
 
-    /**
-     * Render the bare arm (no held item) when in caress mode,
-     * matching the 1.12.2 behavior where the pointer item was hidden
-     * and a petting gesture was shown.
-     */
     @SubscribeEvent
     public static void onRenderHand(RenderHandEvent event) {
         if (event.getHand() != InteractionHand.MAIN_HAND) return;

@@ -15,10 +15,10 @@ public class ModelSubmYo<T extends EntityShipBase> extends ShipModelHumanoidBase
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "subm_yo"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelSubmYo");
-    private static final float DEAD_TRANSLATE_Z = LegacyPoseOffsets.deadZ("ModelSubmYo");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelSubmYo");
-    private static final float SPRINT_TRANSLATE_Y = LegacyPoseOffsets.sprintY("ModelSubmYo");
+    private static final float DEAD_TRANSLATE_Y = 0.39F * 3;
+    private static final float DEAD_TRANSLATE_Z = -0.1F;
+    private static final float SNEAK_TRANSLATE_Y = 0.05F;
+    private static final float SPRINT_TRANSLATE_Y = 0.1F;
 
     private boolean isDeadPose;
     private boolean isSittingPose;
@@ -942,5 +942,10 @@ public class ModelSubmYo<T extends EntityShipBase> extends ShipModelHumanoidBase
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.48f;
     }
 }

@@ -29,11 +29,11 @@ public class EntitySubmU511 extends EntityShipBase {
     public EntitySubmU511(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 20, 0, 45});
-        setStateMinor(STATE_MINOR_FACTION_ID, 8);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 38);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 6);
-        setStateMinor(STATE_MINOR_RARITY, 3);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeSS);
+        getStateComponent().setFactionId(8);
+        getStateComponent().setShipClassId(38);
+        getStateComponent().setSpecialEquip(6);
+        getStateComponent().setRarity(3);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeSS);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);

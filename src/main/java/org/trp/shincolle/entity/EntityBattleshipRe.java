@@ -16,6 +16,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.FaceExpressionConfig;
+import org.trp.shincolle.entity.base.FaceStep;
+import org.trp.shincolle.entity.base.FaceTimeline;
 import org.trp.shincolle.init.ModItems;
 
 import java.util.List;
@@ -37,11 +40,11 @@ public class EntityBattleshipRe extends EntityShipBase {
     public EntityBattleshipRe(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{-6, 25, 0, 40});
-        setStateMinor(STATE_MINOR_FACTION_ID, 6);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 15);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
-        setStateMinor(STATE_MINOR_RARITY, 3);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
+        getStateComponent().setFactionId(6);
+        getStateComponent().setShipClassId(15);
+        getStateComponent().setSpecialEquip(2);
+        getStateComponent().setRarity(3);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeBB);
     }
 
 
@@ -113,107 +116,54 @@ public class EntityBattleshipRe extends EntityShipBase {
     }
 
     @Override
-    protected void setFaceNormal() {
-        this.setFaceId(FACE_EYES_OPEN);
-        int tick = this.tickCount & EMOTION_TICK_MASK_8BIT;
-        if (this.getStateEmotion(7) == 4 && tick > 200) {
-            this.setMouthId(mapLegacyMouth(0));
-        } else {
-            this.setMouthId(mapLegacyMouth(3));
-        }
-    }
-
-    @Override
-    protected void setFaceCry() {
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT);
-        if (tick < 128) {
-            this.setFaceId(FACE_DOT_EYES_TEAR);
-            this.setMouthId(mapLegacyMouth(tick < 64 ? 2 : 5));
-        } else {
-            this.setFaceId(FACE_CRY);
-            this.setMouthId(mapLegacyMouth(tick < 190 ? 2 : 5));
-        }
-    }
-
-    @Override
-    protected void setFaceDamaged() {
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_9BIT);
-        if (tick < 200) {
-            this.setFaceId(FACE_DOT_EYES_TEAR);
-            this.setMouthId(mapLegacyMouth(tick < 60 ? 4 : 5));
-        } else if (tick < 400) {
-            this.setFaceId(FACE_TENSION);
-            this.setMouthId(mapLegacyMouth(tick < 250 ? 4 : 5));
-        } else {
-            this.setFaceId(FACE_SOFT);
-            this.setMouthId(mapLegacyMouth(tick < 450 ? 4 : 5));
-        }
-    }
-
-    @Override
-    protected void setFaceScorn() {
-        this.setFaceId(FACE_EYES_HALF);
-        this.setMouthId(mapLegacyMouth(1));
-    }
-
-    @Override
-    protected void setFaceHungry() {
-        this.setFaceId(FACE_DESPAIR);
-        this.setMouthId(mapLegacyMouth(5));
-    }
-
-    @Override
-    protected void setFaceAngry() {
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT);
-        if (tick < 128) {
-            this.setFaceId(FACE_EYES_CLOSED);
-            this.setMouthId(mapLegacyMouth(tick < 64 ? 3 : 4));
-        } else {
-            this.setFaceId(FACE_EYES_HALF);
-            this.setMouthId(mapLegacyMouth(tick < 170 ? 1 : 3));
-        }
-    }
-
-    @Override
-    protected void setFaceBored() {
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_9BIT);
-        if (tick < 170) {
-            this.setFaceId(FACE_EYES_CLOSED);
-            this.setMouthId(mapLegacyMouth(tick < 80 ? 0 : 4));
-        } else if (tick < 340) {
-            this.setFaceId(FACE_WINK);
-            this.setMouthId(mapLegacyMouth(tick < 250 ? 0 : 4));
-        } else {
-            this.setFaceId(FACE_EYES_OPEN);
-            this.setMouthId(mapLegacyMouth(tick < 420 ? 3 : 4));
-        }
-    }
-
-    @Override
-    protected void setFaceShy() {
-        this.setFaceId(FACE_EYES_OPEN);
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT);
-        this.setMouthId(mapLegacyMouth(tick < 150 ? 2 : 4));
-    }
-
-    @Override
-    protected void setFaceHappy() {
-        int tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT);
-        if (tick < 140) {
-            this.setFaceId(FACE_TENSION);
-            this.setMouthId(mapLegacyMouth(tick < 80 ? 4 : 5));
-        } else {
-            this.setFaceId(FACE_WINK);
-            this.setMouthId(mapLegacyMouth(4));
-        }
+    protected FaceExpressionConfig createFaceExpressionConfig() {
+        return FaceExpressionConfig.builder()
+            .normal(new FaceTimeline(0xFF, new FaceStep[0], FACE_EYES_OPEN, mapLegacyMouth(3)))
+            .normalBored(new FaceTimeline(0xFF, new FaceStep[] {
+                new FaceStep(200, FACE_EYES_OPEN, mapLegacyMouth(3))
+            }, FACE_EYES_OPEN, mapLegacyMouth(0)))
+            .cry(new FaceTimeline(EMOTION_TICK_MASK_8BIT, new FaceStep[] {
+                new FaceStep(64, FACE_DOT_EYES_TEAR, mapLegacyMouth(2)),
+                new FaceStep(128, FACE_DOT_EYES_TEAR, mapLegacyMouth(5)),
+                new FaceStep(190, FACE_CRY, mapLegacyMouth(2))
+            }, FACE_CRY, mapLegacyMouth(5)))
+            .damaged(new FaceTimeline(EMOTION_TICK_MASK_9BIT, new FaceStep[] {
+                new FaceStep(60, FACE_DOT_EYES_TEAR, mapLegacyMouth(4)),
+                new FaceStep(200, FACE_DOT_EYES_TEAR, mapLegacyMouth(5)),
+                new FaceStep(250, FACE_TENSION, mapLegacyMouth(4)),
+                new FaceStep(400, FACE_TENSION, mapLegacyMouth(5)),
+                new FaceStep(450, FACE_SOFT, mapLegacyMouth(4))
+            }, FACE_SOFT, mapLegacyMouth(5)))
+            .scorn(new FaceTimeline(0, new FaceStep[0], FACE_EYES_HALF, mapLegacyMouth(1)))
+            .hungry(new FaceTimeline(0, new FaceStep[0], FACE_DESPAIR, mapLegacyMouth(5)))
+            .angry(new FaceTimeline(EMOTION_TICK_MASK_8BIT, new FaceStep[] {
+                new FaceStep(64, FACE_EYES_CLOSED, mapLegacyMouth(3)),
+                new FaceStep(128, FACE_EYES_CLOSED, mapLegacyMouth(4)),
+                new FaceStep(170, FACE_EYES_HALF, mapLegacyMouth(1))
+            }, FACE_EYES_HALF, mapLegacyMouth(3)))
+            .bored(new FaceTimeline(EMOTION_TICK_MASK_9BIT, new FaceStep[] {
+                new FaceStep(80, FACE_EYES_CLOSED, mapLegacyMouth(0)),
+                new FaceStep(170, FACE_EYES_CLOSED, mapLegacyMouth(4)),
+                new FaceStep(250, FACE_WINK, mapLegacyMouth(0)),
+                new FaceStep(340, FACE_WINK, mapLegacyMouth(4)),
+                new FaceStep(420, FACE_EYES_OPEN, mapLegacyMouth(3))
+            }, FACE_EYES_OPEN, mapLegacyMouth(4)))
+            .shy(new FaceTimeline(EMOTION_TICK_MASK_8BIT, new FaceStep[] {
+                new FaceStep(150, FACE_EYES_OPEN, mapLegacyMouth(2))
+            }, FACE_EYES_OPEN, mapLegacyMouth(4)))
+            .happy(new FaceTimeline(EMOTION_TICK_MASK_8BIT, new FaceStep[] {
+                new FaceStep(80, FACE_TENSION, mapLegacyMouth(4)),
+                new FaceStep(140, FACE_TENSION, mapLegacyMouth(5))
+            }, FACE_WINK, mapLegacyMouth(4)))
+            .build();
     }
 
     private void updateServerLogic() {
-        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateComponent().getFuel() > 0) {
             LivingEntity owner = this.getOwner();
             if (owner != null && this.distanceToSqr(owner) < 256.0D) {
-                int duration = 50 + this.getStateMinor(0);
-                int amp = Math.max(0, this.getStateMinor(0) / 50);
+                int duration = 50 + this.getStateComponent().getAffectionLegacy();
+                int amp = Math.max(0, this.getStateComponent().getAffectionLegacy() / 50);
                 owner.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, duration, amp, false, false));
             }
         }
@@ -260,6 +210,13 @@ public class EntityBattleshipRe extends EntityShipBase {
             serverLevel.sendParticles(ParticleTypes.CLOUD,
                     this.targetPush.getX(), this.targetPush.getY() + 1.0D, this.targetPush.getZ(),
                     6, 0.2D, 0.2D, 0.2D, 0.02D);
+
+            int shipClassId = this.getStateComponent().getShipClassId();
+            net.minecraft.resources.ResourceLocation id = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
+                org.trp.shincolle.Shincolle.MODID, "ship-hit-" + shipClassId
+            );
+            net.minecraft.sounds.SoundEvent voiceSound = net.minecraft.sounds.SoundEvent.createVariableRangeEvent(id);
+            this.playSound(voiceSound, this.getSoundVolume(), this.getShipSoundPitch());
         }
         cancelPush();
     }

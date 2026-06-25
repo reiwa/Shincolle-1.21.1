@@ -33,10 +33,10 @@ public class EntityIsolatedHime extends EntityShipBase {
     ) {
         super(type, level);
         setModelPos(new float[] { -6, 30, 0, 40 });
-        setStateMinor(STATE_MINOR_FACTION_ID, 10);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 29);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
-        setStateMinor(STATE_MINOR_RARITY, 8);
+        getStateComponent().setFactionId(10);
+        getStateComponent().setShipClassId(29);
+        getStateComponent().setSpecialEquip(2);
+        getStateComponent().setRarity(8);
         setStateCanRide(true);
     }
 

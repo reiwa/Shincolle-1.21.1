@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityAirfieldHime;
 
 public class RendererAirfieldHime extends MobRenderer<EntityAirfieldHime, ModelAirfieldHime<EntityAirfieldHime>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/airfield_hime.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererAirfieldHime(EntityRendererProvider.Context context) {
         super(context, new ModelAirfieldHime<>(context.bakeLayer(ModelAirfieldHime.LAYER_LOCATION)), 0.5f);

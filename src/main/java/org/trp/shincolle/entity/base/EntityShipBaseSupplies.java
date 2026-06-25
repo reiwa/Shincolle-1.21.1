@@ -4,15 +4,19 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.trp.shincolle.init.ModItems;
-import org.trp.shincolle.init.ModSounds;
 import org.trp.shincolle.inventory.ShipInventoryHandler;
 import org.trp.shincolle.item.CombatRationItem;
-import org.trp.shincolle.menu.ShipContainerMenu;
 
 class EntityShipBaseSupplies {
 
     private static final int AUTO_RATION_INTERVAL_TICKS = 128;
-    private static final int AUTO_RATION_MAX_FUEL = 100;
+    private static final int AUTO_RATION_MAX_FUEL = 10000;
+
+    private static final float AUTO_HEAL_THRESHOLD_RATIO = 0.9F;
+    private static final float AUTO_HEAL_FAST_RATIO = 0.08F;
+    private static final float AUTO_HEAL_FAST_FLAT = 15.0F;
+    private static final float AUTO_HEAL_SLOW_RATIO = 0.03F;
+    private static final float AUTO_HEAL_SLOW_FLAT = 1.0F;
 
     private final EntityShipBase ship;
     private int feedSoundCooldown = 0;
@@ -42,7 +46,7 @@ class EntityShipBaseSupplies {
         }
 
         int threshold = Mth.clamp(
-            this.ship.getStateMinor(ShipContainerMenu.STATE_MINOR_RATION_MORALE),
+            this.ship.getStateComponent().getRationMorale(),
             1,
             4
         );
@@ -198,6 +202,57 @@ class EntityShipBaseSupplies {
         return true;
     }
 
+    void tickFuelDecay() {
+        if (this.ship.isHostileShipMob()) {
+            return;
+        }
+        if (this.ship.tickCount % org.trp.shincolle.Config.fuelDecayInterval != 0) {
+            return;
+        }
+        if (this.ship.getFuel() <= 0) {
+            return;
+        }
+
+        int consume = this.ship.getStateComponent().getGrudgeConsumption();
+
+        double dist = Math.sqrt(this.ship.distanceToSqr(this.ship.xo, this.ship.yo, this.ship.zo));
+        consume += (int) (dist * org.trp.shincolle.Config.fuelMoveDecayFactor);
+
+        this.ship.setFuel(this.ship.getFuel() - consume);
+    }
+
+    void tickAutoRecovery() {
+        if (this.ship.isHostileShipMob()) {
+            return;
+        }
+
+        if (
+            (this.ship.tickCount & 0x1F) == 0 &&
+            this.ship.getHealth() < this.ship.getMaxHealth() * AUTO_HEAL_THRESHOLD_RATIO
+        ) {
+            if (this.ship.consumeItemInInventory(ModItems.BUCKET_REPAIR.get())) {
+                this.ship.heal(
+                    this.ship.getMaxHealth() * AUTO_HEAL_FAST_RATIO +
+                        AUTO_HEAL_FAST_FLAT
+                );
+                if (this.ship.supportsAircraftCombat()) {
+                    this.ship.setNumAircraftLight(this.ship.getNumAircraftLight() + 1);
+                    this.ship.setNumAircraftHeavy(this.ship.getNumAircraftHeavy() + 1);
+                }
+                this.ship.applyParticleEmotion(EmotionParticleType.HEART);
+            }
+        }
+
+        if (
+            (this.ship.tickCount & 0xFF) == 0 &&
+            this.ship.getHealth() < this.ship.getMaxHealth()
+        ) {
+            this.ship.heal(
+                this.ship.getMaxHealth() * AUTO_HEAL_SLOW_RATIO + AUTO_HEAL_SLOW_FLAT
+            );
+        }
+    }
+
     void tickAutoSupplies() {
         if (this.ship.level().isClientSide || this.ship.isHostileShipMob()) {
             return;
@@ -206,7 +261,7 @@ class EntityShipBaseSupplies {
         int multiplier = org.trp.shincolle.Config.consumptionLevel == 0 ? 10 : 1;
 
         if (this.ship.getFuel() <= 0) {
-            float modFuel = this.ship.getLegacyShipStats().getBuffedAttr(17);
+            float modFuel = this.ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_FUEL_CONSUMPTION);
             if (this.ship.consumeItemInInventory(ModItems.GRUDGE.get())) {
                 this.ship.setFuel((int) (300 * modFuel * multiplier));
                 this.applyAutoSupplyEffects();
@@ -219,7 +274,7 @@ class EntityShipBaseSupplies {
         }
 
         if (this.ship.getAmmoLight() <= 0) {
-            float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(18);
+            float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_AMMO_CONSUMPTION);
             if (this.ship.consumeItemInInventory(ModItems.AMMO_LIGHT.get())) {
                 this.ship.setAmmoLight((int) (30 * modAmmo * multiplier));
                 this.applyAutoSupplyEffects();
@@ -232,7 +287,7 @@ class EntityShipBaseSupplies {
         }
 
         if (this.ship.getAmmoHeavy() <= 0) {
-            float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(18);
+            float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_AMMO_CONSUMPTION);
             if (this.ship.consumeItemInInventory(ModItems.AMMO_HEAVY.get())) {
                 this.ship.setAmmoHeavy((int) (15 * modAmmo * multiplier));
                 this.applyAutoSupplyEffects();

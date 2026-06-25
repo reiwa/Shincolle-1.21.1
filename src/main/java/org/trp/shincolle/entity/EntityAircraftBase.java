@@ -592,7 +592,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         if (target instanceof Enemy) {
             return true;
         }
-        boolean pvpEnabled = carrier.getStateFlag(18);
+        boolean pvpEnabled = carrier.getStateComponent().isStatePvp();
         if (pvpEnabled) {
             if (target instanceof Player || target instanceof EntityShipBase) {
                 return true;

@@ -32,10 +32,10 @@ public class EntityAirfieldHime extends EntityShipBase {
     ) {
         super(type, level);
         setModelPos(new float[] { -6, 30, 0, 40 });
-        setStateMinor(STATE_MINOR_FACTION_ID, 10);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 21);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
-        setStateMinor(STATE_MINOR_RARITY, 4);
+        getStateComponent().setFactionId(10);
+        getStateComponent().setShipClassId(21);
+        getStateComponent().setSpecialEquip(2);
+        getStateComponent().setRarity(4);
         setStateCanRide(true);
     }
 
@@ -111,7 +111,7 @@ public class EntityAirfieldHime extends EntityShipBase {
 
     private void updateServerLogic() {
         if (
-            this.getStateMinor(6) > 0 && this.getHealth() < this.getMaxHealth()
+            this.getStateComponent().getFuel() > 0 && this.getHealth() < this.getMaxHealth()
         ) {
             this.heal(this.getMaxHealth() * 0.06f + 1.0f);
         }
@@ -119,7 +119,7 @@ public class EntityAirfieldHime extends EntityShipBase {
         if (
             !(this.isStateMarried() &&
                 this.isStateRingEffect() &&
-                this.getStateMinor(6) > 50)
+                this.getStateComponent().getFuel() > 50)
         ) {
             return;
         }
@@ -174,8 +174,8 @@ public class EntityAirfieldHime extends EntityShipBase {
     }
 
     private void consumeGrudge(int amount) {
-        int next = Math.max(0, this.getStateMinor(6) - amount);
-        this.setStateMinor(6, next);
+        int next = Math.max(0, this.getStateComponent().getFuel() - amount);
+        this.getStateComponent().setFuel(next);
     }
 
     private void spawnHealParticles(LivingEntity target) {

@@ -16,10 +16,10 @@ public class ModelCruiserTenryuu<T extends EntityShipBase> extends ShipModelHuma
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "cruiser_tenryuu"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelCruiserTenryuu");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelCruiserTenryuu");
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelCruiserTenryuu");
-    private static final float SITTING_ALT_TRANSLATE_Y = LegacyPoseOffsets.sittingAltY("ModelCruiserTenryuu");
+    private static final float DEAD_TRANSLATE_Y = 0.53F * 3.1F;
+    private static final float SNEAK_TRANSLATE_Y = 0.06F;
+    private static final float SITTING_TRANSLATE_Y = 0.46F * 3.2F;
+    private static final float SITTING_ALT_TRANSLATE_Y = 0.41F;
 
     private static final float BODY_BASE_X_ROT = -0.1047F;
     private static final float BUTT_BASE_X_ROT = 0.35F;
@@ -917,5 +917,10 @@ public class ModelCruiserTenryuu<T extends EntityShipBase> extends ShipModelHuma
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.43f;
     }
 }

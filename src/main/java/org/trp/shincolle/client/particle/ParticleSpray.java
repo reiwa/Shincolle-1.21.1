@@ -37,9 +37,9 @@ public class ParticleSpray extends TextureSheetParticle {
         this.friction = 0.96F;
 
         if (speed > 0.25D) {
-            this.maxQuadSize = 1.5F;
-        } else {
             this.maxQuadSize = 0.15F;
+        } else {
+            this.maxQuadSize = 0.075F;
         }
         this.quadSize = 0.0F;
 
@@ -52,7 +52,7 @@ public class ParticleSpray extends TextureSheetParticle {
         if (!this.removed) {
             this.setSpriteFromAge(this.sprites);
             float ageRatio = (float) this.age / (float) this.lifetime;
-            this.quadSize = this.maxQuadSize * ageRatio;
+            this.quadSize = this.maxQuadSize * Math.min(1.0F, ageRatio * 32.0F);
         }
     }
 

@@ -12,7 +12,6 @@ import org.trp.shincolle.entity.EntityIsolatedHime;
 
 public class RendererIsolatedHime extends MobRenderer<EntityIsolatedHime, ModelIsolatedHime<EntityIsolatedHime>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/isolated_hime.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererIsolatedHime(EntityRendererProvider.Context context) {
         super(context, new ModelIsolatedHime<>(context.bakeLayer(ModelIsolatedHime.LAYER_LOCATION)), 0.5f);

@@ -17,16 +17,16 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 
 public class ModelDestroyerIkazuchi<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "destroyer_ikazuchi"), "main");
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelDestroyerIkazuchi");
+    private static final float SITTING_TRANSLATE_Y = 1.3F;
     private static final float SIT_HEAD_YAW_SCALE = 0.25F;
     private static final float SIT_LEG_Y_ROT = 0.2618F;
     private static final float SIT_LEG_X_ROT = -1.66F;
     private static final float SIT_ARM_Z_ROT_DELTA = 0.05F;
     private static final float SIT_LOWER_LEG_X_OFFSET = 0.32F;
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelDestroyerIkazuchi");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelDestroyerIkazuchi");
-    private static final float RIDING_TRANSLATE_Y = LegacyPoseOffsets.ridingY("ModelDestroyerIkazuchi");
+    private static final float DEAD_TRANSLATE_Y = 1.9F;
+    private static final float SNEAK_TRANSLATE_Y = 0.05F;
+    private static final float RIDING_TRANSLATE_Y = -0.375F;
     private static final float BODY_BASE_X_ROT = -0.1047F;
     private static final float HEAD_BASE_X_ROT = 0.1047F;
     private static final float BUTT_BASE_X_ROT = 0.2094F;
@@ -782,5 +782,10 @@ public class ModelDestroyerIkazuchi<T extends EntityShipBase> extends ShipModelH
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.4f;
     }
 }

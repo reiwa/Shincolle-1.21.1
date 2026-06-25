@@ -627,4 +627,9 @@ public class ModelHarbourHime<T extends EntityShipBase> extends ShipModelHumanoi
             poseStack.popPose();
         }
     }
+
+    @Override
+    public float getBaseScale() {
+        return 0.53f;
+    }
 }

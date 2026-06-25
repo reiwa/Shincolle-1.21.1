@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityBBHaruna;
 
 public class RendererBBHaruna extends MobRenderer<EntityBBHaruna, ModelBBHaruna<EntityBBHaruna>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/bb_haruna.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererBBHaruna(EntityRendererProvider.Context context) {
         super(context, new ModelBBHaruna<>(context.bakeLayer(ModelBBHaruna.LAYER_LOCATION)), 0.5f);

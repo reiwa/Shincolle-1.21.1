@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntitySubmYo;
 
 public class RendererSubmYo extends MobRenderer<EntitySubmYo, ModelSubmYo<EntitySubmYo>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/subm_yo.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererSubmYo(EntityRendererProvider.Context context) {
         super(context, new ModelSubmYo<>(context.bakeLayer(ModelSubmYo.LAYER_LOCATION)), 0.5f);

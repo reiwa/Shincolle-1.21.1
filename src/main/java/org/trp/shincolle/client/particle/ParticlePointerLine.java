@@ -86,7 +86,7 @@ public class ParticlePointerLine extends Particle {
         this.hasPhysics = false;
 
         if (this.particleType == 0) {
-            this.lifetime = 8;
+            this.lifetime = 9;
             this.rCol = 1.0f;
             this.gCol = 1.0f;
             this.bCol = 1.0f;
@@ -109,6 +109,15 @@ public class ParticlePointerLine extends Particle {
 
     @Override
     public void tick() {
+        if (this.particleType == 0) {
+            if (this.age > 4) {
+                this.alphaIn = 1.0f + (4 - this.age) * 0.2f;
+            } else {
+                this.alphaIn = 0.2f + this.age * 0.2f;
+            }
+            this.alphaOut = this.alphaIn * 0.5f;
+        }
+
         if (this.age++ >= this.lifetime) {
             this.remove();
         }
@@ -178,6 +187,16 @@ public class ParticlePointerLine extends Particle {
             drawQuad(buffer, tx + v6[0], ty + v6[1], tz + v6[2], tx + v7[0], ty + v7[1], tz + v7[2],
                              hx + v7[0], hy + v7[1], hz + v7[2], hx + v6[0], hy + v6[1], hz + v6[2], this.alphaIn, light);
 
+            drawQuad(buffer, hx + v4[0], hy + v4[1], hz + v4[2], hx + v3[0], hy + v3[1], hz + v3[2],
+                             hx + v2[0], hy + v2[1], hz + v2[2], hx + v1[0], hy + v1[1], hz + v1[2], this.alphaOut, light);
+            drawQuad(buffer, tx + v1[0], ty + v1[1], tz + v1[2], tx + v2[0], ty + v2[1], tz + v2[2],
+                             tx + v3[0], ty + v3[1], tz + v3[2], tx + v4[0], ty + v4[1], tz + v4[2], this.alphaOut, light);
+
+            drawQuad(buffer, hx + v8[0], hy + v8[1], hz + v8[2], hx + v7[0], hy + v7[1], hz + v7[2],
+                             hx + v6[0], hy + v6[1], hz + v6[2], hx + v5[0], hy + v5[1], hz + v5[2], this.alphaIn, light);
+            drawQuad(buffer, tx + v5[0], ty + v5[1], tz + v5[2], tx + v6[0], ty + v6[1], tz + v6[2],
+                             tx + v7[0], ty + v7[1], tz + v7[2], tx + v8[0], ty + v8[1], tz + v8[2], this.alphaIn, light);
+
         } else {
             float minU = 0.0f;
             float maxU = (float) this.random.nextInt(32) + 32;
@@ -210,7 +229,7 @@ public class ParticlePointerLine extends Particle {
 
     @Override
     public ParticleRenderType getRenderType() {
-        return this.particleType == 1 ? TEXTURED_RENDER : UNTEXTURED_RENDER;
+        return this.particleType == 0 ? UNTEXTURED_RENDER : TEXTURED_RENDER;
     }
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {

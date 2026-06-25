@@ -49,7 +49,59 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     private final java.util.List<Integer> selectedShips = new java.util.ArrayList<>();
     private int tickGUI = 0;
     private int[] listNum = new int[]{0, 0, 0, 0, 0};
-public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
+
+    private static final java.util.Map<Integer, java.util.function.Supplier<? extends EntityType<?>>> CLASS_ID_TO_ENTITY_TYPE = new java.util.HashMap<>();
+
+    static {
+        CLASS_ID_TO_ENTITY_TYPE.put(0, ModEntities.DESTROYER_I);
+        CLASS_ID_TO_ENTITY_TYPE.put(1, ModEntities.DESTROYER_RO);
+        CLASS_ID_TO_ENTITY_TYPE.put(2, ModEntities.DESTROYER_HA);
+        CLASS_ID_TO_ENTITY_TYPE.put(3, ModEntities.DESTROYER_NI);
+        CLASS_ID_TO_ENTITY_TYPE.put(9, ModEntities.HEAVY_CRUISER_RI);
+        CLASS_ID_TO_ENTITY_TYPE.put(10, ModEntities.HEAVY_CRUISER_NE);
+        CLASS_ID_TO_ENTITY_TYPE.put(12, ModEntities.CARRIER_WO);
+        CLASS_ID_TO_ENTITY_TYPE.put(13, ModEntities.BATTLESHIP_RU);
+        CLASS_ID_TO_ENTITY_TYPE.put(14, ModEntities.BATTLESHIP_TA);
+        CLASS_ID_TO_ENTITY_TYPE.put(15, ModEntities.BATTLESHIP_RE);
+        CLASS_ID_TO_ENTITY_TYPE.put(16, ModEntities.TRANSPORT_WA);
+        CLASS_ID_TO_ENTITY_TYPE.put(17, ModEntities.SUBM_KA);
+        CLASS_ID_TO_ENTITY_TYPE.put(18, ModEntities.SUBM_YO);
+        CLASS_ID_TO_ENTITY_TYPE.put(19, ModEntities.SUBM_SO);
+        CLASS_ID_TO_ENTITY_TYPE.put(20, ModEntities.CARRIER_HIME);
+        CLASS_ID_TO_ENTITY_TYPE.put(21, ModEntities.AIRFIELD_HIME);
+        CLASS_ID_TO_ENTITY_TYPE.put(26, ModEntities.BATTLESHIP_HIME);
+        CLASS_ID_TO_ENTITY_TYPE.put(27, ModEntities.DESTROYER_HIME);
+        CLASS_ID_TO_ENTITY_TYPE.put(28, ModEntities.HARBOUR_HIME);
+        CLASS_ID_TO_ENTITY_TYPE.put(29, ModEntities.ISOLATED_HIME);
+        CLASS_ID_TO_ENTITY_TYPE.put(30, ModEntities.MIDWAY_HIME);
+        CLASS_ID_TO_ENTITY_TYPE.put(31, ModEntities.NORTHERN_HIME);
+        CLASS_ID_TO_ENTITY_TYPE.put(44, ModEntities.SUBM_HIME);
+        CLASS_ID_TO_ENTITY_TYPE.put(72, ModEntities.SSNH);
+        CLASS_ID_TO_ENTITY_TYPE.put(33, ModEntities.CARRIER_W_DEMON);
+        CLASS_ID_TO_ENTITY_TYPE.put(49, ModEntities.CA_HIME);
+        
+        CLASS_ID_TO_ENTITY_TYPE.put(36, ModEntities.DESTROYER_SHIMAKAZE);
+        CLASS_ID_TO_ENTITY_TYPE.put(37, ModEntities.BATTLESHIP_NAGATO);
+        CLASS_ID_TO_ENTITY_TYPE.put(38, ModEntities.SUBM_U511);
+        CLASS_ID_TO_ENTITY_TYPE.put(39, ModEntities.SUBM_RO500);
+        CLASS_ID_TO_ENTITY_TYPE.put(46, ModEntities.BATTLESHIP_YAMATO);
+        CLASS_ID_TO_ENTITY_TYPE.put(47, ModEntities.CARRIER_KAGA);
+        CLASS_ID_TO_ENTITY_TYPE.put(48, ModEntities.CARRIER_AKAGI);
+        CLASS_ID_TO_ENTITY_TYPE.put(51, ModEntities.DESTROYER_AKATSUKI);
+        CLASS_ID_TO_ENTITY_TYPE.put(52, ModEntities.DESTROYER_HIBIKI);
+        CLASS_ID_TO_ENTITY_TYPE.put(53, ModEntities.DESTROYER_IKAZUCHI);
+        CLASS_ID_TO_ENTITY_TYPE.put(54, ModEntities.DESTROYER_INAZUMA);
+        CLASS_ID_TO_ENTITY_TYPE.put(56, ModEntities.CRUISER_TENRYUU);
+        CLASS_ID_TO_ENTITY_TYPE.put(57, ModEntities.CRUISER_TATSUTA);
+        CLASS_ID_TO_ENTITY_TYPE.put(58, ModEntities.CRUISER_ATAGO);
+        CLASS_ID_TO_ENTITY_TYPE.put(59, ModEntities.CRUISER_TAKAO);
+        CLASS_ID_TO_ENTITY_TYPE.put(60, ModEntities.BB_KONGOU);
+        CLASS_ID_TO_ENTITY_TYPE.put(61, ModEntities.BB_HIEI);
+        CLASS_ID_TO_ENTITY_TYPE.put(62, ModEntities.BB_HARUNA);
+        CLASS_ID_TO_ENTITY_TYPE.put(63, ModEntities.BB_KIRISHIMA);
+    }
+
+    public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = (int) (256 * GUI_SCALE);
         this.imageHeight = (int) (192 * GUI_SCALE);
@@ -128,26 +180,20 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
     private void drawPageButtons(GuiGraphics guiGraphics, int mx, int my) {
         if (chapId < 0 || chapId >= Values.PageLimit.length) return;
         
-        if (mx >= 50 && mx <= 80 && my >= 180 && my <= 195) {
-            if (pageId > 0) {
-                guiGraphics.blit(BookRenderer.GUI_BOOK, 53, 182, 0, 192, 18, 10, 256, 256);
-            }
-        } else if (mx >= 170 && mx <= 200 && my >= 180 && my <= 195) {
-            if (pageId < Values.PageLimit[chapId]) {
-                guiGraphics.blit(BookRenderer.GUI_BOOK, 175, 182, 0, 202, 18, 10, 256, 256);
-            }
+        if (mx >= 50 && mx <= 80 && my >= 180 && my <= 195 && pageId > 0) {
+            guiGraphics.blit(BookRenderer.GUI_BOOK, 53, 182, 0, 192, 18, 10, 256, 256);
+        } else if (mx >= 170 && mx <= 200 && my >= 180 && my <= 195 && pageId < Values.PageLimit[chapId]) {
+            guiGraphics.blit(BookRenderer.GUI_BOOK, 175, 182, 0, 202, 18, 10, 256, 256);
         }
     }
 
     private void drawBookHoverText(GuiGraphics guiGraphics, int mx, int my, int mouseX, int mouseY) {
-        if (mx >= 243 && mx <= 256) {
-            if (my >= 34 && my <= 121) {
-                int getbtn = (my - 34) / 12;
-                if (getbtn >= 0 && getbtn < 7) {
-                    String strChap = Component.translatable("gui.shincolle.book.chap" + getbtn + ".title").getString();
-                    guiGraphics.renderTooltip(this.font, Component.literal(strChap), mouseX, mouseY);
-                    return;
-                }
+        if (mx >= 243 && mx <= 256 && my >= 34 && my <= 121) {
+            int getbtn = (my - 34) / 12;
+            if (getbtn >= 0 && getbtn < 7) {
+                String strChap = Component.translatable("gui.shincolle.book.chap" + getbtn + ".title").getString();
+                guiGraphics.renderTooltip(this.font, Component.literal(strChap), mouseX, mouseY);
+                return;
             }
         }
 
@@ -155,16 +201,21 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         java.util.List<int[]> cont = Values.BookList.get(bookID);
         if (cont == null) return;
         
+        drawBookItemTooltip(guiGraphics, cont, mx, my, mouseX, mouseY);
+    }
+
+    private void drawBookItemTooltip(GuiGraphics guiGraphics, java.util.List<int[]> cont, int mx, int my, int mouseX, int mouseY) {
         for (int[] getc : cont) {
-            if (getc == null || getc.length < 5 || getc[0] != 2) continue;
-            int xa = (getc[1] == 1) ? (getc[2] + 133 - 1) : (getc[2] + 13 - 1);
-            int ya = getc[3] + 48;
-            if (mx > xa - 1 && mx < xa + 17 && my > ya - 1 && my < ya + 17) {
-                net.minecraft.world.item.ItemStack stack = Values.ItemIconMap.get((short)getc[4]);
-                if (stack != null && !stack.isEmpty()) {
-                    guiGraphics.renderTooltip(this.font, stack, mouseX, mouseY);
+            if (getc != null && getc.length >= 5 && getc[0] == 2) {
+                int xa = (getc[1] == 1) ? (getc[2] + 132) : (getc[2] + 12);
+                int ya = getc[3] + 48;
+                if (mx > xa - 1 && mx < xa + 17 && my > ya - 1 && my < ya + 17) {
+                    net.minecraft.world.item.ItemStack stack = Values.ItemIconMap.get((short)getc[4]);
+                    if (stack != null && !stack.isEmpty()) {
+                        guiGraphics.renderTooltip(this.font, stack, mouseX, mouseY);
+                    }
+                    return;
                 }
-                break;
             }
         }
     }
@@ -197,42 +248,45 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
             drawMoraleIcon(guiGraphics);
             drawRadarText(guiGraphics);
         } else if (guiFunc == 2) {
-            BookRenderer.drawBookBase(guiGraphics, 0, 0, chapId, pageId);
-            BookRenderer.drawBookContent(guiGraphics, 0, 0, pageId, chapId);
-            
-            if (chapId == 4 || chapId == 5) {
-                int classID = -1;
-                if (pageId > 0) {
-                    if (chapId == 4 && pageId - 1 < Values.ShipBookList.size()) {
-                        classID = Values.ShipBookList.get(pageId - 1);
-                    } else if (chapId == 5 && pageId - 1 < Values.EnemyBookList.size()) {
-                        classID = Values.EnemyBookList.get(pageId - 1);
-                    }
-                }
-
-                if (pageId > 0) {
-                    if (!isCollected(classID)) {
-                        entityTemp = null;
-                        guiGraphics.blit(BookRenderer.GUI_BOOK2, 20, 48, 0, 148, 87, 108);
-                    } else {
-                        int u = (chapId == 4) ? 0 : 105;
-                        guiGraphics.blit(BookRenderer.GUI_BOOK2, 20, 48, u, 0, 87, 130);
-
-                        updateEntityTemp();
-                        updateModelTransforms();
-                        renderBookEntity(guiGraphics, 0, 0, partialTick);
-                        renderShipNameIcons(guiGraphics, 0, 0);
-                        renderPoseControls(guiGraphics, 0, 0);
-                        BookRenderer.drawStateFlags(guiGraphics, 0, 0, entityTemp);
-                        drawNoText(guiGraphics, 0, 0);
-                    }
-                }
-            }
-
-            drawPageButtons(guiGraphics, (int)((mouseX - leftPos) * GUI_SCALE_INV), (int)((mouseY - topPos) * GUI_SCALE_INV));
+            renderBookBg(guiGraphics, partialTick, mouseX, mouseY);
         }
 
         guiGraphics.pose().popPose();
+    }
+
+    private void renderBookBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        BookRenderer.drawBookBase(guiGraphics, 0, 0);
+        BookRenderer.drawBookContent(guiGraphics, 0, 0, pageId, chapId);
+        
+        if (chapId == 4 || chapId == 5) {
+            int classID = -1;
+            if (pageId > 0) {
+                if (chapId == 4 && pageId - 1 < Values.ShipBookList.size()) {
+                    classID = Values.ShipBookList.get(pageId - 1);
+                } else if (chapId == 5 && pageId - 1 < Values.EnemyBookList.size()) {
+                    classID = Values.EnemyBookList.get(pageId - 1);
+                }
+            }
+
+            if (pageId > 0) {
+                if (!isCollected(classID)) {
+                    entityTemp = null;
+                    guiGraphics.blit(BookRenderer.GUI_BOOK2, 20, 48, 0, 148, 87, 108);
+                } else {
+                    int u = (chapId == 4) ? 0 : 105;
+                    guiGraphics.blit(BookRenderer.GUI_BOOK2, 20, 48, u, 0, 87, 130);
+
+                    updateEntityTemp();
+                    updateModelTransforms();
+                    renderBookEntity(guiGraphics, 0, 0, partialTick);
+                    renderShipNameIcons(guiGraphics, 0, 0);
+                    BookRenderer.drawStateFlags(guiGraphics, 0, 0, entityTemp);
+                    drawNoText(guiGraphics, 0, 0);
+                }
+            }
+        }
+
+        drawPageButtons(guiGraphics, (int)((mouseX - leftPos) * GUI_SCALE_INV), (int)((mouseY - topPos) * GUI_SCALE_INV));
     }
 
     private void drawBaseBackground(GuiGraphics guiGraphics) {
@@ -326,28 +380,30 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         int texty = 27;
         for (int i = 0; i < 5; i++) {
             int index = this.listNum[0] + i;
-            if (index >= this.shipList.size()) break;
+            if (index >= this.shipList.size()) {
+                break;
+            }
 
             RadarEntity s = this.shipList.get(index);
-            if (s == null || !(s.ship instanceof EntityShipBase s2)) continue;
+            if (s != null && s.ship instanceof EntityShipBase s2) {
+                guiGraphics.drawString(this.font, s.ship.getName().getString(), 147, texty, 0xFFFFFF, false);
 
-            guiGraphics.drawString(this.font, s.ship.getName().getString(), 147, texty, 0xFFFFFF, false);
+                String str = "LV " + ChatFormatting.YELLOW + s2.getLevel() + "   " + ChatFormatting.GOLD + (int)s2.getHealth() + ChatFormatting.RED + " / " + (int)s2.getMaxHealth();
+                String str2 = "Pos: " + ChatFormatting.YELLOW + Mth.ceil(s.ship.getX()) + ", " + Mth.ceil(s.ship.getZ()) + "  H: " + ChatFormatting.YELLOW + (int)s.ship.getY();
 
-            String str = "LV " + ChatFormatting.YELLOW + s2.getLevel() + "   " + ChatFormatting.GOLD + (int)s2.getHealth() + ChatFormatting.RED + " / " + (int)s2.getMaxHealth();
-            String str2 = "Pos: " + ChatFormatting.YELLOW + Mth.ceil(s.ship.getX()) + ", " + Mth.ceil(s.ship.getZ()) + "  H: " + ChatFormatting.YELLOW + (int)s.ship.getY();
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().scale(0.8f, 0.8f, 1.0f);
+                guiGraphics.drawString(this.font, str, (int)(147 / 0.8f), (int)((texty + 12) / 0.8f), 0xFF00FFFF, false);
+                guiGraphics.drawString(this.font, str2, (int)(147 / 0.8f), (int)((texty + 21) / 0.8f), 0xFFA000A0, false);
+                guiGraphics.pose().popPose();
 
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().scale(0.8f, 0.8f, 1.0f);
-            guiGraphics.drawString(this.font, str, (int)(147 / 0.8f), (int)((texty + 12) / 0.8f), 0xFF00FFFF, false);
-            guiGraphics.drawString(this.font, str2, (int)(147 / 0.8f), (int)((texty + 21) / 0.8f), 0xFFA000A0, false);
-            guiGraphics.pose().popPose();
-
-            texty += 32;
+                texty += 32;
+            }
         }
     }
 
     private void drawNoText(GuiGraphics guiGraphics, int x, int y) {
-        if (pageId > 0 && entityTemp instanceof EntityShipBase ship) {
+        if (pageId > 0 && entityTemp instanceof EntityShipBase) {
             String str = "No. " + pageId;
             int color = (chapId == 4) ? 0xAA0000 : 0x00AAAA;
             guiGraphics.drawString(this.font, str, x + 55, y + 32, color, false);
@@ -357,10 +413,10 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
     private void renderShipNameIcons(GuiGraphics guiGraphics, int x, int y) {
         if (!(entityTemp instanceof EntityShipBase ship)) return;
         
-        int shipType = ship.getStateMinor(19);
+        int shipType = ship.getStateComponent().getFactionId();
         int[] typeXY = Values.ShipTypeIconMap.get((byte)shipType);
         
-        int shipClass = ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
+        int shipClass = ship.getStateComponent().getShipClassId();
         int[] classXY = Values.ShipNameIconMap.get(shipClass);
         if (classXY == null) return;
         
@@ -378,10 +434,6 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         
         RenderSystem.setShaderTexture(0, iconTexture);
         guiGraphics.blit(iconTexture, x + 30, y + 94 + offy, classXY[1], classXY[2], 11, 59, 256, 256);
-    }
-
-    private void renderPoseControls(GuiGraphics guiGraphics, int x, int y) {
-        
     }
 
     private void updateEntityTemp() {
@@ -405,79 +457,29 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
             return;
         }
 
-        if (entityTemp == null || entityTemp.getType() != type) {
-            if (this.minecraft.level != null) {
-                entityTemp = (LivingEntity) type.create(this.minecraft.level);
-                if (entityTemp instanceof EntityShipBase ship) {
-                    ship.setLevel(1);
-                    ship.setAmmoLight(100);
-                    ship.setAmmoHeavy(100);
-                    ship.setFuel(100);
-                }
-                this.currentRotateX = 0f;
-                this.currentRotateY = 0f;
-                this.targetRotateX = 0f;
-                this.targetRotateY = 0f;
-                this.currentScale = 30f;
-                this.targetScale = 30f;
-                this.prevRotateX = 0f;
-                this.prevRotateY = 0f;
-                this.prevScale = 30f;
+        if ((entityTemp == null || entityTemp.getType() != type) && this.minecraft.level != null) {
+            entityTemp = (LivingEntity) type.create(this.minecraft.level);
+            if (entityTemp instanceof EntityShipBase ship) {
+                ship.setLevel(1);
+                ship.setAmmoLight(100);
+                ship.setAmmoHeavy(100);
+                ship.setFuel(100);
             }
+            this.currentRotateX = 0f;
+            this.currentRotateY = 0f;
+            this.targetRotateX = 0f;
+            this.targetRotateY = 0f;
+            this.currentScale = 30f;
+            this.targetScale = 30f;
+            this.prevRotateX = 0f;
+            this.prevRotateY = 0f;
+            this.prevScale = 30f;
         }
     }
 
     private EntityType<?> getEntityTypeFromClassID(int classID) {
-        return switch (classID) {
-            case 0 -> ModEntities.DESTROYER_I.get();
-            case 1 -> ModEntities.DESTROYER_RO.get();
-            case 2 -> ModEntities.DESTROYER_HA.get();
-            case 3 -> ModEntities.DESTROYER_NI.get();
-            case 9 -> ModEntities.HEAVY_CRUISER_RI.get();
-            case 10 -> ModEntities.HEAVY_CRUISER_NE.get();
-            case 12 -> ModEntities.CARRIER_WO.get();
-            case 13 -> ModEntities.BATTLESHIP_RU.get();
-            case 14 -> ModEntities.BATTLESHIP_TA.get();
-            case 15 -> ModEntities.BATTLESHIP_RE.get();
-            case 16 -> ModEntities.TRANSPORT_WA.get();
-            case 17 -> ModEntities.SUBM_KA.get();
-            case 18 -> ModEntities.SUBM_YO.get();
-            case 19 -> ModEntities.SUBM_SO.get();
-            case 20 -> ModEntities.CARRIER_HIME.get();
-            case 21 -> ModEntities.AIRFIELD_HIME.get();
-            case 26 -> ModEntities.BATTLESHIP_HIME.get();
-            case 27 -> ModEntities.DESTROYER_HIME.get();
-            case 28 -> ModEntities.HARBOUR_HIME.get();
-            case 29 -> ModEntities.ISOLATED_HIME.get();
-            case 30 -> ModEntities.MIDWAY_HIME.get();
-            case 31 -> ModEntities.NORTHERN_HIME.get();
-            case 44 -> ModEntities.SUBM_HIME.get();
-            case 72 -> ModEntities.SSNH.get();
-            case 33 -> ModEntities.CARRIER_W_DEMON.get();
-            case 49 -> ModEntities.CA_HIME.get();
-            
-            case 36 -> ModEntities.DESTROYER_SHIMAKAZE.get();
-            case 37 -> ModEntities.BATTLESHIP_NAGATO.get();
-            case 38 -> ModEntities.SUBM_U511.get();
-            case 39 -> ModEntities.SUBM_RO500.get();
-            case 46 -> ModEntities.BATTLESHIP_YAMATO.get();
-            case 47 -> ModEntities.CARRIER_KAGA.get();
-            case 48 -> ModEntities.CARRIER_AKAGI.get();
-            case 51 -> ModEntities.DESTROYER_AKATSUKI.get();
-            case 52 -> ModEntities.DESTROYER_HIBIKI.get();
-            case 53 -> ModEntities.DESTROYER_IKAZUCHI.get();
-            case 54 -> ModEntities.DESTROYER_INAZUMA.get();
-            case 56 -> ModEntities.CRUISER_TENRYUU.get();
-            case 57 -> ModEntities.CRUISER_TATSUTA.get();
-            case 58 -> ModEntities.CRUISER_ATAGO.get();
-            case 59 -> ModEntities.CRUISER_TAKAO.get();
-            case 60 -> ModEntities.BB_KONGOU.get();
-            case 61 -> ModEntities.BB_HIEI.get();
-            case 62 -> ModEntities.BB_HARUNA.get();
-            case 63 -> ModEntities.BB_KIRISHIMA.get();
-            
-            default -> null;
-        };
+        java.util.function.Supplier<? extends EntityType<?>> supplier = CLASS_ID_TO_ENTITY_TYPE.get(classID);
+        return supplier != null ? supplier.get() : null;
     }
 
     private void handleBookModelControls(int btn) {
@@ -499,7 +501,7 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
             case 4 -> {
                 ship.setStateEmotion(7, ship.getRandom().nextInt(2) == 0 ? 4 : 0, false);
                 ship.setShiftKeyDown(ship.getRandom().nextInt(5) == 0);
-                ship.setStateFlag(2, ship.getRandom().nextInt(8) == 0);
+                ship.setStateNoEquip(ship.getRandom().nextInt(8) == 0);
                 ship.setStateEmotion(1, ship.getRandom().nextInt(10), false);
             }
             default -> {
@@ -600,21 +602,20 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         double my = (mouseY - topPos) * GUI_SCALE_INV;
         
         if (menu.getDeskType() == 1) {
-            if (scrollY > 0) {
-                if (this.listNum[0] > 0) {
-                    this.listNum[0]--;
-                }
-            } else if (scrollY < 0) {
-                if (this.listNum[0] < this.shipList.size() - 1) {
-                    this.listNum[0]++;
-                }
+            if (scrollY > 0 && this.listNum[0] > 0) {
+                this.listNum[0]--;
+            } else if (scrollY < 0 && this.listNum[0] < this.shipList.size() - 1) {
+                this.listNum[0]++;
             }
             return true;
         }
 
         if ((chapId == 4 || chapId == 5) && mx > 8 && mx < 117 && my > 47 && my < 154) {
-            if (scrollY > 0) this.targetScale += 5.0f;
-            else if (scrollY < 0) this.targetScale -= 5.0f;
+            if (scrollY > 0) {
+                this.targetScale += 5.0f;
+            } else if (scrollY < 0) {
+                this.targetScale -= 5.0f;
+            }
             this.targetScale = net.minecraft.util.Mth.clamp(this.targetScale, 10.0f, 150.0f);
             return true;
         }
@@ -623,6 +624,7 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        // Labels are not rendered in this screen
     }
 
     @Override
@@ -632,109 +634,118 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         this.lastXMouse = mx;
         this.lastYMouse = my;
 
-        if (menu.getDeskType() == 0) {
-            if (my >= 2 && my <= 18) {
-                if (mx >= 3 && mx <= 19) { setDeskFunction(1); return true; }
-                if (mx >= 22 && mx <= 38) { setDeskFunction(2); return true; }
-                if (mx >= 41 && mx <= 57) { setDeskFunction(3); return true; }
-                if (mx >= 60 && mx <= 76) { setDeskFunction(4); return true; }
-            }
+        if (menu.getDeskType() == 0 && my >= 2 && my <= 18) {
+            if (handleTopTabClicks(mx)) return true;
         }
 
         if (guiFunc == 1) {
-            if (mx >= 9 && mx <= 53 && my >= 160 && my <= 168) {
-                this.radarZoomLv = (this.radarZoomLv + 1) % 3;
-                syncDeskGui();
-                return true;
-            }
-            if (mx >= 142 && mx <= 250) {
-                for (int i = 0; i < 5; i++) {
-                    int ry = 25 + i * 32;
-                    if (my >= ry && my <= ry + 31) {
-                        int index = this.listNum[0] + i;
-                        if (index < this.shipList.size()) {
-                            if (hasShiftDown()) {
-                                if (this.selectedShips.contains(index)) {
-                                    this.selectedShips.remove(Integer.valueOf(index));
-                                } else {
-                                    this.selectedShips.add(index);
-                                }
-                            } else {
-                                this.selectedShips.clear();
-                                this.selectedShips.add(index);
-                            }
-                        }
-                        return true;
-                    }
-                }
-            }
-            if (!this.selectedShips.isEmpty()) {
-                if (mx >= 88 && mx <= 132 && my >= 159 && my <= 169) {
-                    handleSummonSelectedShips();
-                    return true;
-                }
-            }
-            this.selectedShips.clear();
-            return true;
+            if (handleRadarClicks(mx, my)) return true;
         }
 
         if (guiFunc == 2) {
-            if (my >= 180 && my <= 195) {
-                if (mx >= 50 && mx <= 80) {
-                    if (pageId > 0) {
-                        pageId -= (button == 1 ? 10 : 1);
-                        if (pageId < 0) pageId = 0;
-                        syncBookState();
+            if (handleBookClicks(mx, my, button)) return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private boolean handleTopTabClicks(int mx) {
+        if (mx >= 3 && mx <= 19) { setDeskFunction(1); return true; }
+        if (mx >= 22 && mx <= 38) { setDeskFunction(2); return true; }
+        if (mx >= 41 && mx <= 57) { setDeskFunction(3); return true; }
+        if (mx >= 60 && mx <= 76) { setDeskFunction(4); return true; }
+        return false;
+    }
+
+    private boolean handleRadarClicks(int mx, int my) {
+        if (mx >= 9 && mx <= 53 && my >= 160 && my <= 168) {
+            this.radarZoomLv = (this.radarZoomLv + 1) % 3;
+            syncDeskGui();
+            return true;
+        }
+        if (mx >= 142 && mx <= 250) {
+            for (int i = 0; i < 5; i++) {
+                int ry = 25 + i * 32;
+                if (my >= ry && my <= ry + 31) {
+                    int index = this.listNum[0] + i;
+                    if (index < this.shipList.size()) {
+                        if (hasShiftDown()) {
+                            if (this.selectedShips.contains(index)) {
+                                this.selectedShips.remove(Integer.valueOf(index));
+                            } else {
+                                this.selectedShips.add(index);
+                            }
+                        } else {
+                            this.selectedShips.clear();
+                            this.selectedShips.add(index);
+                        }
                     }
                     return true;
-                }
-                if (mx >= 170 && mx <= 200) {
-                    if (chapId >= 0 && chapId < Values.PageLimit.length && pageId < Values.PageLimit[chapId]) {
-                        pageId += (button == 1 ? 10 : 1);
-                        if (pageId > Values.PageLimit[chapId]) pageId = Values.PageLimit[chapId];
-                        syncBookState();
-                    }
-                    return true;
-                }
-            }
-            
-            if (mx >= 243 && mx <= 256) {
-                if (my >= 34 && my <= 121) {
-                    int getbtn = (my - 34) / 12;
-                    if (getbtn >= 0 && getbtn < 7) {
-                        this.chapId = getbtn;
-                        this.pageId = 0;
-                        syncBookState();
-                        syncDeskGui();
-                        return true;
-                    }
-                }
-            }
-            
-            if (entityTemp != null && (chapId == 4 || chapId == 5)) {
-                if (mx >= 22 && mx <= 30) {
-                    if (my >= 158 && my <= 166) { handleBookModelControls(1); return true; }
-                    if (my >= 169 && my <= 177) { handleBookModelControls(3); return true; }
-                }
-                if (mx >= 33 && mx <= 41) {
-                    if (my >= 158 && my <= 166) { handleBookModelControls(2); return true; }
-                    if (my >= 169 && my <= 177) { handleBookModelControls(4); return true; }
-                }
-                int drawIdx = 0;
-                int startIdx = (entityTemp instanceof EntityShipBase ship && ship.hasShipMounts()) ? 1 : 0;
-                for (int i = startIdx; i < 16; i++) {
-                    if (i >= ((EntityShipBase)entityTemp).getStateMinor(13)) break;
-                    int dx = 45 + (drawIdx % 8) * 9;
-                    int dy = 158 + (drawIdx / 8) * 9;
-                    if (mx >= dx && mx <= dx + 7 && my >= dy && my <= dy + 9) {
-                        handleBookModelControls(5 + i);
-                        return true;
-                    }
-                    drawIdx++;
                 }
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        if (!this.selectedShips.isEmpty() && mx >= 88 && mx <= 132 && my >= 159 && my <= 169) {
+            handleSummonSelectedShips();
+            return true;
+        }
+        this.selectedShips.clear();
+        return true;
+    }
+
+    private boolean handleBookClicks(int mx, int my, int button) {
+        if (my >= 180 && my <= 195) {
+            if (mx >= 50 && mx <= 80) {
+                if (pageId > 0) {
+                    pageId -= (button == 1 ? 10 : 1);
+                    if (pageId < 0) pageId = 0;
+                    syncBookState();
+                }
+                return true;
+            }
+            if (mx >= 170 && mx <= 200) {
+                if (chapId >= 0 && chapId < Values.PageLimit.length && pageId < Values.PageLimit[chapId]) {
+                    pageId += (button == 1 ? 10 : 1);
+                    if (pageId > Values.PageLimit[chapId]) pageId = Values.PageLimit[chapId];
+                    syncBookState();
+                }
+                return true;
+            }
+        }
+        
+        if (mx >= 243 && mx <= 256 && my >= 34 && my <= 121) {
+            int getbtn = (my - 34) / 12;
+            if (getbtn >= 0 && getbtn < 7) {
+                this.chapId = getbtn;
+                this.pageId = 0;
+                syncBookState();
+                syncDeskGui();
+                return true;
+            }
+        }
+        
+        if (entityTemp != null && (chapId == 4 || chapId == 5)) {
+            if (mx >= 22 && mx <= 30) {
+                if (my >= 158 && my <= 166) { handleBookModelControls(1); return true; }
+                if (my >= 169 && my <= 177) { handleBookModelControls(3); return true; }
+            }
+            if (mx >= 33 && mx <= 41) {
+                if (my >= 158 && my <= 166) { handleBookModelControls(2); return true; }
+                if (my >= 169 && my <= 177) { handleBookModelControls(4); return true; }
+            }
+            int drawIdx = 0;
+            int startIdx = (entityTemp instanceof EntityShipBase ship && ship.hasShipMounts()) ? 1 : 0;
+            for (int i = startIdx; i < 16; i++) {
+                if (i >= ((EntityShipBase)entityTemp).getStateComponent().getRarity()) break;
+                int dx = 45 + (drawIdx % 8) * 9;
+                int dy = 158 + (drawIdx / 8) * 9;
+                if (mx >= dx && mx <= dx + 7 && my >= dy && my <= dy + 9) {
+                    handleBookModelControls(5 + i);
+                    return true;
+                }
+                drawIdx++;
+            }
+        }
+        return false;
     }
 
     private void setDeskFunction(int func) {
@@ -766,17 +777,19 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
             } else {
                 pos = this.minecraft.player.blockPosition();
             }
-            PacketDistributor.sendToServer(new C2SDeskSummonPayload(pos, uuids));
+            boolean isItem = (menu.getDeskType() == 1);
+            PacketDistributor.sendToServer(new C2SDeskSummonPayload(pos, uuids, isItem));
             this.minecraft.player.closeContainer();
         }
     }
 
     private static class RadarEntity {
-        public Entity ship;
-        public double pixelx, pixely, pixelz;
-        public int posX, posY, posZ;
+        final Entity ship;
+        double pixelx;
+        double pixely;
+        double pixelz;
 
-        public RadarEntity(Entity ship) {
+        RadarEntity(Entity ship) {
             this.ship = ship;
         }
     }

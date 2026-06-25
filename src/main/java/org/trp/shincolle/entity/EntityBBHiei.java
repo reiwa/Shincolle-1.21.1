@@ -22,11 +22,11 @@ public class EntityBBHiei extends EntityShipBase {
     public EntityBBHiei(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 25, 0, 40});
-        setStateMinor(STATE_MINOR_FACTION_ID, 6);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 61);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
-        setStateMinor(STATE_MINOR_RARITY, 2);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
+        getStateComponent().setFactionId(6);
+        getStateComponent().setShipClassId(61);
+        getStateComponent().setSpecialEquip(3);
+        getStateComponent().setRarity(2);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeBB);
         setStateGuiBtn4(false);
     }
 
@@ -84,8 +84,8 @@ public class EntityBBHiei extends EntityShipBase {
         if (ships.isEmpty()) {
             return;
         }
-        int duration = 100 + this.getStateMinor(0) * 2;
-        int amp = Math.max(0, this.getStateMinor(0) / 120);
+        int duration = 100 + this.getStateComponent().getAffectionLegacy() * 2;
+        int amp = Math.max(0, this.getStateComponent().getAffectionLegacy() / 120);
         for (EntityShipBase ship : ships) {
             if (ship == this) {
                 continue;

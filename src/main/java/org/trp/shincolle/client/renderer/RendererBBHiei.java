@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityBBHiei;
 
 public class RendererBBHiei extends MobRenderer<EntityBBHiei, ModelBBHiei<EntityBBHiei>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/bb_hiei.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererBBHiei(EntityRendererProvider.Context context) {
         super(context, new ModelBBHiei<>(context.bakeLayer(ModelBBHiei.LAYER_LOCATION)), 0.5f);

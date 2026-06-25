@@ -31,11 +31,11 @@ public class EntityBattleshipYamato extends EntityShipBase {
     public EntityBattleshipYamato(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 25, 0, 40});
-        setStateMinor(STATE_MINOR_FACTION_ID, 6);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 46);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
-        setStateMinor(STATE_MINOR_RARITY, 4);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
+        getStateComponent().setFactionId(6);
+        getStateComponent().setShipClassId(46);
+        getStateComponent().setSpecialEquip(3);
+        getStateComponent().setRarity(4);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeBB);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
     }
@@ -151,7 +151,7 @@ public class EntityBattleshipYamato extends EntityShipBase {
     }
 
     private void applyBuffToNearbyAllies() {
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateComponent().getFuel() > 0)) {
             return;
         }
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
@@ -159,8 +159,8 @@ public class EntityBattleshipYamato extends EntityShipBase {
         if (ships.isEmpty()) {
             return;
         }
-        int duration = 50 + this.getStateMinor(0);
-        int amp = Math.max(0, this.getStateMinor(0) / 70);
+        int duration = 50 + this.getStateComponent().getAffectionLegacy();
+        int amp = Math.max(0, this.getStateComponent().getAffectionLegacy() / 70);
         for (EntityShipBase ship : ships) {
             if (ship == this) {
                 continue;

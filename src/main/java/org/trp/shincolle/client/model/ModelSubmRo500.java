@@ -15,9 +15,9 @@ public class ModelSubmRo500<T extends EntityShipBase> extends ShipModelHumanoidB
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "subm_ro_500"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelSubmRo500");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelSubmRo500");
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelSubmRo500");
+    private static final float DEAD_TRANSLATE_Y = 0.55F * 3.2F;
+    private static final float SNEAK_TRANSLATE_Y = 0.1F;
+    private static final float SITTING_TRANSLATE_Y = 0.41F * 3.2F;
 
     private boolean isDeadPose;
     private boolean isSittingPose;

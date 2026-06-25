@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityBBKongou;
 
 public class RendererBBKongou extends MobRenderer<EntityBBKongou, ModelBBKongou<EntityBBKongou>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/bb_kongou.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererBBKongou(EntityRendererProvider.Context context) {
         super(context, new ModelBBKongou<>(context.bakeLayer(ModelBBKongou.LAYER_LOCATION)), 0.5f);

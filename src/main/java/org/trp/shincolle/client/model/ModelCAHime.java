@@ -15,8 +15,8 @@ public class ModelCAHime<T extends EntityShipBase> extends ShipModelHumanoidBase
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "ca_hime"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelCAHime");
-    private static final float SIT_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelCAHime");
+    private static final float DEAD_TRANSLATE_Y = 0.2F * 5;
+    private static final float SIT_TRANSLATE_Y = 0.21F * 4.1F;
 
     private boolean isDeadPose;
     private boolean isSittingPose;
@@ -858,5 +858,10 @@ public class ModelCAHime<T extends EntityShipBase> extends ShipModelHumanoidBase
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.45f;
     }
 }

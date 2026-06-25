@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityNorthernHime;
 
 public class RendererNorthernHime extends MobRenderer<EntityNorthernHime, ModelNorthernHime<EntityNorthernHime>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/northern_hime.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererNorthernHime(EntityRendererProvider.Context context) {
         super(context, new ModelNorthernHime<>(context.bakeLayer(ModelNorthernHime.LAYER_LOCATION)), 0.5f);

@@ -7,8 +7,9 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
-import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.IShipRenderState;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class ShipModelBaseAdv<T extends EntityShipBase> extends EntityModel<T> implements ArmedModel {
+public abstract class ShipModelBaseAdv<T extends Entity & IShipRenderState> extends EntityModel<T> implements ArmedModel {
 
     public ModelPart Face0, Face1, Face2, Face3, Face4;
     public ModelPart Mouth0, Mouth1, Mouth2;
@@ -47,7 +48,7 @@ public abstract class ShipModelBaseAdv<T extends EntityShipBase> extends EntityM
         this.Flush1 = getChildOrNull(headPart, "Flush1");
     }
 
-    public float getScale(EntityShipBase entity) {
+    public float getScale(IShipRenderState entity) {
         return getLegacyScale(entity);
     }
 
@@ -217,11 +218,11 @@ public abstract class ShipModelBaseAdv<T extends EntityShipBase> extends EntityM
         return side == HumanoidArm.RIGHT ? armMain : armOff;
     }
 
-    public float[] getHeldItemOffset(EntityShipBase entity, HumanoidArm side, boolean isBlock) {
+    public float[] getHeldItemOffset(IShipRenderState entity, HumanoidArm side, boolean isBlock) {
         return isBlock ? offsetBlock : offsetItem;
     }
 
-    public float[] getHeldItemRotate(EntityShipBase entity, HumanoidArm side, boolean isBlock) {
+    public float[] getHeldItemRotate(IShipRenderState entity, HumanoidArm side, boolean isBlock) {
         return isBlock ? rotateBlock : rotateItem;
     }
 
@@ -326,63 +327,12 @@ public abstract class ShipModelBaseAdv<T extends EntityShipBase> extends EntityM
     }
 
 
-    public float getLegacyScale(EntityShipBase entity) {
-        float base = switch (this.getClass().getSimpleName()) {
-            case "ModelBattleshipRe",
-                 "ModelDestroyerAkatsuki",
-                 "ModelDestroyerHa",
-                 "ModelDestroyerHibiki",
-                 "ModelDestroyerHime",
-                 "ModelDestroyerI",
-                 "ModelDestroyerIkazuchi",
-                 "ModelDestroyerInazuma",
+    public float getBaseScale() {
+        return 0.34f;
+    }
 
-                 "ModelDestroyerNi",
-                 "ModelDestroyerRo",
-                 "ModelDestroyerShimakaze" -> 0.4f;
-
-            case "ModelCruiserAtago",
-                 "ModelCruiserTakao",
-                 "ModelCruiserTatsuta",
-                 "ModelCruiserTenryuu" -> 0.43f;
-
-            case "ModelBattleshipHime",
-                 "ModelBattleshipTa",
-                 "ModelBattleshipNagato",
-                 "ModelBattleshipRu",
-                 "ModelBattleshipYamato" -> 0.5f;
-
-            case "ModelCarrierAkagi",
-                 "ModelCarrierKaga",
-                 "ModelCarrierHime" -> 0.46f;
-
-            case "ModelCarrierWDemon",
-                 "ModelAirfieldHime" -> 0.47f;
-
-            case "ModelCarrierWo" -> 0.44f;
-
-            case "ModelBBHaruna",
-                 "ModelBBHiei",
-                 "ModelBBKirishima",
-                 "ModelBBKongou" -> 0.45f;
-
-            case "ModelCAHime" -> 0.45f;
-
-            case "ModelNorthernHime" -> 0.34f;
-            case "ModelSSNH" -> 0.32f;
-            case "ModelSubmHime",
-                 "ModelSubmSo",
-                 "ModelSubmKa",
-                 "ModelSubmYo" -> 0.48f;
-            case "ModelTransportWa" -> 0.4f;
-            case "ModelIsolatedHime" -> 0.38f;
-            case "ModelHeavyCruiserNe" -> 0.4f;
-            case "ModelHeavyCruiserRi" -> 0.41f;
-            case "ModelMidwayHime" -> 0.48f;
-            case "ModelHarbourHime" -> 0.53f;
-
-            default -> 0.34f;
-        };
+    public float getLegacyScale(IShipRenderState entity) {
+        float base = getBaseScale();
 
         int level = entity != null ? entity.getScaleLevel() : 0;
         level = Math.max(0, Math.min(level, 3));

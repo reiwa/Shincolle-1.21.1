@@ -13,6 +13,8 @@ import java.util.List;
 
 public class BookRenderer {
 
+    private static final String CHAP_KEY_PREFIX = "gui.shincolle.book.chap";
+
     public static final ResourceLocation GUI_BOOK = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guideskbook.png");
     public static final ResourceLocation GUI_BOOK2 = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guideskbook2.png");
     public static final ResourceLocation GUI_NAME_ICON0 = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guinameicon0.png");
@@ -21,7 +23,11 @@ public class BookRenderer {
     public static final ResourceLocation GUI_RADAR = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guideskradar.png");
     public static final ResourceLocation GUI_DESK = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guidesk.png");
 
-    public static void drawBookBase(GuiGraphics guiGraphics, int x, int y, int chapId, int pageId) {
+    private BookRenderer() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
+    public static void drawBookBase(GuiGraphics guiGraphics, int x, int y) {
         guiGraphics.blit(GUI_BOOK, x, y, 0, 0, 256, 192);
     }
 
@@ -50,6 +56,8 @@ public class BookRenderer {
                 case 2:
                     drawBookIcon(guiGraphics, x, y, data[1], data[2], data[3], data[4]);
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -58,7 +66,7 @@ public class BookRenderer {
         if (!(entity instanceof org.trp.shincolle.entity.base.EntityShipBase ship)) return;
         
         int shipStats = ship.getStateEmotion(0);
-        int shipMaxStats = ship.getStateMinor(13);
+        int shipMaxStats = ship.getStateComponent().getRarity();
         
         int drawIdx = 0;
         int startIdx = ship.hasShipMounts() ? 1 : 0;
@@ -72,7 +80,7 @@ public class BookRenderer {
     }
 
     private static void drawBookText(GuiGraphics guiGraphics, int x, int y, int side, int offX, int offY, int bookID) {
-        String key = "gui.shincolle.book.chap" + (bookID / 1000) + ".text" + (bookID % 1000) + "d" + side;
+        String key = CHAP_KEY_PREFIX + (bookID / 1000) + ".text" + (bookID % 1000) + "d" + side;
         
         String text = net.minecraft.client.resources.language.I18n.get(key);
         if (text.equals(key)) return;
@@ -132,9 +140,9 @@ public class BookRenderer {
     private static void drawTitleText(GuiGraphics guiGraphics, int x, int y, int page, int chap) {
         String key;
         if (chap == 0) {
-            key = "gui.shincolle.book.chap" + chap + ".title";
+            key = CHAP_KEY_PREFIX + chap + ".title";
         } else {
-            key = "gui.shincolle.book.chap" + chap + ".title" + page;
+            key = CHAP_KEY_PREFIX + chap + ".title" + page;
         }
 
         String text = net.minecraft.client.resources.language.I18n.get(key);

@@ -18,11 +18,6 @@ public class DeskItemBook extends Item {
     }
 
     @Override
-    public String getDescriptionId() {
-        return "item.shincolle.deskitembook.name";
-    }
-
-    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         
@@ -32,7 +27,7 @@ public class DeskItemBook extends Item {
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
             serverPlayer.openMenu(new SimpleMenuProvider(
                 (id, inv, p) -> new DeskMenu(id, inv, 2, chap, page),
-                Component.translatable("item.shincolle.deskitembook.name")
+                Component.translatable(this.getDescriptionId())
             ), buffer -> {
                 buffer.writeInt(2);
                 buffer.writeInt(chap);

@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity.base;
 
+import org.trp.shincolle.Config;
 import org.trp.shincolle.init.ModParticles;
 
 final class EntityShipBaseReactions {
@@ -136,7 +137,7 @@ final class EntityShipBaseReactions {
         this.ship.resetFaceTick();
         int m = this.ship.getMorale();
         int body = this.ship.getHitBodyID();
-        int baseMorale = 50;
+        int baseMorale = Config.baseCaressMorale;
         boolean sensitive = (body == this.ship.getSensitiveBody());
 
         switch (getMoraleLevel()) {

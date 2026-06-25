@@ -27,11 +27,11 @@ public class EntityCruiserTakao extends EntityShipBase {
     public EntityCruiserTakao(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 25, 0, 40});
-        setStateMinor(STATE_MINOR_FACTION_ID, 2);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 59);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4);
-        setStateMinor(STATE_MINOR_RARITY, 4);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeCA);
+        getStateComponent().setFactionId(2);
+        getStateComponent().setShipClassId(59);
+        getStateComponent().setSpecialEquip(4);
+        getStateComponent().setRarity(4);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeCA);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
     }
@@ -41,8 +41,8 @@ public class EntityCruiserTakao extends EntityShipBase {
         boolean result = super.hurt(source, amount);
         if (result && !this.level().isClientSide) {
             if (source.getEntity() instanceof LivingEntity attacker) {
-                int duration = 80 + this.getStateMinor(0);
-                int amp = Math.max(0, this.getStateMinor(0) / 80);
+                int duration = 80 + this.getStateComponent().getAffectionLegacy();
+                int amp = Math.max(0, this.getStateComponent().getAffectionLegacy() / 80);
                 attacker.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, amp, false, false));
             }
         }

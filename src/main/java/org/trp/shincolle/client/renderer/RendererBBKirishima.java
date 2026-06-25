@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityBBKirishima;
 
 public class RendererBBKirishima extends MobRenderer<EntityBBKirishima, ModelBBKirishima<EntityBBKirishima>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/bb_kirishima.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererBBKirishima(EntityRendererProvider.Context context) {
         super(context, new ModelBBKirishima<>(context.bakeLayer(ModelBBKirishima.LAYER_LOCATION)), 0.5f);

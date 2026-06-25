@@ -26,11 +26,6 @@ public class OwnerPaperItem extends Item {
     }
 
     @Override
-    public String getDescriptionId() {
-        return "item.shincolle.ownerpaper.name";
-    }
-
-    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!level.isClientSide && !player.isShiftKeyDown()) {

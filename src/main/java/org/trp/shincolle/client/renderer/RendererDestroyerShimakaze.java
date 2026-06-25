@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityDestroyerShimakaze;
 
 public class RendererDestroyerShimakaze extends MobRenderer<EntityDestroyerShimakaze, ModelDestroyerShimakaze<EntityDestroyerShimakaze>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/destroyer_shimakaze.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererDestroyerShimakaze(EntityRendererProvider.Context context) {
         super(context, new ModelDestroyerShimakaze<>(context.bakeLayer(ModelDestroyerShimakaze.LAYER_LOCATION)), 0.5f);

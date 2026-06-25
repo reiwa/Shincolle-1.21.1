@@ -79,7 +79,7 @@ public class DeskBlockEntity extends BlockEntity implements MenuProvider {
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("tile.shincolle.blockdesk.name");
+        return Component.translatable("block.shincolle.blockdesk");
     }
 
     @Override

@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityCruiserTakao;
 
 public class RendererCruiserTakao extends MobRenderer<EntityCruiserTakao, ModelCruiserTakao<EntityCruiserTakao>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/cruiser_takao.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererCruiserTakao(EntityRendererProvider.Context context) {
         super(context, new ModelCruiserTakao<>(context.bakeLayer(ModelCruiserTakao.LAYER_LOCATION)), 0.5f);

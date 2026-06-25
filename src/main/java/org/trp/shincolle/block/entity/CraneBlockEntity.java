@@ -210,14 +210,14 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
     private boolean checkCraningShip() {
         if (this.craningShip != null && this.craningShip.isAlive() && !this.craningShip.isRemoved()) {
             if (this.craningShip.distanceToSqr(this.worldPosition.getX() + 0.5, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5) < 64.0) {
-                if (this.craningShip.getStateMinor(43) == 2) {
+                if (this.craningShip.getStateComponent().getCraning() == 2) {
                     if (this.syncedShipId != this.craningShip.getId()) {
                         this.syncedShipId = this.craningShip.getId();
                         markForSync();
                     }
                     return true;
                 }
-                if (this.craningShip.getStateMinor(43) == 1) {
+                if (this.craningShip.getStateComponent().getCraning() == 1) {
                     this.craningShip.getNavigation().moveTo(this.worldPosition.getX() + 0.5, this.worldPosition.getY() - 2.0, this.worldPosition.getZ() + 0.5, 1.0D);
                     if (this.syncedShipId != this.craningShip.getId()) {
                         this.syncedShipId = this.craningShip.getId();
@@ -232,15 +232,15 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         List<EntityShipBase> ships = this.level.getEntitiesOfClass(EntityShipBase.class, aabb);
         for (EntityShipBase ship : ships) {
             if (ship.isAlive() && ship.isTame() && this.ownerUUID != null && this.ownerUUID.equals(ship.getOwnerUUID())) {
-                if (ship.getStateMinor(43) == 1 || ship.getStateMinor(43) == 2) {
+                if (ship.getStateComponent().getCraning() == 1 || ship.getStateComponent().getCraning() == 2) {
                     this.craningShip = ship;
                     if (this.syncedShipId != ship.getId()) {
                         this.syncedShipId = ship.getId();
                         markForSync();
                     }
-                    if (ship.getStateMinor(43) == 1) {
+                    if (ship.getStateComponent().getCraning() == 1) {
                         ship.getNavigation().moveTo(this.worldPosition.getX() + 0.5, this.worldPosition.getY() - 2.0, this.worldPosition.getZ() + 0.5, 1.0D);
-                        ship.setStateMinor(43, 2);
+                        ship.getStateComponent().setCraning(2);
                     }
                     return true;
                 }
@@ -356,7 +356,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         int totalDrums = 0;
         int totalEnchants = 0;
         
-        if (ship.getStateMinor(EntityShipBase.STATE_MINOR_FACTION_ID) == 7 && ship.isStateMarried()) {
+        if (ship.getStateComponent().getFactionId() == 7 && ship.getStateComponent().isStateMarried()) {
             totalDrums = 1;
         }
         
@@ -424,7 +424,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         }
 
         if (stop) {
-            this.craningShip.setStateMinor(43, 0);
+            this.craningShip.getStateComponent().setCraning(0);
             this.craningShip = null;
             markForSync();
         }
@@ -544,7 +544,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("tile.shincolle.blockcrane.name");
+        return Component.translatable("block.shincolle.blockcrane");
     }
 
     @Nullable
@@ -561,7 +561,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
     }
 
     public int getCraningShipTimer() {
-        return this.craningShip == null ? 0 : this.craningShip.getStateTimer(1);
+        return this.craningShip == null ? 0 : this.craningShip.getStateComponent().getCraneTimer();
     }
 
     public int getRemainedPower() { return remainedPower; }

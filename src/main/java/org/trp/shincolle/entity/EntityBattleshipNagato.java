@@ -33,11 +33,11 @@ public class EntityBattleshipNagato extends EntityShipBase {
     public EntityBattleshipNagato(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 25, 0, 40});
-        setStateMinor(STATE_MINOR_FACTION_ID, 6);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 37);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
-        setStateMinor(STATE_MINOR_RARITY, 2);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
+        getStateComponent().setFactionId(6);
+        getStateComponent().setShipClassId(37);
+        getStateComponent().setSpecialEquip(3);
+        getStateComponent().setRarity(2);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeBB);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
     }
@@ -57,7 +57,7 @@ public class EntityBattleshipNagato extends EntityShipBase {
         super.tickAliveLogic();
         if ((this.tickCount % 128) == 0) {
             addMoraleSpecialEvent();
-            if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
+            if (this.isStateMarried() && this.isStateRingEffect() && this.getStateComponent().getFuel() > 0) {
                 applyBuffToNearbyAllies();
             }
         }
@@ -174,8 +174,8 @@ public class EntityBattleshipNagato extends EntityShipBase {
         if (ships.isEmpty()) {
             return;
         }
-        int duration = 50 + this.getStateMinor(0);
-        int amp = Math.max(0, this.getStateMinor(0) / 70);
+        int duration = 50 + this.getStateComponent().getAffectionLegacy();
+        int amp = Math.max(0, this.getStateComponent().getAffectionLegacy() / 70);
         for (EntityShipBase ship : ships) {
             if (ship == this) {
                 continue;
@@ -194,7 +194,7 @@ public class EntityBattleshipNagato extends EntityShipBase {
         List<LivingEntity> nearby = this.level().getEntitiesOfClass(LivingEntity.class,
                 this.getBoundingBox().inflate(16.0D, 12.0D, 16.0D),
                 entity -> entity instanceof EntityNorthernHime
-                        || (entity instanceof EntityShipBase ship && ship.getStateMinor(STATE_MINOR_FACTION_ID) != -1));
+                        || (entity instanceof EntityShipBase ship && ship.getStateComponent().getFactionId() != -1));
         if (nearby.isEmpty()) {
             return;
         }

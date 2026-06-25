@@ -44,6 +44,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     public static final int SLIDER_FOLLOW_MIN_BASE = 400;
     public static final int SLIDER_FOLLOW_MAX_BASE = 500;
     public static final int SLIDER_FLEE_HP_BASE = 700;
+    public static final int SLIDER_WPSTAY_BASE = 800;
     public static final int SLIDER_RATION_MORALE_BASE = 900;
     public static final int ACTION_TASK_SELECT_BASE = 1000;
     public static final int ACTION_TASK_META_TOGGLE = 1010;
@@ -67,18 +68,18 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private static final int STATE_FLAG_APPEARANCE = 25;
     public static final int STATE_FLAG_AUTO_PUMP = 26;
 
-    public static final int STATE_MINOR_RATION_MORALE = 9;
-    public static final int STATE_MINOR_FOLLOW_MIN = 10;
-    public static final int STATE_MINOR_FOLLOW_MAX = 11;
-    public static final int STATE_MINOR_FLEE_HP = 12;
-    public static final int STATE_MINOR_TASK_ID = 40;
-    public static final int STATE_MINOR_TASK_SIDE = 41;
-    public static final int STATE_MINOR_GUARD_X = 14;
-    public static final int STATE_MINOR_GUARD_Y = 15;
-    public static final int STATE_MINOR_GUARD_Z = 16;
-    public static final int STATE_MINOR_GUARD_DIM = 17;
-    public static final int STATE_MINOR_GUARD_TYPE = 18;
-    private static final int STATE_MINOR_EQUIP_DRUM = 36;
+    public static final int STATE_MINOR_RATION_MORALE = EntityShipBase.STATE_MINOR_RATION_MORALE;
+    public static final int STATE_MINOR_FOLLOW_MIN = EntityShipBase.STATE_MINOR_FOLLOW_MIN;
+    public static final int STATE_MINOR_FOLLOW_MAX = EntityShipBase.STATE_MINOR_FOLLOW_MAX;
+    public static final int STATE_MINOR_FLEE_HP = EntityShipBase.STATE_MINOR_FLEE_HP;
+    public static final int STATE_MINOR_TASK_ID = EntityShipBase.STATE_MINOR_TASK_ID;
+    public static final int STATE_MINOR_TASK_SIDE = EntityShipBase.STATE_MINOR_TASK_SIDE;
+    public static final int STATE_MINOR_GUARD_X = EntityShipBase.STATE_MINOR_GUARD_X;
+    public static final int STATE_MINOR_GUARD_Y = EntityShipBase.STATE_MINOR_GUARD_Y;
+    public static final int STATE_MINOR_GUARD_Z = EntityShipBase.STATE_MINOR_GUARD_Z;
+    public static final int STATE_MINOR_GUARD_DIM = EntityShipBase.STATE_MINOR_GUARD_DIM;
+    public static final int STATE_MINOR_GUARD_TYPE = EntityShipBase.STATE_MINOR_GUARD_TYPE;
+    private static final int STATE_MINOR_EQUIP_DRUM = EntityShipBase.STATE_MINOR_EQUIP_DRUM;
 
     private static final int FOLLOW_MIN_MIN = 1;
     private static final int FOLLOW_MIN_MAX = 31;
@@ -213,7 +214,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot followMinData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateMinor(STATE_MINOR_FOLLOW_MIN);
+            return ship.getStateComponent().getFollowMin();
         }
 
         @Override
@@ -224,7 +225,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot followMaxData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateMinor(STATE_MINOR_FOLLOW_MAX);
+            return ship.getStateComponent().getFollowMax();
         }
 
         @Override
@@ -235,7 +236,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot fleeHpData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateMinor(STATE_MINOR_FLEE_HP);
+            return ship.getStateComponent().getFleeHp();
         }
 
         @Override
@@ -246,7 +247,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot passiveAttackData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK) ? 1 : 0;
+            return ship.getStateComponent().isStatePassiveAttack() ? 1 : 0;
         }
 
         @Override
@@ -257,7 +258,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot onSightData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_ON_SIGHT) ? 1 : 0;
+            return ship.getStateComponent().isStateOnSight() ? 1 : 0;
         }
 
         @Override
@@ -268,7 +269,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot pvpData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_PVP) ? 1 : 0;
+            return ship.getStateComponent().isStatePvp() ? 1 : 0;
         }
 
         @Override
@@ -279,7 +280,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot antiAirData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_ANTI_AIR) ? 1 : 0;
+            return ship.getStateComponent().isStateAntiAir() ? 1 : 0;
         }
 
         @Override
@@ -290,7 +291,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot antiSubData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_ANTI_SUB) ? 1 : 0;
+            return ship.getStateComponent().isStateAntiSub() ? 1 : 0;
         }
 
         @Override
@@ -301,7 +302,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot timeKeepingData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_TIMEKEEP) ? 1 : 0;
+            return ship.getStateComponent().isStateTimekeep() ? 1 : 0;
         }
 
         @Override
@@ -312,7 +313,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot pickItemData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_PICK_ITEM) ? 1 : 0;
+            return ship.getStateComponent().isStatePickItem() ? 1 : 0;
         }
 
         @Override
@@ -323,7 +324,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot autoPumpData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateFlag(STATE_FLAG_AUTO_PUMP) ? 1 : 0;
+            return ship.getStateComponent().isStateAutoPump() ? 1 : 0;
         }
 
         @Override
@@ -356,7 +357,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot rationMoraleData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateMinor(STATE_MINOR_RATION_MORALE);
+            return ship.getStateComponent().getRationMorale();
         }
 
         @Override
@@ -367,7 +368,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot taskIdData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateMinor(STATE_MINOR_TASK_ID);
+            return ship.getStateComponent().getTaskId();
         }
 
         @Override
@@ -378,7 +379,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private final DataSlot taskSideData = new DataSlot() {
         @Override
         public int get() {
-            return ship.getStateMinor(STATE_MINOR_TASK_SIDE);
+            return ship.getStateComponent().getTaskSide();
         }
 
         @Override
@@ -537,7 +538,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.ship = ship;
 
         if (!ship.level().isClientSide && playerInv.player != null) {
-            int classID = ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
+            int classID = ship.getStateComponent().getShipClassId();
             if (classID >= 0) {
                 java.util.HashSet<Integer> collected = playerInv.player.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS);
                 if (collected.add(classID)) {
@@ -548,7 +549,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             }
         }
 
-        this.unlockedStoragePagesSynced = Mth.clamp(ship.getStateMinor(STATE_MINOR_EQUIP_DRUM), 0, SHIP_PAGE_COUNT - 1);
+        this.unlockedStoragePagesSynced = Mth.clamp(ship.getStateComponent().getEquipDrum(), 0, SHIP_PAGE_COUNT - 1);
         this.canMeleeSynced = ship.isStateCanMelee();
         this.lightAttackSynced = ship.isStateLightAttack();
         this.heavyAttackSynced = ship.isStateHeavyAttack();
@@ -556,28 +557,28 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.heavyAircraftAttackSynced = ship.isStateHeavyAircraftAttack();
         this.ringEffectSynced = ship.isStateRingEffect();
         this.marriedSynced = ship.isStateMarried();
-        this.followMinSynced = clampFollowMin(ship.getStateMinor(STATE_MINOR_FOLLOW_MIN));
-        this.followMaxSynced = clampFollowMax(ship.getStateMinor(STATE_MINOR_FOLLOW_MAX), this.followMinSynced);
-        this.fleeHpSynced = clampFleeHp(ship.getStateMinor(STATE_MINOR_FLEE_HP));
-        this.passiveAttackSynced = ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK);
-        this.onSightSynced = ship.getStateFlag(STATE_FLAG_ON_SIGHT);
-        this.pvpSynced = ship.getStateFlag(STATE_FLAG_PVP);
-        this.antiAirSynced = ship.getStateFlag(STATE_FLAG_ANTI_AIR);
-        this.antiSubSynced = ship.getStateFlag(STATE_FLAG_ANTI_SUB);
-        this.timeKeepingSynced = ship.getStateFlag(STATE_FLAG_TIMEKEEP);
-        this.pickItemSynced = ship.getStateFlag(STATE_FLAG_PICK_ITEM);
-        this.autoPumpSynced = ship.getStateFlag(STATE_FLAG_AUTO_PUMP);
+        this.followMinSynced = clampFollowMin(ship.getStateComponent().getFollowMin());
+        this.followMaxSynced = clampFollowMax(ship.getStateComponent().getFollowMax(), this.followMinSynced);
+        this.fleeHpSynced = clampFleeHp(ship.getStateComponent().getFleeHp());
+        this.passiveAttackSynced = ship.getStateComponent().isStatePassiveAttack();
+        this.onSightSynced = ship.getStateComponent().isStateOnSight();
+        this.pvpSynced = ship.getStateComponent().isStatePvp();
+        this.antiAirSynced = ship.getStateComponent().isStateAntiAir();
+        this.antiSubSynced = ship.getStateComponent().isStateAntiSub();
+        this.timeKeepingSynced = ship.getStateComponent().isStateTimekeep();
+        this.pickItemSynced = ship.getStateComponent().isStatePickItem();
+        this.autoPumpSynced = ship.getStateComponent().isStateAutoPump();
         this.appearanceSynced = ship.isStateAppearance();
         this.mountSynced = (ship.getStateEmotion(0) & 1) != 0;
-        this.rationMoraleSynced = clampRationMorale(ship.getStateMinor(STATE_MINOR_RATION_MORALE));
-        this.taskIdSynced = ship.getStateMinor(STATE_MINOR_TASK_ID);
-        this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
+        this.rationMoraleSynced = clampRationMorale(ship.getStateComponent().getRationMorale());
+        this.taskIdSynced = ship.getStateComponent().getTaskId();
+        this.taskSideSynced = ship.getStateComponent().getTaskSide();
         refreshShipTankFluidSyncValues();
 
-        ship.setStateMinor(STATE_MINOR_FOLLOW_MIN, this.followMinSynced);
-        ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this.followMaxSynced);
-        ship.setStateMinor(STATE_MINOR_FLEE_HP, this.fleeHpSynced);
-        ship.setStateMinor(STATE_MINOR_RATION_MORALE, this.rationMoraleSynced);
+        ship.getStateComponent().setFollowMin(this.followMinSynced);
+        ship.getStateComponent().setFollowMax(this.followMaxSynced);
+        ship.getStateComponent().setFleeHp(this.fleeHpSynced);
+        ship.getStateComponent().setRationMorale(this.rationMoraleSynced);
 
         this.addDataSlot(pageData);
         this.addDataSlot(unlockedStoragePagesData);
@@ -932,43 +933,43 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 return true;
             }
             case TOGGLE_BUTTON_PASSIVE_ATTACK -> {
-                ship.setStateFlag(STATE_FLAG_PASSIVE_ATTACK, !ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK));
-                passiveAttackSynced = ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK);
+                ship.getStateComponent().setStatePassiveAttack(!ship.getStateComponent().isStatePassiveAttack());
+                passiveAttackSynced = ship.getStateComponent().isStatePassiveAttack();
                 return true;
             }
             case TOGGLE_BUTTON_ON_SIGHT -> {
-                ship.setStateFlag(STATE_FLAG_ON_SIGHT, !ship.getStateFlag(STATE_FLAG_ON_SIGHT));
-                onSightSynced = ship.getStateFlag(STATE_FLAG_ON_SIGHT);
+                ship.getStateComponent().setStateOnSight(!ship.getStateComponent().isStateOnSight());
+                onSightSynced = ship.getStateComponent().isStateOnSight();
                 return true;
             }
             case TOGGLE_BUTTON_PVP -> {
-                ship.setStateFlag(STATE_FLAG_PVP, !ship.getStateFlag(STATE_FLAG_PVP));
-                pvpSynced = ship.getStateFlag(STATE_FLAG_PVP);
+                ship.getStateComponent().setStatePvp(!ship.getStateComponent().isStatePvp());
+                pvpSynced = ship.getStateComponent().isStatePvp();
                 return true;
             }
             case TOGGLE_BUTTON_ANTI_AIR -> {
-                ship.setStateFlag(STATE_FLAG_ANTI_AIR, !ship.getStateFlag(STATE_FLAG_ANTI_AIR));
-                antiAirSynced = ship.getStateFlag(STATE_FLAG_ANTI_AIR);
+                ship.getStateComponent().setStateAntiAir(!ship.getStateComponent().isStateAntiAir());
+                antiAirSynced = ship.getStateComponent().isStateAntiAir();
                 return true;
             }
             case TOGGLE_BUTTON_ANTI_SUB -> {
-                ship.setStateFlag(STATE_FLAG_ANTI_SUB, !ship.getStateFlag(STATE_FLAG_ANTI_SUB));
-                antiSubSynced = ship.getStateFlag(STATE_FLAG_ANTI_SUB);
+                ship.getStateComponent().setStateAntiSub(!ship.getStateComponent().isStateAntiSub());
+                antiSubSynced = ship.getStateComponent().isStateAntiSub();
                 return true;
             }
             case TOGGLE_BUTTON_TIMEKEEP -> {
-                ship.setStateFlag(STATE_FLAG_TIMEKEEP, !ship.getStateFlag(STATE_FLAG_TIMEKEEP));
-                timeKeepingSynced = ship.getStateFlag(STATE_FLAG_TIMEKEEP);
+                ship.getStateComponent().setStateTimekeep(!ship.getStateComponent().isStateTimekeep());
+                timeKeepingSynced = ship.getStateComponent().isStateTimekeep();
                 return true;
             }
             case TOGGLE_BUTTON_PICK_ITEM -> {
-                ship.setStateFlag(STATE_FLAG_PICK_ITEM, !ship.getStateFlag(STATE_FLAG_PICK_ITEM));
-                pickItemSynced = ship.getStateFlag(STATE_FLAG_PICK_ITEM);
+                ship.getStateComponent().setStatePickItem(!ship.getStateComponent().isStatePickItem());
+                pickItemSynced = ship.getStateComponent().isStatePickItem();
                 return true;
             }
             case TOGGLE_BUTTON_AUTO_PUMP -> {
-                ship.setStateFlag(STATE_FLAG_AUTO_PUMP, !ship.getStateFlag(STATE_FLAG_AUTO_PUMP));
-                autoPumpSynced = ship.getStateFlag(STATE_FLAG_AUTO_PUMP);
+                ship.getStateComponent().setStateAutoPump(!ship.getStateComponent().isStateAutoPump());
+                autoPumpSynced = ship.getStateComponent().isStateAutoPump();
                 return true;
             }
             case TOGGLE_BUTTON_SHOW_HELD -> {
@@ -990,29 +991,35 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             int requested = id - SLIDER_FOLLOW_MIN_BASE;
             this.followMinSynced = clampFollowMin(requested);
             this.followMaxSynced = clampFollowMax(this.followMaxSynced, this.followMinSynced);
-            ship.setStateMinor(STATE_MINOR_FOLLOW_MIN, this.followMinSynced);
-            ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this.followMaxSynced);
+            ship.getStateComponent().setFollowMin(this.followMinSynced);
+            ship.getStateComponent().setFollowMax(this.followMaxSynced);
             return true;
         }
 
         if (id >= SLIDER_FOLLOW_MAX_BASE && id <= SLIDER_FOLLOW_MAX_BASE + FOLLOW_MAX_MAX) {
             int requested = id - SLIDER_FOLLOW_MAX_BASE;
             this.followMaxSynced = clampFollowMax(requested, this.followMinSynced);
-            ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this.followMaxSynced);
+            ship.getStateComponent().setFollowMax(this.followMaxSynced);
             return true;
         }
 
         if (id >= SLIDER_FLEE_HP_BASE && id <= SLIDER_FLEE_HP_BASE + FLEE_HP_MAX) {
             int requested = id - SLIDER_FLEE_HP_BASE;
             this.fleeHpSynced = clampFleeHp(requested);
-            ship.setStateMinor(STATE_MINOR_FLEE_HP, this.fleeHpSynced);
+            ship.getStateComponent().setFleeHp(this.fleeHpSynced);
+            return true;
+        }
+
+        if (id >= SLIDER_WPSTAY_BASE && id <= SLIDER_WPSTAY_BASE + 16) {
+            int requested = id - SLIDER_WPSTAY_BASE;
+            ship.getStateComponent().setWpStay(Mth.clamp(requested, 0, 16));
             return true;
         }
 
         if (id >= SLIDER_RATION_MORALE_BASE && id <= SLIDER_RATION_MORALE_BASE + RATION_MORALE_MAX) {
             int requested = id - SLIDER_RATION_MORALE_BASE;
             this.rationMoraleSynced = clampRationMorale(requested);
-            ship.setStateMinor(STATE_MINOR_RATION_MORALE, this.rationMoraleSynced);
+            ship.getStateComponent().setRationMorale(this.rationMoraleSynced);
             return true;
         }
 
@@ -1026,32 +1033,32 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
         if (id >= ACTION_TASK_SELECT_BASE && id <= ACTION_TASK_SELECT_BASE + 4) {
             int newTask = id - ACTION_TASK_SELECT_BASE;
-            int curTask = ship.getStateMinor(STATE_MINOR_TASK_ID);
-            ship.setStateMinor(STATE_MINOR_TASK_ID, (curTask != newTask) ? newTask : 0);
-            this.taskIdSynced = ship.getStateMinor(STATE_MINOR_TASK_ID);
+            int curTask = ship.getStateComponent().getTaskId();
+            ship.getStateComponent().setTaskId((curTask != newTask) ? newTask : 0);
+            this.taskIdSynced = ship.getStateComponent().getTaskId();
             return true;
         }
 
         if (id == ACTION_TASK_META_TOGGLE) {
-            ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) ^ (1 << 18));
-            this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
+            ship.getStateComponent().setTaskSide(ship.getStateComponent().getTaskSide() ^ (1 << 18));
+            this.taskSideSynced = ship.getStateComponent().getTaskSide();
             return true;
         }
         if (id == ACTION_TASK_ORE_TOGGLE) {
-            ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) ^ (1 << 19));
-            this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
+            ship.getStateComponent().setTaskSide(ship.getStateComponent().getTaskSide() ^ (1 << 19));
+            this.taskSideSynced = ship.getStateComponent().getTaskSide();
             return true;
         }
         if (id == ACTION_TASK_NBT_TOGGLE) {
-            ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) ^ (1 << 20));
-            this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
+            ship.getStateComponent().setTaskSide(ship.getStateComponent().getTaskSide() ^ (1 << 20));
+            this.taskSideSynced = ship.getStateComponent().getTaskSide();
             return true;
         }
 
         if (id >= ACTION_SIDE_TOGGLE_BASE && id <= ACTION_SIDE_TOGGLE_BASE + 17) {
             int bit = id - ACTION_SIDE_TOGGLE_BASE;
-            ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) ^ (1 << bit));
-            this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
+            ship.getStateComponent().setTaskSide(ship.getStateComponent().getTaskSide() ^ (1 << bit));
+            this.taskSideSynced = ship.getStateComponent().getTaskSide();
             return true;
         }
 
@@ -1076,7 +1083,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         if (this.ship.level().isClientSide) {
             return getUnlockedStoragePages();
         }
-        return Mth.clamp(this.ship.getStateMinor(STATE_MINOR_EQUIP_DRUM), 0, SHIP_PAGE_COUNT - 1);
+        return Mth.clamp(this.ship.getStateComponent().getEquipDrum(), 0, SHIP_PAGE_COUNT - 1);
     }
 
     private int getUnlockedPageCount() {

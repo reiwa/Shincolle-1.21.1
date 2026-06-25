@@ -15,7 +15,6 @@ public class OPToolItem extends Item {
 
     @Override
     public String getDescriptionId() {
-        //TODO: reconstructure translation key and abolish .name notation
         return "item.shincolle.optool";
     }
 

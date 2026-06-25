@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityCruiserTatsuta;
 
 public class RendererCruiserTatsuta extends MobRenderer<EntityCruiserTatsuta, ModelCruiserTatsuta<EntityCruiserTatsuta>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/cruiser_tatsuta.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererCruiserTatsuta(EntityRendererProvider.Context context) {
         super(context, new ModelCruiserTatsuta<>(context.bakeLayer(ModelCruiserTatsuta.LAYER_LOCATION)), 0.5f);

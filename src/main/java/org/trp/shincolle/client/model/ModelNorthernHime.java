@@ -15,16 +15,16 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 
 public class ModelNorthernHime<T extends EntityNorthernHime> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "northern_hime"), "main");
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelNorthernHime");
+    private static final float SITTING_TRANSLATE_Y = 1.1F;
     private static final float SIT_HEAD_YAW_SCALE = 0.25F;
     private static final float SIT_LEG_Y_ROT = 0.2618F;
     private static final float SIT_LEG_X_ROT = -1.66F;
     private static final float SIT_ARM_Z_ROT_DELTA = 0.05F;
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelNorthernHime");
-    private static final float RIDING_TRANSLATE_Y = LegacyPoseOffsets.ridingY("ModelNorthernHime");
-    private static final float RIDING_TRANSLATE_Z = LegacyPoseOffsets.ridingZ("ModelNorthernHime");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelNorthernHime");
+    private static final float DEAD_TRANSLATE_Y = 1.1F;
+    private static final float RIDING_TRANSLATE_Y = 0.24F;
+    private static final float RIDING_TRANSLATE_Z = 0.27F;
+    private static final float SNEAK_TRANSLATE_Y = 0.02F;
     private static final float BODY_BASE_X_ROT = -0.087F;
     private static final float ARM_BASE_X_ROT = 0.2618F;
     private static final float ARM_BASE_Z_ROT = 0.5235F;
@@ -791,5 +791,10 @@ public class ModelNorthernHime<T extends EntityNorthernHime> extends ShipModelHu
         }
         LegLeft01.xRot = legLeftX;
         LegRight01.xRot = legRightX;
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.34f;
     }
 }

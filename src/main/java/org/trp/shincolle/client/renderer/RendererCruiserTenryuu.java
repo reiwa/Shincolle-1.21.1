@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityCruiserTenryuu;
 
 public class RendererCruiserTenryuu extends MobRenderer<EntityCruiserTenryuu, ModelCruiserTenryuu<EntityCruiserTenryuu>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/cruiser_tenryuu.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererCruiserTenryuu(EntityRendererProvider.Context context) {
         super(context, new ModelCruiserTenryuu<>(context.bakeLayer(ModelCruiserTenryuu.LAYER_LOCATION)), 0.5f);

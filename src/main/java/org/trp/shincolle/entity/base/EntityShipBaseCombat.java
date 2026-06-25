@@ -32,9 +32,9 @@ class EntityShipBaseCombat {
     private int aircraftLaunchDelay = 20;
     private boolean aircraftLaunchTypeLight = false;
 
-    private final EntityShipBase ship;
+    private final IShipCombatOwner ship;
 
-    EntityShipBaseCombat(EntityShipBase ship) {
+    EntityShipBaseCombat(IShipCombatOwner ship) {
         this.ship = ship;
     }
 
@@ -101,7 +101,7 @@ class EntityShipBaseCombat {
             return;
         }
 
-        if (this.ship.getNumAircraftLight() <= 0 && this.ship.getNumAircraftHeavy() <= 0 && this.ship.tickCount < 20) {
+        if (this.ship.getNumAircraftLight() <= 0 && this.ship.getNumAircraftHeavy() <= 0 && this.ship.getTickCount() < 20) {
             this.ship.setNumAircraftLight(maxLight);
             this.ship.setNumAircraftHeavy(maxHeavy);
         }
@@ -223,6 +223,7 @@ class EntityShipBaseCombat {
         } else {
             performStandardLightAttack(serverLevel, target);
         }
+        this.ship.decrMorale(1);
     }
 
     private void performSubmarineLightAttack(ServerLevel serverLevel, Entity target) {
@@ -235,7 +236,7 @@ class EntityShipBaseCombat {
 
         EntityAbyssMissile missile = new EntityAbyssMissile(
                 serverLevel,
-                this.ship,
+                this.ship.asShipEntity(),
                 target,
                 firepower,
                 moveType,
@@ -249,7 +250,7 @@ class EntityShipBaseCombat {
         missile.setPos(this.ship.getX(), this.ship.getY() + this.ship.getBbHeight() * 0.6D, this.ship.getZ());
         serverLevel.addFreshEntity(missile);
 
-        this.ship.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.ship.getSoundVolume(),
+        this.ship.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.ship.getShipSoundVolume(),
                 this.ship.getRandom().nextFloat() * 0.12F + 0.83F);
         this.ship.playAttackSound();
         this.ship.setAttackTick(50);
@@ -264,24 +265,24 @@ class EntityShipBaseCombat {
         }
 
         double distance = this.ship.distanceTo(target);
-        float finalDamage = CombatHelper.applyCombatRateToDamage(this.ship, true, (float) distance, damage);
+        float finalDamage = CombatHelper.applyCombatRateToDamage(this.ship.asShipEntity(), true, (float) distance, damage);
 
         if (finalDamage > 0.0F) {
-            boolean hurt = target.hurt(this.ship.damageSources().mobAttack(this.ship), finalDamage);
+            boolean hurt = target.hurt(this.ship.damageSources().mobAttack(this.ship.asLivingEntity()), finalDamage);
             if (hurt && target instanceof LivingEntity livingTarget) {
                 this.ship.applyAttackEffects(livingTarget);
             }
             this.ship.spawnLightAttackTargetParticles(serverLevel, target);
             this.ship.spawnLightAttackMuzzleParticles(serverLevel, target);
-            this.ship.playSound(ModSounds.SHIP_FIRELIGHT.get(), this.ship.getSoundVolume(),
+            this.ship.playSound(ModSounds.SHIP_FIRELIGHT.get(), this.ship.getShipSoundVolume(),
                     this.ship.getRandom().nextFloat() * 0.12F + 0.98F);
         } else {
-            boolean hurt = target.hurt(this.ship.damageSources().mobAttack(this.ship), 0.00001F);
+            boolean hurt = target.hurt(this.ship.damageSources().mobAttack(this.ship.asLivingEntity()), 0.00001F);
             if (hurt && target instanceof LivingEntity livingTarget) {
                 this.ship.applyAttackEffects(livingTarget);
             }
             this.ship.spawnLightAttackMuzzleParticles(serverLevel, target);
-            this.ship.playSound(ModSounds.SHIP_FIRELIGHT.get(), this.ship.getSoundVolume(),
+            this.ship.playSound(ModSounds.SHIP_FIRELIGHT.get(), this.ship.getShipSoundVolume(),
                     this.ship.getRandom().nextFloat() * 0.12F + 0.98F);
         }
 
@@ -323,10 +324,10 @@ class EntityShipBaseCombat {
         ItemStack ammoStack = ItemStack.EMPTY;
         int equipSlots = Math.min(
             org.trp.shincolle.inventory.ShipInventoryHandler.getEquipSlotCount(),
-            this.ship.inventory.getSlots()
+            this.ship.getInventory().getSlots()
         );
         for (int slot = 0; slot < equipSlots; slot++) {
-            ItemStack stack = this.ship.inventory.getStackInSlot(slot);
+            ItemStack stack = this.ship.getInventory().getStackInSlot(slot);
             if (stack.isEmpty() || !(stack.getItem() instanceof org.trp.shincolle.item.LegacyEquipItem equipItem)) {
                 continue;
             }
@@ -348,19 +349,20 @@ class EntityShipBaseCombat {
             }
         }
 
-        EntityAbyssMissile missile = new EntityAbyssMissile(serverLevel, this.ship, target,
+        EntityAbyssMissile missile = new EntityAbyssMissile(serverLevel, this.ship.asShipEntity(), target,
                 missileDamage, moveType, speed, 1.04F, 1.04F, null, life, radius);
         if (specialEffect != org.trp.shincolle.entity.projectile.EntityAbyssMissile.SPECIAL_EFFECT_NONE) {
             missile.setSpecialEffectType(specialEffect);
         }
         serverLevel.addFreshEntity(missile);
 
-        this.ship.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.ship.getSoundVolume(),
+        this.ship.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.ship.getShipSoundVolume(),
                 this.ship.getRandom().nextFloat() * 0.12F + 0.83F);
         this.ship.playAttackSound();
         this.ship.setAttackTick(50);
         this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
         this.ship.applyEmotesReaction(3);
+        this.ship.decrMorale(2);
         return true;
     }
 
@@ -396,10 +398,10 @@ class EntityShipBaseCombat {
         ItemStack ammoStack = ItemStack.EMPTY;
         int equipSlots = Math.min(
             org.trp.shincolle.inventory.ShipInventoryHandler.getEquipSlotCount(),
-            this.ship.inventory.getSlots()
+            this.ship.getInventory().getSlots()
         );
         for (int slot = 0; slot < equipSlots; slot++) {
-            ItemStack stack = this.ship.inventory.getStackInSlot(slot);
+            ItemStack stack = this.ship.getInventory().getStackInSlot(slot);
             if (stack.isEmpty() || !(stack.getItem() instanceof org.trp.shincolle.item.LegacyEquipItem equipItem)) {
                 continue;
             }
@@ -421,19 +423,20 @@ class EntityShipBaseCombat {
             }
         }
 
-        EntityAbyssMissile missile = new EntityAbyssMissile(serverLevel, this.ship, null, targetPos,
+        EntityAbyssMissile missile = new EntityAbyssMissile(serverLevel, this.ship.asShipEntity(), null, targetPos,
                 missileDamage, moveType, speed, 1.04F, 1.04F, null, life, radius);
         if (specialEffect != org.trp.shincolle.entity.projectile.EntityAbyssMissile.SPECIAL_EFFECT_NONE) {
             missile.setSpecialEffectType(specialEffect);
         }
         serverLevel.addFreshEntity(missile);
 
-        this.ship.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.ship.getSoundVolume(),
+        this.ship.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.ship.getShipSoundVolume(),
                 this.ship.getRandom().nextFloat() * 0.12F + 0.83F);
         this.ship.playAttackSound();
         this.ship.setAttackTick(50);
         this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
         this.ship.applyEmotesReaction(3);
+        this.ship.decrMorale(2);
         return true;
     }
 
@@ -472,7 +475,7 @@ class EntityShipBaseCombat {
         }
         boolean success = remaining <= 0;
         if (success) {
-            this.ship.setCombatTick(this.ship.tickCount);
+            this.ship.setCombatTick(this.ship.getTickCount());
         }
         return success;
     }
@@ -512,7 +515,7 @@ class EntityShipBaseCombat {
         }
         boolean success = remaining <= 0;
         if (success) {
-            this.ship.setCombatTick(this.ship.tickCount);
+            this.ship.setCombatTick(this.ship.getTickCount());
         }
         return success;
     }
@@ -579,6 +582,7 @@ class EntityShipBaseCombat {
         }
         this.ship.setNumAircraftLight(Math.max(0, this.ship.getNumAircraftLight() - 1));
         this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLightAircraft);
+        this.ship.decrMorale(3);
         return spawnAircraft(target, true);
     }
 
@@ -590,6 +594,7 @@ class EntityShipBaseCombat {
         if (!consumeLightAmmo(AIRCRAFT_LIGHT_AMMO_COST)) return false;
         this.ship.setNumAircraftLight(Math.max(0, this.ship.getNumAircraftLight() - 1));
         this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLightAircraft);
+        this.ship.decrMorale(3);
         boolean spawned = spawnAircraft(target, true);
         
         return spawned;
@@ -604,6 +609,7 @@ class EntityShipBaseCombat {
         }
         this.ship.setNumAircraftHeavy(Math.max(0, this.ship.getNumAircraftHeavy() - 1));
         this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavyAircraft);
+        this.ship.decrMorale(4);
         return spawnAircraft(target, false);
     }
 
@@ -615,6 +621,7 @@ class EntityShipBaseCombat {
         if (!consumeHeavyAmmo(AIRCRAFT_HEAVY_AMMO_COST)) return false;
         this.ship.setNumAircraftHeavy(Math.max(0, this.ship.getNumAircraftHeavy() - 1));
         this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavyAircraft);
+        this.ship.decrMorale(4);
         boolean spawned = spawnAircraft(target, false);
         
         return spawned;
@@ -631,7 +638,7 @@ class EntityShipBaseCombat {
 
         double launchY = this.ship.getY() + this.ship.getAircraftLaunchHeight();
         aircraft.moveTo(this.ship.getX(), launchY, this.ship.getZ(), this.ship.getYRot(), this.ship.getXRot());
-        aircraft.initCarrierMission(this.ship, target, lightAircraft);
+        aircraft.initCarrierMission(this.ship.asShipEntity(), target, lightAircraft);
         serverLevel.addFreshEntity(aircraft);
 
         this.ship.playAttackSound();

@@ -92,7 +92,7 @@ public class ShipHeldItemLayer<T extends EntityShipBase, M extends EntityModel<T
 
         
         
-        float itemScale = org.trp.shincolle.Config.scaleHeldItem * 1.8F;
+        float itemScale = org.trp.shincolle.Config.scaleHeldItem;
         if (isBlock) {
              poseStack.scale(itemScale * 0.75F, itemScale * 0.75F, itemScale * 0.75F);
         } else {

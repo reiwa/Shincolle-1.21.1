@@ -24,11 +24,11 @@ public class EntityBBKongou extends EntityShipBase {
     public EntityBBKongou(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{0, 25, 0, 40});
-        setStateMinor(STATE_MINOR_FACTION_ID, 6);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 60);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
-        setStateMinor(STATE_MINOR_RARITY, 4);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
+        getStateComponent().setFactionId(6);
+        getStateComponent().setShipClassId(60);
+        getStateComponent().setSpecialEquip(3);
+        getStateComponent().setRarity(4);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeBB);
         setStateGuiBtn4(false);
     }
 
@@ -94,8 +94,8 @@ public class EntityBBKongou extends EntityShipBase {
         if (ships.isEmpty()) {
             return;
         }
-        int duration = 140 + this.getStateMinor(0);
-        int amp = Math.max(0, this.getStateMinor(0) / 120);
+        int duration = 140 + this.getStateComponent().getAffectionLegacy();
+        int amp = Math.max(0, this.getStateComponent().getAffectionLegacy() / 120);
         for (EntityShipBase ship : ships) {
             if (ship == this) {
                 continue;

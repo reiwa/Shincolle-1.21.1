@@ -82,14 +82,86 @@ public final class FormationHelper {
         }
     }
 
+    public static void applySummonShipsToPlayer(Player player, List<UUID> shipUuids) {
+        if (!(player instanceof ServerPlayer serverPlayer)) return;
+        ServerLevel world = serverPlayer.serverLevel();
+
+        Direction facing = player.getDirection();
+        Direction spawnDir = facing;
+        Direction rightDir = spawnDir.getClockWise();
+        Direction leftDir = spawnDir.getCounterClockWise();
+
+        BlockPos refPos = player.blockPosition().relative(spawnDir, 2).relative(leftDir, 1);
+
+        int totalShips = 0;
+        for (UUID uuid : shipUuids) {
+            Entity e = world.getEntity(uuid);
+            if (e instanceof EntityShipBase) totalShips++;
+        }
+
+        final int maxPerRow = 4;
+        final int horizontalSpacing = 1;
+        final int depthSpacing = 1;
+        int col = 0;
+        int row = 0;
+
+        for (UUID uuid : shipUuids) {
+            Entity entity = world.getEntity(uuid);
+            if (!(entity instanceof EntityShipBase ship)) continue;
+
+            if (totalShips == 1) {
+                col = 1;
+            } else if (col >= maxPerRow) {
+                row++;
+                col = 0;
+            }
+
+            BlockPos spawnBlock = refPos.relative(rightDir, col * horizontalSpacing).relative(spawnDir, row * depthSpacing);
+            double spawnX = spawnBlock.getX() + 0.5;
+            double spawnY = player.getY();
+            double spawnZ = spawnBlock.getZ() + 0.5;
+
+            BlockPos checkPos = new BlockPos((int)spawnX, (int)spawnY, (int)spawnZ);
+            if (!world.isEmptyBlock(checkPos)) {
+                if (world.isEmptyBlock(checkPos.above())) {
+                    spawnY += 1.0;
+                } else {
+                    row++;
+                    col = 0;
+                    spawnBlock = refPos.relative(rightDir, col * horizontalSpacing).relative(spawnDir, row * depthSpacing);
+                    spawnX = spawnBlock.getX() + 0.5;
+                    spawnZ = spawnBlock.getZ() + 0.5;
+                    spawnY = player.getY();
+                }
+            }
+
+            if (ship.distanceToSqr(spawnX, spawnY, spawnZ) > 1024.0D) {
+                ship.teleportTo(spawnX, spawnY, spawnZ);
+            }
+            
+            float yaw = facing.toYRot();
+            ship.setYRot(yaw);
+            ship.setYHeadRot(yaw);
+            ship.setYBodyRot(yaw);
+            ship.setXRot(0);
+            
+            applyShipGuard(ship, Mth.floor(spawnX), (int) spawnY, Mth.floor(spawnZ), 20);
+            col++;
+        }
+    }
+
     public static void applyShipGuard(EntityShipBase ship, int x, int y, int z) {
+        applyShipGuard(ship, x, y, z, 200);
+    }
+
+    public static void applyShipGuard(EntityShipBase ship, int x, int y, int z, int guardTimer) {
         if (ship == null) return;
         ship.setOrderedToSit(false);
         ship.setInSittingPose(false);
         ship.setGuardedPos(x, y, z, 0, 1);
-        ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);
+        ship.getStateComponent().setStateDisableGuardPos(false);
         ship.getNavigation().moveTo(x + 0.5, y, z + 0.5, 1.2);
-        ship.setStateTimer(18, 200);
+        ship.getStateComponent().setGuardTimer(guardTimer);
     }
 
     

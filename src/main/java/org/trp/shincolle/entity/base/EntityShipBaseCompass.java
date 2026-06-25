@@ -27,7 +27,7 @@ class EntityShipBaseCompass {
 
         if (
             !this.ship.isAlive() ||
-            this.ship.getStateMinor(EntityShipBase.STATE_MINOR_EQUIP_COMPASS) <= 0
+            this.ship.getStateComponent().getEquipCompass() <= 0
         ) {
             clearCompassForcedChunks(serverLevel);
             return;

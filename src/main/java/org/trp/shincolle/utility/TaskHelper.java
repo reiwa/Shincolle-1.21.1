@@ -24,7 +24,6 @@ import org.trp.shincolle.block.entity.WayPointBlockEntity;
 import org.trp.shincolle.entity.EntityShipFishingHook;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModItems;
-import org.trp.shincolle.menu.ShipContainerMenu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,7 @@ public class TaskHelper {
         if (host.getIsSitting() || !host.isAlive()) {
             return;
         }
-        int taskId = host.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_ID);
+        int taskId = host.getStateComponent().getTaskId();
         switch (taskId) {
             case 1: 
                 onUpdateCooking(host);
@@ -239,7 +238,7 @@ public class TaskHelper {
                 host.getFishHook().discard();
                 host.addShipExp(Config.expGainTask[1]);
                 host.setFuel(host.getFuel() - Config.consumeGrudgeTask[1]);
-                host.addMorale(50);
+                host.addMorale(300);
                 host.applyParticleEmotion(host.getRandom().nextInt(5));
             } else if (host.getFishHook().tickCount > Config.tickFishingMin + Config.tickFishingMax + 20) {
                 host.getFishHook().discard();
@@ -267,7 +266,7 @@ public class TaskHelper {
             }
         }
 
-        if (!level.isClientSide && (host.tickCount & 31) == 0 && host.tickCount - host.getStateTimer(15) > Config.tickMiningMin + host.getRandom().nextInt(Config.tickMiningMax)) {
+        if (!level.isClientSide && (host.tickCount & 31) == 0 && host.tickCount - host.getStateComponent().getMiningTimer() > Config.tickMiningMin + host.getRandom().nextInt(Config.tickMiningMax)) {
             int xl = (int) host.getX();
             int yl = (int) host.getY();
             int zl = (int) host.getZ();
@@ -298,10 +297,10 @@ public class TaskHelper {
                 
                 host.addShipExp(Config.expGainTask[2]);
                 host.setFuel(host.getFuel() - Config.consumeGrudgeTask[2]);
-                host.addMorale(100);
+                host.addMorale(-200);
                 host.applyParticleEmotion(host.getRandom().nextInt(5));
                 host.startCustomSwing();
-                host.setStateTimer(15, host.tickCount);
+                host.getStateComponent().setMiningTimer(host.tickCount);
             }
         }
     }
@@ -338,7 +337,7 @@ public class TaskHelper {
         
         List<ItemStack> uniqueMaterials = new ArrayList<>();
         List<Integer> counts = new ArrayList<>();
-        int taskSide = host.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_SIDE);
+        int taskSide = host.getStateComponent().getTaskSide();
         boolean checkMeta = (taskSide & (1 << 18)) != 0;
         boolean checkOre = (taskSide & (1 << 19)) != 0;
         boolean checkNbt = (taskSide & (1 << 20)) != 0;
@@ -428,7 +427,7 @@ public class TaskHelper {
             
             host.addShipExp(Config.expGainTask[3]);
             host.setFuel(host.getFuel() - Config.consumeGrudgeTask[3]);
-            host.addMorale(200);
+            host.addMorale(-10);
             if (host.getRandom().nextInt(5) == 0) {
                 host.applyParticleEmotion(host.getRandom().nextInt(5));
             }

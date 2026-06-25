@@ -15,9 +15,9 @@ public class ModelSSNH<T extends EntityShipBase> extends ShipModelHumanoidBase<T
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "subm_hime_new"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelSSNH");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelSSNH");
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelSSNH");
+    private static final float DEAD_TRANSLATE_Y = 0.27F * 3;
+    private static final float SNEAK_TRANSLATE_Y = 0.01F;
+    private static final float SITTING_TRANSLATE_Y = 0.26F * 3.2F;
 
     private boolean isDeadPose;
     private boolean isSittingPose;
@@ -807,5 +807,10 @@ public class ModelSSNH<T extends EntityShipBase> extends ShipModelHumanoidBase<T
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.32f;
     }
 }

@@ -131,7 +131,7 @@ public abstract class EntityMountBase extends PathfinderMob {
             if (owner == null) return false;
 
             double distSq = mount.distanceToSqr(owner);
-            float fMax = h.getStateMinor(11);
+            float fMax = h.getStateComponent().getFollowMax();
             double maxDistSq = fMax * fMax + mount.getBbWidth() * 0.75f;
             return distSq > maxDistSq;
         }
@@ -152,7 +152,7 @@ public abstract class EntityMountBase extends PathfinderMob {
             if (owner == null) return false;
 
             double distSq = mount.distanceToSqr(owner);
-            float fMin = h.getStateMinor(10);
+            float fMin = h.getStateComponent().getFollowMin();
             double minDistSq = fMin * fMin + mount.getBbWidth() * 0.75f;
             return distSq > minDistSq;
         }
@@ -496,7 +496,7 @@ public abstract class EntityMountBase extends PathfinderMob {
         );
         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(hostSpeed);
 
-        float kr = this.host.getLegacyShipStats().getBuffedAttr(20);
+        float kr = this.host.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_KNOCKBACK_RESISTANCE);
         this.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(
             Mth.clamp(kr, 0.0f, 1.0f)
         );

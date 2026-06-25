@@ -30,11 +30,11 @@ public class EntitySSNH extends EntityShipBase {
     public EntitySSNH(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{-6, 8, 0, 50});
-        setStateMinor(STATE_MINOR_FACTION_ID, 10);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 72);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 6);
-        setStateMinor(STATE_MINOR_RARITY, 3);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeSS);
+        getStateComponent().setFactionId(10);
+        getStateComponent().setShipClassId(72);
+        getStateComponent().setSpecialEquip(6);
+        getStateComponent().setRarity(3);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeSS);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);

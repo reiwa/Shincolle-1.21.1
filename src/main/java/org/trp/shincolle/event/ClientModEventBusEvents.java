@@ -36,7 +36,6 @@ import org.trp.shincolle.item.PointerItem;
 import org.trp.shincolle.item.ShipTankItem;
 import org.trp.shincolle.menu.ModMenus;
 
-@EventBusSubscriber(modid = Shincolle.MODID, value = Dist.CLIENT)
 public class ClientModEventBusEvents {
 
     private static final float DEFAULT_MODEL_SCALE = 0.34f;
@@ -357,10 +356,10 @@ public class ClientModEventBusEvents {
             drawBtn[2] = ship.isStateLightAircraftAttack();
             drawBtn[3] = ship.isStateHeavyAircraftAttack();
 
-            drawCD[0] = ship.getStateTimer(16);
-            drawCD[1] = ship.getStateTimer(17);
-            drawCD[2] = ship.getStateTimer(18);
-            drawCD[3] = ship.getStateTimer(19);
+            drawCD[0] = ship.getStateComponent().getMountAttackCd(0);
+            drawCD[1] = ship.getStateComponent().getMountAttackCd(1);
+            drawCD[2] = ship.getStateComponent().getMountAttackCd(2);
+            drawCD[3] = ship.getStateComponent().getMountAttackCd(3);
 
             drawCDMax[0] = org.trp.shincolle.entity.base.LegacyShipStats.getAttackDelay(ship.getLegacyShipStats().getReloadSpeed(), 1);
             drawCDMax[1] = org.trp.shincolle.entity.base.LegacyShipStats.getAttackDelay(ship.getLegacyShipStats().getReloadSpeed(), 2);

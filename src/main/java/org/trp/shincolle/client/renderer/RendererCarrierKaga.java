@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityCarrierKaga;
 
 public class RendererCarrierKaga extends MobRenderer<EntityCarrierKaga, ModelCarrierKaga<EntityCarrierKaga>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/carrier_kaga.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererCarrierKaga(EntityRendererProvider.Context context) {
         super(context, new ModelCarrierKaga<>(context.bakeLayer(ModelCarrierKaga.LAYER_LOCATION)), 0.5f);

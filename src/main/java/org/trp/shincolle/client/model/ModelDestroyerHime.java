@@ -16,9 +16,9 @@ public class ModelDestroyerHime<T extends EntityShipBase> extends ShipModelHuman
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "destroyer_hime"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelDestroyerHime");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelDestroyerHime");
-    private static final float SIT_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelDestroyerHime");
+    private static final float DEAD_TRANSLATE_Y = 0.59F * 3.2F;
+    private static final float SNEAK_TRANSLATE_Y = 0.07F;
+    private static final float SIT_TRANSLATE_Y = 0.43F * 3.2F;
 
     private boolean isDeadPose;
     private boolean isSittingPose;
@@ -815,5 +815,10 @@ public class ModelDestroyerHime<T extends EntityShipBase> extends ShipModelHuman
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.4f;
     }
 }

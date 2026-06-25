@@ -17,10 +17,10 @@ public class EntityBattleshipHime extends EntityShipBase {
     public EntityBattleshipHime(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{-6, 30, 0, 40});
-        setStateMinor(STATE_MINOR_FACTION_ID, 10);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 26);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
-        setStateMinor(STATE_MINOR_RARITY, 1);
+        getStateComponent().setFactionId(10);
+        getStateComponent().setShipClassId(26);
+        getStateComponent().setSpecialEquip(3);
+        getStateComponent().setRarity(1);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
     }
@@ -45,7 +45,7 @@ public class EntityBattleshipHime extends EntityShipBase {
     }
 
     private void applyBuffToNearbyAllies() {
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateComponent().getFuel() > 0)) {
             return;
         }
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
@@ -53,8 +53,8 @@ public class EntityBattleshipHime extends EntityShipBase {
         if (ships.isEmpty()) {
             return;
         }
-        int duration = 50 + this.getStateMinor(0);
-        int amp = Math.max(0, this.getStateMinor(0) / 70);
+        int duration = 50 + this.getStateComponent().getAffectionLegacy();
+        int amp = Math.max(0, this.getStateComponent().getAffectionLegacy() / 70);
         for (EntityShipBase ship : ships) {
             if (ship == this) {
                 continue;

@@ -7,7 +7,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.pathfinder.PathType;
+import org.trp.shincolle.entity.base.path.ShipLegacyNavigation;
+import org.trp.shincolle.entity.base.path.ShipMoveControl;
 import org.trp.shincolle.init.ModSounds;
 
 import javax.annotation.Nullable;
@@ -29,6 +33,11 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
         this.numAmmoLight = 6;
         this.numAmmoHeavy = 0;
         this.attackRangeSq = 16.0F;
+        this.moveControl = new ShipMoveControl(this, 30.0F);
+        this.setPathfindingMalus(PathType.WATER, 0.0F);
+        this.setPathfindingMalus(PathType.LAVA, 0.0F);
+        this.setPathfindingMalus(PathType.DANGER_FIRE, 0.0F);
+        this.setPathfindingMalus(PathType.DAMAGE_FIRE, 0.0F);
     }
 
     @Override
@@ -277,5 +286,12 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
             return null;
         }
         return serverLevel.getEntity(this.targetId);
+    }
+
+    @Override
+    protected PathNavigation createNavigation(Level level) {
+        ShipLegacyNavigation navigation = new ShipLegacyNavigation(this, level);
+        navigation.setCanFloat(true);
+        return navigation;
     }
 }

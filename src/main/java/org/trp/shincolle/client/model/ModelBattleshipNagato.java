@@ -16,9 +16,9 @@ public class ModelBattleshipNagato<T extends EntityShipBase> extends ShipModelHu
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "battleship_nagato"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelBattleshipNagato");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelBattleshipNagato");
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelBattleshipNagato");
+    private static final float DEAD_TRANSLATE_Y = 0.65F * 3;
+    private static final float SNEAK_TRANSLATE_Y = 0.06F;
+    private static final float SITTING_TRANSLATE_Y = 0.55F * 2.7F;
 
     private static final float BODY_BASE_X_ROT = -0.1047F;
     private static final float BUTT_BASE_X_ROT = 0.1745F;
@@ -683,5 +683,10 @@ public class ModelBattleshipNagato<T extends EntityShipBase> extends ShipModelHu
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.5f;
     }
 }

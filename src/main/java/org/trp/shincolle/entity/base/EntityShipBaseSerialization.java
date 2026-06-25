@@ -3,6 +3,8 @@ package org.trp.shincolle.entity.base;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 
+import static org.trp.shincolle.entity.base.EntityShipData.*;
+
 final class EntityShipBaseSerialization {
 
     private final EntityShipBase ship;
@@ -12,51 +14,51 @@ final class EntityShipBaseSerialization {
     }
 
     static void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(EntityShipBase.SHIP_LEVEL, 1);
-        builder.define(EntityShipBase.SHIP_EXP, 0);
-        builder.define(EntityShipBase.FACE_ID, 0);
-        builder.define(EntityShipBase.MOUTH_ID, 0);
+        builder.define(SHIP_LEVEL, 1);
+        builder.define(SHIP_EXP, 0);
+        builder.define(FACE_ID, 0);
+        builder.define(MOUTH_ID, 0);
         builder.define(
-            EntityShipBase.EMOTION_PRIMARY,
+            EMOTION_PRIMARY,
             EntityShipBase.EMOTION_NORMAL
         );
         builder.define(
-            EntityShipBase.EMOTION_SECONDARY,
+            EMOTION_SECONDARY,
             EntityShipBase.EMOTION_NORMAL
         );
-        builder.define(EntityShipBase.EMOTION_PARTICLE, 0);
-        builder.define(EntityShipBase.NO_FUEL, false);
+        builder.define(EMOTION_PARTICLE, 0);
+        builder.define(NO_FUEL, false);
         builder.define(
-            EntityShipBase.MORALE,
+            MORALE,
             EntityShipBase.getMoraleDefaultValue()
         );
-        builder.define(EntityShipBase.FUEL, 0);
-        builder.define(EntityShipBase.AMMO_LIGHT, 0);
-        builder.define(EntityShipBase.AMMO_HEAVY, 0);
-        builder.define(EntityShipBase.AIRCRAFT_LIGHT, 0);
-        builder.define(EntityShipBase.AIRCRAFT_HEAVY, 0);
-        builder.define(EntityShipBase.EQUIP_FLAGS, new CompoundTag());
-        builder.define(EntityShipBase.POINTER_SELECTED, false);
-        builder.define(EntityShipBase.FORMATION_TEAM, -1);
-        builder.define(EntityShipBase.FORMATION_SLOT, -1);
+        builder.define(FUEL, 0);
+        builder.define(AMMO_LIGHT, 0);
+        builder.define(AMMO_HEAVY, 0);
+        builder.define(AIRCRAFT_LIGHT, 0);
+        builder.define(AIRCRAFT_HEAVY, 0);
+        builder.define(EQUIP_FLAGS, new CompoundTag());
+        builder.define(POINTER_SELECTED, false);
+        builder.define(FORMATION_TEAM, -1);
+        builder.define(FORMATION_SLOT, -1);
 
-        builder.define(EntityShipBase.LEGACY_EMOTION_0, 0);
-        builder.define(EntityShipBase.LEGACY_EMOTION_1, 0);
-        builder.define(EntityShipBase.LEGACY_EMOTION_2, 0);
-        builder.define(EntityShipBase.LEGACY_EMOTION_3, 0);
-        builder.define(EntityShipBase.LEGACY_EMOTION_4, 0);
-        builder.define(EntityShipBase.LEGACY_EMOTION_5, 0);
-        builder.define(EntityShipBase.LEGACY_EMOTION_6, 0);
-        builder.define(EntityShipBase.LEGACY_EMOTION_7, 0);
+        builder.define(LEGACY_EMOTION_0, 0);
+        builder.define(LEGACY_EMOTION_1, 0);
+        builder.define(LEGACY_EMOTION_2, 0);
+        builder.define(LEGACY_EMOTION_3, 0);
+        builder.define(LEGACY_EMOTION_4, 0);
+        builder.define(LEGACY_EMOTION_5, 0);
+        builder.define(LEGACY_EMOTION_6, 0);
+        builder.define(LEGACY_EMOTION_7, 0);
 
-        builder.define(EntityShipBase.LEGACY_ATTACK_TICK, 0);
-        builder.define(EntityShipBase.LEGACY_ATTACK_TICK_2, 0);
-        builder.define(EntityShipBase.LEGACY_RIDING_STATE, 0);
-        builder.define(EntityShipBase.LEGACY_SCALE_LEVEL, 0);
-        builder.define(EntityShipBase.MOUNT_ATTACK_CD_0, 0);
-        builder.define(EntityShipBase.MOUNT_ATTACK_CD_1, 0);
-        builder.define(EntityShipBase.MOUNT_ATTACK_CD_2, 0);
-        builder.define(EntityShipBase.MOUNT_ATTACK_CD_3, 0);
+        builder.define(LEGACY_ATTACK_TICK, 0);
+        builder.define(LEGACY_ATTACK_TICK_2, 0);
+        builder.define(LEGACY_RIDING_STATE, 0);
+        builder.define(LEGACY_SCALE_LEVEL, 0);
+        builder.define(MOUNT_ATTACK_CD_0, 0);
+        builder.define(MOUNT_ATTACK_CD_1, 0);
+        builder.define(MOUNT_ATTACK_CD_2, 0);
+        builder.define(MOUNT_ATTACK_CD_3, 0);
     }
 
     void addAdditionalSaveData(CompoundTag compound) {
@@ -287,8 +289,12 @@ final class EntityShipBaseSerialization {
 
         this.ship.recalculateLegacyShipStats();
 
-        if (compound.contains("Health")) {
+        if (compound.getBoolean(EntityShipBase.getSpawnEggTagName())) {
+            this.ship.setHealth(this.ship.getMaxHealth());
+        } else if (compound.contains("Health")) {
             this.ship.setHealth(compound.getFloat("Health"));
+        } else {
+            this.ship.setHealth(this.ship.getMaxHealth());
         }
     }
 }

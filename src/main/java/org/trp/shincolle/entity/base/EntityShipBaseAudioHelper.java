@@ -3,7 +3,6 @@ package org.trp.shincolle.entity.base;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import org.trp.shincolle.init.ModSounds;
-import org.trp.shincolle.menu.ShipContainerMenu;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -54,8 +53,8 @@ class EntityShipBaseAudioHelper {
             return;
         }
         SoundEvent sound;
-        if (this.ship.getStateFlag(1) && this.ship.getRandom().nextInt(5) == 0) {
-            int shipClassId = this.ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
+        if (this.ship.getStateComponent().isStateMarried() && this.ship.getRandom().nextInt(5) == 0) {
+            int shipClassId = this.ship.getStateComponent().getShipClassId();
             net.minecraft.resources.ResourceLocation id = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
                 org.trp.shincolle.Shincolle.MODID, "ship-marry-" + shipClassId
             );
@@ -81,7 +80,7 @@ class EntityShipBaseAudioHelper {
 
     void tickTimeKeepingSound() {
         if (
-            !this.ship.getStateFlag(ShipContainerMenu.STATE_FLAG_TIMEKEEP) ||
+            !this.ship.getStateComponent().isStateTimekeep() ||
             !this.ship.isAlive() ||
             this.ship.isInDeadPose()
         ) {
@@ -104,7 +103,7 @@ class EntityShipBaseAudioHelper {
             return;
         }
         if (this.ship.getRandom().nextInt(10) > 7) {
-            int shipClassId = this.ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
+            int shipClassId = this.ship.getStateComponent().getShipClassId();
             net.minecraft.resources.ResourceLocation id = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
                 org.trp.shincolle.Shincolle.MODID, "ship-hit-" + shipClassId
             );
@@ -121,9 +120,9 @@ class EntityShipBaseAudioHelper {
         if (this.ship.level().isClientSide) {
             return;
         }
-        if (this.ship.getStateTimer(6) <= 0 && this.ship.getRandom().nextInt(2) == 0) {
-            this.ship.setStateTimer(6, 40 + this.ship.getRandom().nextInt(10));
-            int shipClassId = this.ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
+        if (this.ship.getStateComponent().getAudioTimer() <= 0 && this.ship.getRandom().nextInt(2) == 0) {
+            this.ship.getStateComponent().setAudioTimer(40 + this.ship.getRandom().nextInt(10));
+            int shipClassId = this.ship.getStateComponent().getShipClassId();
             net.minecraft.resources.ResourceLocation id = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
                 org.trp.shincolle.Shincolle.MODID, "ship-item-" + shipClassId
             );
@@ -140,9 +139,9 @@ class EntityShipBaseAudioHelper {
         if (this.ship.level().isClientSide) {
             return;
         }
-        if (this.ship.getStateTimer(6) <= 0) {
-            this.ship.setStateTimer(6, 40 + this.ship.getRandom().nextInt(10));
-            int shipClassId = this.ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
+        if (this.ship.getStateComponent().getAudioTimer() <= 0) {
+            this.ship.getStateComponent().setAudioTimer(40 + this.ship.getRandom().nextInt(10));
+            int shipClassId = this.ship.getStateComponent().getShipClassId();
             net.minecraft.resources.ResourceLocation id = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
                 org.trp.shincolle.Shincolle.MODID, "ship-knockback-" + shipClassId
             );
@@ -159,7 +158,7 @@ class EntityShipBaseAudioHelper {
         if (this.ship.level().isClientSide) {
             return;
         }
-        int shipClassId = this.ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
+        int shipClassId = this.ship.getStateComponent().getShipClassId();
         net.minecraft.resources.ResourceLocation id = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
             org.trp.shincolle.Shincolle.MODID, "ship-feed-" + shipClassId
         );

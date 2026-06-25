@@ -16,9 +16,9 @@ public class ModelBattleshipRu<T extends EntityShipBase> extends ShipModelHumano
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "battleship_ru"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelBattleshipRu");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelBattleshipRu");
-    private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelBattleshipRu");
+    private static final float DEAD_TRANSLATE_Y = 0.65F * 3;
+    private static final float SNEAK_TRANSLATE_Y = 0.05F;
+    private static final float SITTING_TRANSLATE_Y = 0.54F * 2;
 
     private boolean isDeadPose;
     private boolean isSittingPose;
@@ -939,5 +939,10 @@ public class ModelBattleshipRu<T extends EntityShipBase> extends ShipModelHumano
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.5f;
     }
 }

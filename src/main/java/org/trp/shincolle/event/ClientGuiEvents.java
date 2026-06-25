@@ -8,25 +8,25 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.attachment.AdmiralData;
 import org.trp.shincolle.client.model.ModelPlayerAccessory;
 import org.trp.shincolle.client.renderer.layer.PlayerAccessoryLayer;
 import org.trp.shincolle.client.screen.AppearanceButton;
 import org.trp.shincolle.init.ModDataAttachments;
+import org.trp.shincolle.init.ModSounds;
 import org.trp.shincolle.network.C2SPlayerAppearancePayload;
 import org.trp.shincolle.network.ModNetwork;
-import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
-import org.trp.shincolle.init.ModSounds;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.util.RandomSource;
 
 @EventBusSubscriber(modid = Shincolle.MODID, value = Dist.CLIENT)
 public class ClientGuiEvents {

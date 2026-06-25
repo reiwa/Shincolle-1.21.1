@@ -15,10 +15,10 @@ public class ModelIsolatedHime<T extends EntityShipBase> extends ShipModelHumano
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "isolated_hime"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelIsolatedHime");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelIsolatedHime");
-    private static final float SIT_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelIsolatedHime");
-    private static final float RIDING_TRANSLATE_Y = LegacyPoseOffsets.ridingY("ModelIsolatedHime");
+    private static final float DEAD_TRANSLATE_Y = 0.43F * 3.5F;
+    private static final float SNEAK_TRANSLATE_Y = 0.06F;
+    private static final float SIT_TRANSLATE_Y = 0.48F * 3.5F;
+    private static final float RIDING_TRANSLATE_Y = 0.02F;
 
     private boolean isDeadPose;
     private boolean isSittingPose;
@@ -905,5 +905,10 @@ public class ModelIsolatedHime<T extends EntityShipBase> extends ShipModelHumano
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.38f;
     }
 }

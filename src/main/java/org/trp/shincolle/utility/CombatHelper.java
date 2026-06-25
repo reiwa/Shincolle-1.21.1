@@ -2,6 +2,7 @@ package org.trp.shincolle.utility;
 
 import net.minecraft.world.effect.MobEffects;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.LegacyShipStats;
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile;
 
 public class CombatHelper {
@@ -20,7 +21,7 @@ public class CombatHelper {
         } else {
             miss = 0.25F + 0.25F * (distance / range) - levelMod;
         }
-        miss -= host.getLegacyShipStats().getBuffedAttr(12);
+        miss -= host.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_ACCURACY);
         miss = Math.max(0.0F, Math.min(miss, 0.5F));
         if (host.hasEffect(MobEffects.BLINDNESS)) {
             miss += 0.4F;
@@ -33,9 +34,9 @@ public class CombatHelper {
             return rawAtk;
         }
         float miss = calcMissRate(host, distance);
-        float cri = miss + host.getLegacyShipStats().getBuffedAttr(9);
-        float dhit = cri + host.getLegacyShipStats().getBuffedAttr(10);
-        float thit = dhit + host.getLegacyShipStats().getBuffedAttr(11);
+        float cri = miss + host.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_CRITICAL_RATE);
+        float dhit = cri + host.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_DOUBLE_HIT_RATE);
+        float thit = dhit + host.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_TRIPLE_HIT_RATE);
         float roll = host.getRandom().nextFloat();
 
         if (roll <= miss) {

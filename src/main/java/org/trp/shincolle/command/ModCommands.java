@@ -277,7 +277,7 @@ public class ModCommands {
         foundShip.teleportTo(player.getX(), player.getY() + 0.5, player.getZ());
         foundShip.setOrderedToSit(false);
         foundShip.setGuardedPos((int) player.getX(), (int) (player.getY() + 0.5), (int) player.getZ(), 0, 1);
-        foundShip.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);
+        foundShip.getStateComponent().setStateDisableGuardPos(false);
 
         source.sendSystemMessage(Component.translatable("chat.shincolle.command.command")
             .append(Component.literal(" ship: ").append(Component.literal("get: " + uuid).withStyle(ChatFormatting.YELLOW))));
@@ -530,11 +530,11 @@ public class ModCommands {
 
     private static int executeShipStopAI(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
-        EntityShipBase.stopAI = !EntityShipBase.stopAI;
-        EntityMountBase.stopAI = EntityShipBase.stopAI;
+        EntityShipBase.setStopAI(!EntityShipBase.isStopAI());
+        EntityMountBase.stopAI = EntityShipBase.isStopAI();
 
         source.sendSystemMessage(Component.translatable("chat.shincolle.command.command")
-            .append(" shipstopai: " + EntityShipBase.stopAI));
+            .append(" shipstopai: " + EntityShipBase.isStopAI()));
         return 1;
     }
 

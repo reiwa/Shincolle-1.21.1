@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityDestroyerHibiki;
 
 public class RendererDestroyerHibiki extends MobRenderer<EntityDestroyerHibiki, ModelDestroyerHibiki<EntityDestroyerHibiki>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/destroyer_hibiki.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererDestroyerHibiki(EntityRendererProvider.Context context) {
         super(context, new ModelDestroyerHibiki<>(context.bakeLayer(ModelDestroyerHibiki.LAYER_LOCATION)), 0.5f);

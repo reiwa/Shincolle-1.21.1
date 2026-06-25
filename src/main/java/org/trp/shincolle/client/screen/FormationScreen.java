@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Inventory;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.attachment.AdmiralData;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.LegacyShipStats;
 import org.trp.shincolle.menu.FormationMenu;
 import org.trp.shincolle.network.C2SFormationActionPayload;
 import org.trp.shincolle.utility.FormationHelper;
@@ -128,7 +129,7 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
         
         EntityShipBase selectedShip = ships[selectedSlot];
         if (selectedShip != null && selectedShip.getLegacyShipStats() != null) {
-            for (int i = 0; i < 21; i++) {
+            for (int i = 0; i < LegacyShipStats.STAT_KNOCKBACK_RESISTANCE + 1; i++) {
                 this.unbuffedAttrs[i] = selectedShip.getLegacyShipStats().getRawAttr(i);
             }
         } else {
@@ -138,12 +139,12 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
         Arrays.fill(this.totalFP, 0.0f);
         for (EntityShipBase ship : ships) {
             if (ship == null || ship.getLegacyShipStats() == null) continue;
-            this.totalFP[0] += ship.getLegacyShipStats().getBuffedAttr(1);
-            this.totalFP[1] += ship.getLegacyShipStats().getBuffedAttr(2);
-            this.totalFP[2] += ship.getLegacyShipStats().getBuffedAttr(3);
-            this.totalFP[3] += ship.getLegacyShipStats().getBuffedAttr(4);
-            this.totalFP[4] += ship.getLegacyShipStats().getBuffedAttr(13);
-            this.totalFP[5] += ship.getLegacyShipStats().getBuffedAttr(14);
+            this.totalFP[0] += ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_FIREPOWER);
+            this.totalFP[1] += ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_HEAVY_FIREPOWER);
+            this.totalFP[2] += ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_LIGHT_AIRCRAFT_FIREPOWER);
+            this.totalFP[3] += ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_HEAVY_AIRCRAFT_FIREPOWER);
+            this.totalFP[4] += ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_ANTI_AIR);
+            this.totalFP[5] += ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_ANTI_SUB);
         }
         this.teamNameStr = data.getTeamName(currentTeam);
     }
@@ -254,20 +255,20 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
                 float rawValue = this.unbuffedAttrs[attrId];
                 float buffedValue = ship.getLegacyShipStats().getBuffedAttr(attrId);
                 
-                String prefix = (formationValue > (attrId == 8 || attrId == 7 ? 0.0f : 1.0f) && attrId < 15) || (formationValue > 0f && attrId >= 15) ? "+" : "";
+                String prefix = (formationValue > (attrId == LegacyShipStats.STAT_ATTACK_RANGE || attrId == LegacyShipStats.STAT_MOVE_SPEED ? 0.0f : 1.0f) && attrId < LegacyShipStats.STAT_DODGE) || (formationValue > 0f && attrId >= LegacyShipStats.STAT_DODGE) ? "+" : "";
                 String formationStr;
                 String orgStr;
                 String buffedStr;
 
-                if (attrId == 8 || attrId == 7) {
+                if (attrId == LegacyShipStats.STAT_ATTACK_RANGE || attrId == LegacyShipStats.STAT_MOVE_SPEED) {
                     formationStr = String.format("%.2f", formationValue);
                     orgStr = String.format("%.2f", rawValue);
                     buffedStr = String.format("%.2f", buffedValue);
-                } else if (attrId == 15 || attrId == 17 || attrId == 19 || attrId == 20) {
+                } else if (attrId == LegacyShipStats.STAT_DODGE || attrId == LegacyShipStats.STAT_FUEL_CONSUMPTION || attrId == LegacyShipStats.STAT_HEALING_MODIFIER || attrId == LegacyShipStats.STAT_KNOCKBACK_RESISTANCE) {
                     formationStr = String.format("%.0f%%", formationValue * 100.0f);
                     orgStr = String.format("%.1f%%", rawValue * 100.0f);
                     buffedStr = String.format("%.1f%%", buffedValue * 100.0f);
-                } else if (attrId >= 9 && attrId <= 14) {
+                } else if (attrId >= LegacyShipStats.STAT_CRITICAL_RATE && attrId <= LegacyShipStats.STAT_ANTI_SUB) {
                     formationStr = String.format("%.0f%%", (formationValue - 1.0f) * 100.0f);
                     orgStr = String.format("%.1f%%", rawValue * 100.0f);
                     buffedStr = String.format("%.1f%%", buffedValue * 100.0f);
@@ -297,9 +298,30 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
         int range = 5;
         for (int row = 0; row < BAR_ROWS.length; row++) {
             if (my < BAR_ROWS[row] + range) {
-                if (mx < 51) return new byte[]{1, 2, 3, 4, 6, 8}[row];
-                if (mx < 94) return new byte[]{9, 10, 11, 12, 13, 14}[row];
-                return new byte[]{5, 15, 17, 19, 20, 7}[row];
+                if (mx < 51) return new byte[]{
+                    LegacyShipStats.STAT_FIREPOWER,
+                    LegacyShipStats.STAT_HEAVY_FIREPOWER,
+                    LegacyShipStats.STAT_LIGHT_AIRCRAFT_FIREPOWER,
+                    LegacyShipStats.STAT_HEAVY_AIRCRAFT_FIREPOWER,
+                    LegacyShipStats.STAT_RELOAD_SPEED,
+                    LegacyShipStats.STAT_ATTACK_RANGE
+                }[row];
+                if (mx < 94) return new byte[]{
+                    LegacyShipStats.STAT_CRITICAL_RATE,
+                    LegacyShipStats.STAT_DOUBLE_HIT_RATE,
+                    LegacyShipStats.STAT_TRIPLE_HIT_RATE,
+                    LegacyShipStats.STAT_ACCURACY,
+                    LegacyShipStats.STAT_ANTI_AIR,
+                    LegacyShipStats.STAT_ANTI_SUB
+                }[row];
+                return new byte[]{
+                    LegacyShipStats.STAT_ARMOR,
+                    LegacyShipStats.STAT_DODGE,
+                    LegacyShipStats.STAT_FUEL_CONSUMPTION,
+                    LegacyShipStats.STAT_HEALING_MODIFIER,
+                    LegacyShipStats.STAT_KNOCKBACK_RESISTANCE,
+                    LegacyShipStats.STAT_MOVE_SPEED
+                }[row];
             }
         }
         return -1;
@@ -464,7 +486,26 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
         }
 
         float[] value = FormationHelper.getFormationBuffs(formationId, slotId);
-        byte[] attrIds = {1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14, 5, 15, 17, 19, 20, 7};
+        byte[] attrIds = {
+            LegacyShipStats.STAT_FIREPOWER,
+            LegacyShipStats.STAT_HEAVY_FIREPOWER,
+            LegacyShipStats.STAT_LIGHT_AIRCRAFT_FIREPOWER,
+            LegacyShipStats.STAT_HEAVY_AIRCRAFT_FIREPOWER,
+            LegacyShipStats.STAT_RELOAD_SPEED,
+            LegacyShipStats.STAT_ATTACK_RANGE,
+            LegacyShipStats.STAT_CRITICAL_RATE,
+            LegacyShipStats.STAT_DOUBLE_HIT_RATE,
+            LegacyShipStats.STAT_TRIPLE_HIT_RATE,
+            LegacyShipStats.STAT_ACCURACY,
+            LegacyShipStats.STAT_ANTI_AIR,
+            LegacyShipStats.STAT_ANTI_SUB,
+            LegacyShipStats.STAT_ARMOR,
+            LegacyShipStats.STAT_DODGE,
+            LegacyShipStats.STAT_FUEL_CONSUMPTION,
+            LegacyShipStats.STAT_HEALING_MODIFIER,
+            LegacyShipStats.STAT_KNOCKBACK_RESISTANCE,
+            LegacyShipStats.STAT_MOVE_SPEED
+        };
         int[] colMap = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};
         int[] rowMap = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5};
 
@@ -473,13 +514,13 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
             if (attrId < 0 || attrId >= value.length) continue;
             float lenModify = 20.0f;
             float base = 1.0f;
-            if (attrId == 7) {
+            if (attrId == LegacyShipStats.STAT_MOVE_SPEED) {
                 lenModify /= 0.5f;
                 base = 0.0f;
-            } else if (attrId == 8) {
+            } else if (attrId == LegacyShipStats.STAT_ATTACK_RANGE) {
                 lenModify /= 10.0f;
                 base = 0.0f;
-            } else if (attrId >= 15 && attrId <= 20) {
+            } else if (attrId >= LegacyShipStats.STAT_DODGE && attrId <= LegacyShipStats.STAT_KNOCKBACK_RESISTANCE) {
                 base = 0.0f;
             }
 

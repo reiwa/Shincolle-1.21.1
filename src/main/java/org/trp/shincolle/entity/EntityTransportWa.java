@@ -8,8 +8,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.LegacyShipStats;
+import org.trp.shincolle.entity.base.ShipStateComponent;
 import org.trp.shincolle.init.ModItems;
-import org.trp.shincolle.menu.ShipContainerMenu;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,11 +24,11 @@ public class EntityTransportWa extends EntityShipBase {
     public EntityTransportWa(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setModelPos(new float[]{-3, 20, 0, 45});
-        setStateMinor(STATE_MINOR_FACTION_ID, 7);
-        setStateMinor(STATE_MINOR_SHIP_CLASS, 16);
-        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 0);
-        setStateMinor(STATE_MINOR_RARITY, 3);
-        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeAP);
+        getStateComponent().setFactionId(7);
+        getStateComponent().setShipClassId(16);
+        getStateComponent().setSpecialEquip(0);
+        getStateComponent().setRarity(3);
+        getStateComponent().setGrudgeConsumption(org.trp.shincolle.Config.fuelConsumeAP);
         setStateGuiBtn1(false);
         setStateGuiBtn2(false);
         setStateGuiBtn3(false);
@@ -68,7 +69,7 @@ public class EntityTransportWa extends EntityShipBase {
     }
 
     private void updateServerLogic() {
-        if (this.getStateMinor(6) <= 5400) {
+        if (this.getStateComponent().getFuel() <= 5400) {
             consumeSupplyItems(0);
         }
         if (this.getAmmoLight() <= 540) {
@@ -87,7 +88,7 @@ public class EntityTransportWa extends EntityShipBase {
         int supCount = this.getLevel() / 50 + 1;
         double range = 2.0D + this.getAttributeValue(Attributes.FOLLOW_RANGE) * 0.5D;
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
-                this.getBoundingBox().inflate(range, range, range));
+                 this.getBoundingBox().inflate(range, range, range));
         if (ships.isEmpty()) {
             return;
         }
@@ -104,9 +105,9 @@ public class EntityTransportWa extends EntityShipBase {
             }
 
             boolean supplied = false;
-            if (this.getStateMinor(6) > 5400 && ship.getStateMinor(6) < 2700) {
+            if (this.getStateComponent().getFuel() > 5400 && ship.getStateComponent().getFuel() < 2700) {
                 addGrudge(-5400);
-                ship.setStateMinor(6, Math.max(0, ship.getStateMinor(6) + 5400));
+                ship.getStateComponent().setFuel(Math.max(0, ship.getStateComponent().getFuel() + 5400));
                 supplied = true;
             }
             if (this.getAmmoLight() >= 540 && ship.getAmmoLight() < 270) {
@@ -140,8 +141,8 @@ public class EntityTransportWa extends EntityShipBase {
 
     private void consumeSupplyItems(int type) {
         int level = org.trp.shincolle.Config.consumptionLevel;
-        float modFuel = this.getLegacyShipStats().getBuffedAttr(17);
-        float modAmmo = this.getLegacyShipStats().getBuffedAttr(18);
+        float modFuel = this.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_FUEL_CONSUMPTION);
+        float modAmmo = this.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_AMMO_CONSUMPTION);
         int multiplier = level == 0 ? 10 : 1;
 
         switch (type) {
@@ -178,8 +179,8 @@ public class EntityTransportWa extends EntityShipBase {
 
 
     private void addGrudge(int amount) {
-        int next = Math.max(0, this.getStateMinor(6) + amount);
-        this.setStateMinor(6, next);
+        int next = Math.max(0, this.getStateComponent().getFuel() + amount);
+        this.getStateComponent().setFuel(next);
     }
 
     private void addAmmoLight(int amount) {
@@ -193,12 +194,24 @@ public class EntityTransportWa extends EntityShipBase {
     }
 
     @Override
-    public int getStateMinor(int index) {
-        if (index == STATE_MINOR_EQUIP_DRUM) {
-            return 2;
-        }
-        return super.getStateMinor(index);
+    protected ShipStateComponent createStateComponent() {
+        return new ShipStateComponent(this) {
+            @Override
+            public int getEquipDrum() {
+                return 2;
+            }
+
+            @Override
+            public boolean isStateAutoPump() {
+                if (this.isStateMarried() && this.isStateRingEffect()) {
+                    return true;
+                }
+                return super.isStateAutoPump();
+            }
+        };
     }
+
+
 
     @Override
     protected boolean hasLiquidDrumEquip() {
@@ -209,12 +222,14 @@ public class EntityTransportWa extends EntityShipBase {
     }
 
     @Override
-    public boolean getStateFlag(int index) {
-        if (index == ShipContainerMenu.STATE_FLAG_AUTO_PUMP && this.isStateMarried() && this.isStateRingEffect()) {
+    public boolean isStateAutoPump() {
+        if (this.isStateMarried() && this.isStateRingEffect()) {
             return true;
         }
-        return super.getStateFlag(index);
+        return super.isStateAutoPump();
     }
+
+
 
     @Override
     public boolean supportsItemPickup() {

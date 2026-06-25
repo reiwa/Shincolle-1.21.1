@@ -15,10 +15,10 @@ public class ModelMidwayHime<T extends EntityShipBase> extends ShipModelHumanoid
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "midway_hime"), "main");
 
     private static final float OFFSET_SCALE = 16.0F;
-    private static final float DEAD_TRANSLATE_Y = LegacyPoseOffsets.deadY("ModelMidwayHime");
-    private static final float SNEAK_TRANSLATE_Y = LegacyPoseOffsets.sneakY("ModelMidwayHime");
-    private static final float SIT_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelMidwayHime");
-    private static final float RIDING_TRANSLATE_Y = LegacyPoseOffsets.ridingY("ModelMidwayHime");
+    private static final float DEAD_TRANSLATE_Y = 0.59F * 3;
+    private static final float SNEAK_TRANSLATE_Y = 0.09F;
+    private static final float SIT_TRANSLATE_Y = 0.51F * 3;
+    private static final float RIDING_TRANSLATE_Y = 0.08F;
 
     private boolean isDeadPose;
     private boolean isSittingPose;
@@ -1072,5 +1072,10 @@ public class ModelMidwayHime<T extends EntityShipBase> extends ShipModelHumanoid
         if (usePoseTranslate) {
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public float getBaseScale() {
+        return 0.48f;
     }
 }

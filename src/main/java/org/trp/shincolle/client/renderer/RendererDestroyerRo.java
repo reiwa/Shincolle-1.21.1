@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.EntityDestroyerRo;
 
 public class RendererDestroyerRo extends MobRenderer<EntityDestroyerRo, ModelDestroyerRo<EntityDestroyerRo>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/destroyer_ro.png");
-    private static final float MODEL_SCALE = 0.34f;
 
     public RendererDestroyerRo(EntityRendererProvider.Context context) {
         super(context, new ModelDestroyerRo<>(context.bakeLayer(ModelDestroyerRo.LAYER_LOCATION)), 0.5f);
