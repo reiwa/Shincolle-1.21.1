@@ -1,5 +1,5 @@
 ## v0.9.1(2026/06/25 JST)
-- Fixed minion entities drowning issue
+- Fixed minion entities' drowning issue
 - Restored BlockFrame functionality
 - Restored entity warp behavior
 - Replaced BlockNetherAbyss texture
