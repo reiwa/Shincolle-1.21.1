@@ -87,7 +87,7 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
             if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 int amp = this.getStateComponent().getAffectionLegacy() / 35 + 1;
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,
-                        80 + this.getStateComponent().getAffectionLegacy(), amp, false, false));
+                        300, amp, false, false));
             }
         }
     }

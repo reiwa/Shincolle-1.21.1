@@ -51,6 +51,11 @@ public class ModEventBusEvents {
         HostileSpawnManager.tickPlayer(player);
 
         if (!player.level().isClientSide) {
+            if (player.tickCount % 16 == 0) {
+                updatePlayerRingStatus(player);
+            }
+            updatePlayerAbilities(player);
+
             int timer = org.trp.shincolle.item.BucketRepairItem.getParticleTimer(player);
             if (timer > 0) {
                 org.trp.shincolle.item.BucketRepairItem.setParticleTimer(player, timer - 1);
@@ -79,6 +84,101 @@ public class ModEventBusEvents {
         }
     }
 
+    private static void updatePlayerRingStatus(Player player) {
+        org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+        ItemStack ringStack = ItemStack.EMPTY;
+        for (ItemStack itemStack : player.getInventory().items) {
+            if (!itemStack.isEmpty() && itemStack.is(ModItems.MARRIAGE_RING.get())) {
+                ringStack = itemStack;
+                break;
+            }
+        }
+        boolean hasRing = !ringStack.isEmpty();
+        if (ringStack.isEmpty() && player.getOffhandItem().is(ModItems.MARRIAGE_RING.get())) {
+            ringStack = player.getOffhandItem();
+            hasRing = true;
+        }
+
+        boolean oldHasRing = data.hasRing();
+        data.setHasRing(hasRing);
+
+        boolean isActive = false;
+        if (hasRing) {
+            net.minecraft.world.item.component.CustomData customData = ringStack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+            if (customData != null) {
+                isActive = customData.copyTag().getBoolean("isActive");
+            }
+        }
+        data.setRingActive(isActive);
+
+        if (oldHasRing && !hasRing) {
+            if (!player.getAbilities().instabuild && player.getAbilities().flying) {
+                player.getAbilities().flying = false;
+                player.onUpdateAbilities();
+            }
+        }
+    }
+
+    private static void updatePlayerAbilities(Player player) {
+        org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+        if (!data.hasRing() || !data.isRingActive()) {
+            return;
+        }
+
+        int marriageNum = data.getMarriageNum();
+
+        if (Config.ringAbility[0] >= 0 && marriageNum >= Config.ringAbility[0] && player.getAirSupply() < 300) {
+            if (player.tickCount % 20 == 0) {
+                player.setAirSupply(300);
+            }
+        }
+
+        if (Config.ringAbility[1] >= 0 && marriageNum >= Config.ringAbility[1]) {
+            boolean inLiquid = player.isInWaterOrBubble() || player.isInLava();
+            if (inLiquid) {
+                if (!player.getAbilities().flying) {
+                    player.getAbilities().flying = true;
+                    data.setRingFlying(true);
+                    player.onUpdateAbilities();
+                }
+            } else {
+                if (data.isRingFlying() && !player.getAbilities().instabuild && player.getAbilities().flying) {
+                    player.getAbilities().flying = false;
+                    data.setRingFlying(false);
+                    player.onUpdateAbilities();
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onGetBreakSpeed(net.neoforged.neoforge.event.entity.player.PlayerEvent.BreakSpeed event) {
+        if (Config.ringAbility[2] <= 0) return;
+        Player player = event.getEntity();
+        org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+        if (data.hasRing() && data.isRingActive() && (player.isInWaterOrBubble() || player.isInLava())) {
+            int marriageNum = Math.min(data.getMarriageNum(), Config.ringAbility[2]);
+            float digBoost = 1.0f + marriageNum * 0.2f;
+            event.setNewSpeed(event.getOriginalSpeed() * 5.0f * digBoost);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingIncomingDamage(net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            if (player.level().isClientSide) return;
+            org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+            if (data.hasRing() && data.isRingActive() && Config.ringAbility[4] >= 0 && data.getMarriageNum() >= Config.ringAbility[4]) {
+                if (event.getSource().is(net.minecraft.tags.DamageTypeTags.IS_FIRE)) {
+                    if (player.isOnFire()) {
+                        player.clearFire();
+                    }
+                    event.setCanceled(true);
+                }
+            }
+        }
+    }
+
     @SubscribeEvent
     public static void onPlayerLogin(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
@@ -102,6 +202,9 @@ public class ModEventBusEvents {
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer newPlayer) {
             java.util.HashSet<Integer> collected = newPlayer.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS);
             net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(newPlayer, new org.trp.shincolle.network.S2CCollectedShipsSyncPayload(new java.util.ArrayList<>(collected)));
+
+            org.trp.shincolle.attachment.AdmiralData data = newPlayer.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(newPlayer, new org.trp.shincolle.network.S2CAdmiralDataSyncPayload(data.serializeNBT()));
         }
     }
 
@@ -285,6 +388,36 @@ public class ModEventBusEvents {
         }
 
         handlePointerTargetCommand(player, pointerStack);
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
+    }
+
+    @SubscribeEvent
+    public static void onPointerItemInteractEntity(PlayerInteractEvent.EntityInteract event) {
+        Player player = event.getEntity();
+        if (player == null) return;
+        ItemStack pointerStack = event.getItemStack();
+        if (!isPointerItem(pointerStack)) {
+            return;
+        }
+
+        if (player.isShiftKeyDown()) {
+            return;
+        }
+
+        if (pointerStack.getItem() instanceof PointerItem pointerItem && pointerItem.isPetting(pointerStack)) {
+            if (event.getTarget() instanceof EntityShipBase) {
+                return;
+            }
+        }
+
+        if (event.getTarget() instanceof EntityShipBase ship && ship.isOwnedBy(player)) {
+            return;
+        }
+
+        if (!player.level().isClientSide) {
+            handlePointerTargetCommand(player, pointerStack);
+        }
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
     }

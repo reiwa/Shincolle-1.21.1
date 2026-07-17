@@ -61,7 +61,7 @@ public class EntityDestroyerNi extends EntityShipBase {
             if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 int amp = this.getStateComponent().getAffectionLegacy() / 50;
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST,
-                        80 + this.getStateComponent().getAffectionLegacy(), amp, false, false));
+                        300, amp, false, false));
             }
         }
     }

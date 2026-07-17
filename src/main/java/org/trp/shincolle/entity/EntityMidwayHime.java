@@ -96,7 +96,7 @@ public class EntityMidwayHime extends EntityShipBase {
             this.getOwnerPlayer().addEffect(
                 new MobEffectInstance(
                     MobEffects.ABSORPTION,
-                    duration,
+                    300,
                     amp,
                     false,
                     false

@@ -80,6 +80,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
     private int activeDetailTab = DETAIL_TAB_BASIC;
     private int activeSettingsTab = SETTINGS_TAB_1;
+    private int showAttack = 1;
     private int appearancePage = 0;
     private int activeSlider = SLIDER_NONE;
     private int sliderBarPos = 0;
@@ -151,31 +152,36 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             drawLabel(guiGraphics, tr("gui.shincolle.kills"), 75, 20);
             drawValueRight(guiGraphics, "0", 135, 30, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "EXP", 75, 41);
+            drawLabel(guiGraphics, tr("gui.shincolle.exp"), 75, 41);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShipExp()), 135, 51, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "AMMO L", 75, 62);
+            drawLabel(guiGraphics, tr("gui.shincolle.ammolight"), 75, 62);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShip().getAmmoLight()), 135, 72, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "AMMO H", 75, 83);
+            drawLabel(guiGraphics, tr("gui.shincolle.ammoheavy"), 75, 83);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShip().getAmmoHeavy()), 135, 93, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "GRUDGE", 75, 104);
+            drawLabel(guiGraphics, tr("gui.shincolle.grudge"), 75, 104);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShipFuel()), 135, 114, 0xFFFFFF);
         } else if (this.activeDetailTab == DETAIL_TAB_STATUS) {
-            drawLabel(guiGraphics, "FIREPWR", 75, 20);
-            drawValueRight(guiGraphics, String.format("%.0f", this.menu.getShipFirepower()), 135, 30, getModernizationColor(this.menu.getShip().getAttrBonus(1)));
+            if (this.menu.getShip().supportsAircraftCombat() && this.showAttack == 2) {
+                drawLabel(guiGraphics, tr("gui.shincolle.firepower2"), 75, 20);
+                drawValueRight(guiGraphics, String.format("%.0f / %.0f", this.menu.getShipLightAircraftFirepower(), this.menu.getShipHeavyAircraftFirepower()), 135, 30, getModernizationColor(this.menu.getShip().getAttrBonus(1)));
+            } else {
+                drawLabel(guiGraphics, tr("gui.shincolle.firepower1"), 75, 20);
+                drawValueRight(guiGraphics, String.format("%.0f", this.menu.getShipFirepower()), 135, 30, getModernizationColor(this.menu.getShip().getAttrBonus(1)));
+            }
 
-            drawLabel(guiGraphics, "ARMOR", 75, 41);
+            drawLabel(guiGraphics, tr("gui.shincolle.armor"), 75, 41);
             drawValueRight(guiGraphics, String.format("%.1f%%", this.menu.getShipArmor() * 100.0f), 135, 51, getModernizationColor(this.menu.getShip().getAttrBonus(2)));
 
-            drawLabel(guiGraphics, "RELOAD", 75, 62);
+            drawLabel(guiGraphics, tr("gui.shincolle.attackspeed"), 75, 62);
             drawValueRight(guiGraphics, String.format("%.2f", this.menu.getShipReloadSpeed()), 135, 72, getModernizationColor(this.menu.getShip().getAttrBonus(3)));
 
-            drawLabel(guiGraphics, "MOVE", 75, 83);
+            drawLabel(guiGraphics, tr("gui.shincolle.movespeed"), 75, 83);
             drawValueRight(guiGraphics, String.format("%.2f", this.menu.getShipMoveSpeed()), 135, 93, getModernizationColor(this.menu.getShip().getAttrBonus(4)));
 
-            drawLabel(guiGraphics, "RANGE", 75, 104);
+            drawLabel(guiGraphics, tr("gui.shincolle.range"), 75, 104);
             drawValueRight(guiGraphics, String.format("%.1f", this.menu.getShipRange()), 135, 114, getModernizationColor(this.menu.getShip().getAttrBonus(5)));
         } else {
             drawLabel(guiGraphics, tr("gui.shincolle.marriage"), 75, 20);
@@ -185,10 +191,10 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             drawValueRight(guiGraphics, tr("gui.shincolle.formation.format0"), 135, 51, 0xFFFFFF);
 
             if (this.menu.getShip().supportsAircraftCombat()) {
-                drawLabel(guiGraphics, "AIRCRAFT L", 75, 83);
+                drawLabel(guiGraphics, tr("gui.shincolle.airplanelight"), 75, 83);
                 drawValueRight(guiGraphics, String.valueOf(this.menu.getAircraftLight()), 135, 93, 0xFFFF00);
 
-                drawLabel(guiGraphics, "AIRCRAFT H", 75, 104);
+                drawLabel(guiGraphics, tr("gui.shincolle.airplaneheavy"), 75, 104);
                 drawValueRight(guiGraphics, String.valueOf(this.menu.getAircraftHeavy()), 135, 114, 0xFFFF00);
             }
         }
@@ -327,6 +333,13 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         if (inside(x, y, 133, 89, 142, 125)) {
             this.activeDetailTab = DETAIL_TAB_MISC;
             return true;
+        }
+
+        if (this.activeDetailTab == DETAIL_TAB_STATUS && inside(x, y, 73, 18, 132, 40)) {
+            if (this.menu.getShip().supportsAircraftCombat()) {
+                this.showAttack = (this.showAttack == 1) ? 2 : 1;
+                return true;
+            }
         }
 
         for (int tab = SETTINGS_TAB_1; tab <= SETTINGS_TAB_8; tab++) {
@@ -824,23 +837,23 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
         if (this.activeDetailTab == DETAIL_TAB_STATUS) {
             if (isHovering(mouseX, mouseY, 75, 20, 60, 18)) {
-                renderModernizationTooltip(guiGraphics, 1, mouseX, mouseY);
+                renderFirepowerDetailedTooltip(guiGraphics);
                 return;
             }
             if (isHovering(mouseX, mouseY, 75, 41, 60, 18)) {
-                renderModernizationTooltip(guiGraphics, 2, mouseX, mouseY);
+                renderModernizationTooltip(guiGraphics, 2, this.leftPos + 55, this.topPos + 78);
                 return;
             }
             if (isHovering(mouseX, mouseY, 75, 62, 60, 18)) {
-                renderModernizationTooltip(guiGraphics, 3, mouseX, mouseY);
+                renderModernizationTooltip(guiGraphics, 3, this.leftPos + 55, this.topPos + 99);
                 return;
             }
             if (isHovering(mouseX, mouseY, 75, 83, 60, 18)) {
-                renderModernizationTooltip(guiGraphics, 4, mouseX, mouseY);
+                renderModernizationTooltip(guiGraphics, 4, this.leftPos + 55, this.topPos + 120);
                 return;
             }
             if (isHovering(mouseX, mouseY, 75, 104, 60, 18)) {
-                renderModernizationTooltip(guiGraphics, 5, mouseX, mouseY);
+                renderModernizationTooltip(guiGraphics, 5, this.leftPos + 55, this.topPos + 142);
                 return;
             }
         }
@@ -980,11 +993,90 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         guiGraphics.renderComponentTooltip(this.font, lines, this.leftPos + 145, this.topPos + 32);
     }
 
-    private void renderModernizationTooltip(GuiGraphics guiGraphics, int index, int mouseX, int mouseY) {
+    private void renderModernizationTooltip(GuiGraphics guiGraphics, int index, int x, int y) {
         int bonus = this.menu.getShip().getAttrBonus(index);
         List<Component> lines = new ArrayList<>();
         lines.add(Component.literal(tr("gui.shincolle.modernlevel") + " " + bonus));
-        guiGraphics.renderComponentTooltip(this.font, lines, mouseX, mouseY);
+        guiGraphics.renderComponentTooltip(this.font, lines, x, y);
+    }
+
+    private void renderFirepowerDetailedTooltip(GuiGraphics guiGraphics) {
+        org.trp.shincolle.entity.base.EntityShipBase ship = this.menu.getShip();
+        org.trp.shincolle.entity.base.LegacyShipStats stats = ship.getLegacyShipStats();
+
+        List<Component> labels = new ArrayList<>();
+        List<Component> values = new ArrayList<>();
+
+        // 1. Modernization Level
+        labels.add(Component.literal(tr("gui.shincolle.modernlevel")).withStyle(ChatFormatting.WHITE));
+        values.add(Component.literal(String.valueOf(ship.getAttrBonus(1))).withStyle(ChatFormatting.WHITE));
+
+        // 2. Firepower (melee / heavy)
+        labels.add(Component.literal(tr("gui.shincolle.firepower1")).withStyle(ChatFormatting.RED));
+        values.add(Component.literal(String.format("%.1f / %.1f", stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_FIREPOWER), stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_HEAVY_FIREPOWER))).withStyle(ChatFormatting.RED));
+
+        // 3. Firepower (aircraft light / heavy)
+        labels.add(Component.literal(tr("gui.shincolle.firepower2")).withStyle(ChatFormatting.RED));
+        values.add(Component.literal(String.format("%.1f / %.1f", stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_LIGHT_AIRCRAFT_FIREPOWER), stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_HEAVY_AIRCRAFT_FIREPOWER))).withStyle(ChatFormatting.RED));
+
+        // 4. Critical
+        labels.add(Component.literal(tr("gui.shincolle.critical")).withStyle(ChatFormatting.AQUA));
+        values.add(Component.literal(String.format("%.0f %%", stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_CRITICAL_RATE) * 100.0F)).withStyle(ChatFormatting.AQUA));
+
+        // 5. Double Hit
+        labels.add(Component.literal(tr("gui.shincolle.doublehit")).withStyle(ChatFormatting.YELLOW));
+        values.add(Component.literal(String.format("%.0f %%", stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_DOUBLE_HIT_RATE) * 100.0F)).withStyle(ChatFormatting.YELLOW));
+
+        // 6. Triple Hit
+        labels.add(Component.literal(tr("gui.shincolle.triplehit")).withStyle(ChatFormatting.GOLD));
+        values.add(Component.literal(String.format("%.0f %%", stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_TRIPLE_HIT_RATE) * 100.0F)).withStyle(ChatFormatting.GOLD));
+
+        // 7. Anti-air
+        labels.add(Component.literal(tr("gui.shincolle.antiair")).withStyle(ChatFormatting.YELLOW));
+        values.add(Component.literal(String.format("%.0f", stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_ANTI_AIR))).withStyle(ChatFormatting.YELLOW));
+
+        // 8. Anti-submarine
+        labels.add(Component.literal(tr("gui.shincolle.antiss")).withStyle(ChatFormatting.AQUA));
+        values.add(Component.literal(String.format("%.0f", stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_ANTI_SUB))).withStyle(ChatFormatting.AQUA));
+
+        // 9. Miss rate
+        int missNear = (int) (org.trp.shincolle.utility.CombatHelper.calcMissRate(ship, 0.0f) * 100.0f);
+        int missFar = (int) (org.trp.shincolle.utility.CombatHelper.calcMissRate(ship, stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_ATTACK_RANGE)) * 100.0f);
+        labels.add(Component.literal(tr("gui.shincolle.missrate")).withStyle(ChatFormatting.RED));
+        values.add(Component.literal(missNear + " ~ " + missFar + " %").withStyle(ChatFormatting.RED));
+
+        // 10. Dodge
+        float dodgeValue = stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_DODGE);
+        labels.add(Component.literal(tr("gui.shincolle.dodge")).withStyle(ChatFormatting.GOLD));
+        values.add(Component.literal(String.format("%.0f %%", dodgeValue * 100.0f)).withStyle(ChatFormatting.GOLD));
+
+        // 11. EXP Gain bonus
+        labels.add(Component.literal(tr("gui.shincolle.equip.xp")).withStyle(ChatFormatting.GREEN));
+        values.add(Component.literal(String.format("%.0f %%", (stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_XP_MULTIPLIER) - 1.0f) * 100.0f)).withStyle(ChatFormatting.GREEN));
+
+        // 12. Fuel (Grudge) consumption
+        labels.add(Component.literal(tr("gui.shincolle.equip.grudge")).withStyle(ChatFormatting.DARK_PURPLE));
+        values.add(Component.literal(String.format("%.0f %%", (stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_FUEL_CONSUMPTION) - 1.0f) * 100.0f)).withStyle(ChatFormatting.DARK_PURPLE));
+
+        // 13. Ammo consumption
+        labels.add(Component.literal(tr("gui.shincolle.equip.ammo")).withStyle(ChatFormatting.DARK_AQUA));
+        values.add(Component.literal(String.format("%.0f %%", (stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_AMMO_CONSUMPTION) - 1.0f) * 100.0f)).withStyle(ChatFormatting.DARK_AQUA));
+
+        // 14. HP recovery
+        labels.add(Component.literal(tr("gui.shincolle.equip.hpres")).withStyle(ChatFormatting.DARK_GREEN));
+        values.add(Component.literal(String.format("%.0f %%", (stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_HEALING_MODIFIER) - 1.0f) * 100.0f)).withStyle(ChatFormatting.DARK_GREEN));
+
+        // 15. Knockback resistance
+        labels.add(Component.literal(tr("gui.shincolle.equip.kb")).withStyle(ChatFormatting.DARK_RED));
+        values.add(Component.literal(String.format("%.0f %%", stats.getBuffedAttr(org.trp.shincolle.entity.base.LegacyShipStats.STAT_KNOCKBACK_RESISTANCE) * 100.0f)).withStyle(ChatFormatting.DARK_RED));
+
+        int labelWidth = 0;
+        for (Component label : labels) {
+            labelWidth = Math.max(labelWidth, this.font.width(label));
+        }
+
+        guiGraphics.renderComponentTooltip(this.font, labels, this.leftPos + 55, this.topPos + 57);
+        guiGraphics.renderComponentTooltip(this.font, values, this.leftPos + 61 + labelWidth, this.topPos + 57);
     }
 
     private void drawLabel(GuiGraphics guiGraphics, String text, int x, int y) {

@@ -186,13 +186,20 @@ class EntityShipBaseSupplies {
         }
 
         if (this.ship.supportsAircraftCombat()) {
-            this.ship.setNumAircraftLight(this.ship.getNumAircraftLight() + 2);
-            this.ship.setNumAircraftHeavy(this.ship.getNumAircraftHeavy() + 2);
+            int maxLight = this.ship.getMaxAircraftLight();
+            int maxHeavy = this.ship.getMaxAircraftHeavy();
+            int addLight = this.ship.getRandom().nextInt(3) + 1;
+            int addHeavy = this.ship.getRandom().nextInt(3) + 1;
+            this.ship.setNumAircraftLight(Math.min(maxLight, this.ship.getNumAircraftLight() + addLight));
+            this.ship.setNumAircraftHeavy(Math.min(maxHeavy, this.ship.getNumAircraftHeavy() + addHeavy));
         }
 
         this.ship.addMorale(200);
         this.ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
-        this.ship.applyParticleEmotion(EmotionParticleType.HAPPY_BOB);
+        if (this.ship.getEmotesTick() <= 0) {
+            this.ship.setEmotesTick(40);
+            this.ship.applyParticleEmotion(EmotionParticleType.HAPPY_BOB);
+        }
         this.ship.playFeedSound();
 
         if (!player.getAbilities().instabuild) {

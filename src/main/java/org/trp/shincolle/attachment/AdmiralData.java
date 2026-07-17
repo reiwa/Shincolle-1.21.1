@@ -20,6 +20,10 @@ public class AdmiralData {
     private boolean hasReceivedBook = false;
     private final java.util.Set<String> customTargetClasses = new java.util.HashSet<>();
     private int appearance = 0;
+    private int marriageNum = 0;
+    private boolean hasRing = false;
+    private boolean ringActive = false;
+    private boolean ringFlying = false;
 
     public AdmiralData() {
         for (int i = 0; i < TEAM_COUNT; i++) {
@@ -28,6 +32,38 @@ public class AdmiralData {
                 selectionStates[i][j] = true;
             }
         }
+    }
+
+    public boolean isRingFlying() {
+        return ringFlying;
+    }
+
+    public void setRingFlying(boolean ringFlying) {
+        this.ringFlying = ringFlying;
+    }
+
+    public int getMarriageNum() {
+        return marriageNum;
+    }
+
+    public void setMarriageNum(int marriageNum) {
+        this.marriageNum = marriageNum;
+    }
+
+    public boolean hasRing() {
+        return hasRing;
+    }
+
+    public void setHasRing(boolean hasRing) {
+        this.hasRing = hasRing;
+    }
+
+    public boolean isRingActive() {
+        return ringActive;
+    }
+
+    public void setRingActive(boolean ringActive) {
+        this.ringActive = ringActive;
     }
 
     public boolean hasReceivedBook() {
@@ -154,6 +190,10 @@ public class AdmiralData {
         nbt.putInt("CurrentTeam", currentTeamID);
         nbt.putBoolean("HasReceivedBook", hasReceivedBook);
         nbt.putInt("Appearance", appearance);
+        nbt.putInt("MarriageNum", marriageNum);
+        nbt.putBoolean("HasRing", hasRing);
+        nbt.putBoolean("RingActive", ringActive);
+        nbt.putBoolean("RingFlying", ringFlying);
 
         ListTag customTargetsList = new ListTag();
         for (String targetClass : customTargetClasses) {
@@ -188,6 +228,10 @@ public class AdmiralData {
         currentTeamID = nbt.getInt("CurrentTeam");
         hasReceivedBook = nbt.getBoolean("HasReceivedBook");
         appearance = nbt.getInt("Appearance");
+        marriageNum = nbt.getInt("MarriageNum");
+        hasRing = nbt.getBoolean("HasRing");
+        ringActive = nbt.getBoolean("RingActive");
+        ringFlying = nbt.getBoolean("RingFlying");
 
         customTargetClasses.clear();
         if (nbt.contains("CustomTargetClasses", Tag.TAG_LIST)) {

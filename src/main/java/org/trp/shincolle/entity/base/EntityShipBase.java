@@ -1680,16 +1680,21 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
     @Override
     public boolean startRiding(Entity vehicle, boolean force) {
         boolean result = super.startRiding(vehicle, force);
-        if (
-            result &&
-            !this.level().isClientSide() &&
-            vehicle instanceof ServerPlayer serverPlayer
-        ) {
-            serverPlayer.connection.send(
-                new net.minecraft.network.protocol.game.ClientboundSetPassengersPacket(
-                    serverPlayer
-                )
-            );
+        if (result && !this.level().isClientSide() && vehicle != null) {
+            if (vehicle instanceof ServerPlayer serverPlayer) {
+                serverPlayer.connection.send(
+                    new net.minecraft.network.protocol.game.ClientboundSetPassengersPacket(
+                        serverPlayer
+                    )
+                );
+            } else if (this.level() instanceof ServerLevel serverLevel) {
+                serverLevel.getChunkSource().broadcast(
+                    vehicle,
+                    new net.minecraft.network.protocol.game.ClientboundSetPassengersPacket(
+                        vehicle
+                    )
+                );
+            }
         }
         return result;
     }
@@ -1698,15 +1703,21 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
     public void stopRiding() {
         Entity vehicle = this.getVehicle();
         super.stopRiding();
-        if (
-            !this.level().isClientSide() &&
-            vehicle instanceof ServerPlayer serverPlayer
-        ) {
-            serverPlayer.connection.send(
-                new net.minecraft.network.protocol.game.ClientboundSetPassengersPacket(
-                    serverPlayer
-                )
-            );
+        if (!this.level().isClientSide() && vehicle != null) {
+            if (vehicle instanceof ServerPlayer serverPlayer) {
+                serverPlayer.connection.send(
+                    new net.minecraft.network.protocol.game.ClientboundSetPassengersPacket(
+                        serverPlayer
+                    )
+                );
+            } else if (this.level() instanceof ServerLevel serverLevel) {
+                serverLevel.getChunkSource().broadcast(
+                    vehicle,
+                    new net.minecraft.network.protocol.game.ClientboundSetPassengersPacket(
+                        vehicle
+                    )
+                );
+            }
         }
     }
 
@@ -2233,8 +2244,19 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
     }
 
     public void onInventoryChanged() {
-        this.combat.recalculateAmmoCounts();
         this.recalculateLegacyShipStats();
+    }
+
+    public int getMaxAircraftLight() {
+        return this.combat.getMaxAircraftLight();
+    }
+
+    public int getMaxAircraftHeavy() {
+        return this.combat.getMaxAircraftHeavy();
+    }
+
+    public boolean hasItemInInventory(net.minecraft.world.item.Item item) {
+        return this.inventoryHelper.findItemInInventory(item) != -1;
     }
 
     protected void recalculateLegacyShipStats() {

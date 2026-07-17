@@ -690,5 +690,7 @@ public class Config {
         hostileMobSpawnGroups = mobSpawn[2];
         hostileMobSpawnGroupMin = mobSpawn[3];
         hostileMobSpawnGroupMax = mobSpawn[4];
+
+        org.trp.shincolle.crafting.ShipyardRecipes.loadConfig();
     }
 }

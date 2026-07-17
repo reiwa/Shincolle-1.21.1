@@ -70,9 +70,9 @@ public class EntityDestroyerHime extends EntityShipBase {
                 int ampSpeed = this.getStateComponent().getAffectionLegacy() / 45 + 1;
                 int ampHaste = this.getStateComponent().getAffectionLegacy() / 30;
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,
-                        80 + this.getStateComponent().getAffectionLegacy(), ampSpeed, false, false));
+                        300, ampSpeed, false, false));
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.DIG_SPEED,
-                        80 + this.getStateComponent().getAffectionLegacy(), ampHaste, false, false));
+                        300, ampHaste, false, false));
             }
         }
     }

@@ -39,15 +39,29 @@ class EntityShipBaseCombat {
     }
 
     boolean canUseLightAmmo() {
+        EntityShipBase shipEntity = this.ship.asShipEntity();
+        if (shipEntity == null) {
+            return this.ship.getAmmoLight() > 0;
+        }
         return this.ship.isStateGuiBtn1()
                 && this.ship.isStateLightAttack()
-                && this.ship.getAmmoLight() > 0;
+                && (shipEntity.isHostileShipMob()
+                    || this.ship.getAmmoLight() > 0
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_LIGHT.get())
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_LIGHT_CONTAINER.get()));
     }
 
     boolean canUseHeavyAmmo() {
+        EntityShipBase shipEntity = this.ship.asShipEntity();
+        if (shipEntity == null) {
+            return this.ship.getAmmoHeavy() > 0;
+        }
         return this.ship.isStateGuiBtn2()
                 && this.ship.isStateHeavyAttack()
-                && this.ship.getAmmoHeavy() > 0;
+                && (shipEntity.isHostileShipMob()
+                    || this.ship.getAmmoHeavy() > 0
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_HEAVY.get())
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_HEAVY_CONTAINER.get()));
     }
 
     boolean canUseMeleeAttack() {
@@ -55,31 +69,59 @@ class EntityShipBaseCombat {
     }
 
     boolean canUseLightAircraft() {
+        EntityShipBase shipEntity = this.ship.asShipEntity();
+        if (shipEntity == null) {
+            return this.ship.hasAirLight() && this.ship.getAmmoLight() >= AIRCRAFT_LIGHT_AMMO_COST;
+        }
         return this.ship.isStateGuiBtn3()
                 && this.ship.isStateLightAircraftAttack()
                 && this.ship.hasAirLight()
-                && this.ship.getAmmoLight() >= AIRCRAFT_LIGHT_AMMO_COST;
+                && (shipEntity.isHostileShipMob()
+                    || this.ship.getAmmoLight() >= AIRCRAFT_LIGHT_AMMO_COST
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_LIGHT.get())
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_LIGHT_CONTAINER.get()));
     }
 
     boolean canUseLightAircraftManual() {
+        EntityShipBase shipEntity = this.ship.asShipEntity();
+        if (shipEntity == null) {
+            return !isCombatSuppressed() && this.ship.supportsAircraftCombat() && this.ship.hasAirLight() && this.ship.getAmmoLight() >= AIRCRAFT_LIGHT_AMMO_COST;
+        }
         return !isCombatSuppressed()
                 && this.ship.supportsAircraftCombat()
                 && this.ship.hasAirLight()
-                && this.ship.getAmmoLight() >= AIRCRAFT_LIGHT_AMMO_COST;
+                && (shipEntity.isHostileShipMob()
+                    || this.ship.getAmmoLight() >= AIRCRAFT_LIGHT_AMMO_COST
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_LIGHT.get())
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_LIGHT_CONTAINER.get()));
     }
 
     boolean canUseHeavyAircraft() {
+        EntityShipBase shipEntity = this.ship.asShipEntity();
+        if (shipEntity == null) {
+            return this.ship.hasAirHeavy() && this.ship.getAmmoHeavy() >= AIRCRAFT_HEAVY_AMMO_COST;
+        }
         return this.ship.isStateGuiBtn4()
                 && this.ship.isStateHeavyAircraftAttack()
                 && this.ship.hasAirHeavy()
-                && this.ship.getAmmoHeavy() >= AIRCRAFT_HEAVY_AMMO_COST;
+                && (shipEntity.isHostileShipMob()
+                    || this.ship.getAmmoHeavy() >= AIRCRAFT_HEAVY_AMMO_COST
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_HEAVY.get())
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_HEAVY_CONTAINER.get()));
     }
 
     boolean canUseHeavyAircraftManual() {
+        EntityShipBase shipEntity = this.ship.asShipEntity();
+        if (shipEntity == null) {
+            return !isCombatSuppressed() && this.ship.supportsAircraftCombat() && this.ship.hasAirHeavy() && this.ship.getAmmoHeavy() >= AIRCRAFT_HEAVY_AMMO_COST;
+        }
         return !isCombatSuppressed()
                 && this.ship.supportsAircraftCombat()
                 && this.ship.hasAirHeavy()
-                && this.ship.getAmmoHeavy() >= AIRCRAFT_HEAVY_AMMO_COST;
+                && (shipEntity.isHostileShipMob()
+                    || this.ship.getAmmoHeavy() >= AIRCRAFT_HEAVY_AMMO_COST
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_HEAVY.get())
+                    || shipEntity.hasItemInInventory(ModItems.AMMO_HEAVY_CONTAINER.get()));
     }
 
     boolean hasAircraftAttackEnabled() {
@@ -444,84 +486,96 @@ class EntityShipBaseCombat {
         if (amount <= 0) {
             return true;
         }
-        int remaining = amount;
-        for (int i = 0; i < this.ship.getInventory().getSlots() && remaining > 0; i++) {
-            ItemStack stack = this.ship.getInventory().getStackInSlot(i);
-            if (stack.isEmpty()) {
-                continue;
+        EntityShipBase shipEntity = this.ship.asShipEntity();
+        if (shipEntity == null || shipEntity.isHostileShipMob()) {
+            return true;
+        }
+
+        if (this.ship.getAmmoHeavy() < amount) {
+            float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_AMMO_CONSUMPTION);
+            int multiplier = org.trp.shincolle.Config.consumptionLevel == 0 ? 10 : 1;
+            int addAmmo = 0;
+            boolean supplied = false;
+
+            if (shipEntity.consumeItemInInventory(ModItems.AMMO_HEAVY.get())) {
+                addAmmo = (int) (15 * modAmmo * multiplier);
+                supplied = true;
+            } else if (shipEntity.consumeItemInInventory(ModItems.AMMO_HEAVY_CONTAINER.get())) {
+                addAmmo = (int) (135 * modAmmo * multiplier);
+                supplied = true;
             }
-            if (isHeavyAmmo(stack)) {
-                int take = Math.min(stack.getCount(), remaining);
-                ItemStack updated = stack.copy();
-                updated.shrink(take);
-                this.ship.getInventory().setStackInSlot(i, updated);
-                remaining -= take;
-            } else if (isHeavyAmmoContainer(stack)) {
-                if (stack.getCount() <= 0) {
-                    continue;
-                }
-                ItemStack updated = stack.copy();
-                updated.shrink(1);
-                this.ship.getInventory().setStackInSlot(i, updated);
 
-                int used = Math.min(remaining, AMMO_HEAVY_CONTAINER_VALUE);
-                int leftover = AMMO_HEAVY_CONTAINER_VALUE - used;
-                remaining -= used;
-
-                if (leftover > 0) {
-                    insertAmmoRemainder(ModItems.AMMO_HEAVY.get(), leftover, i);
+            if (supplied) {
+                this.ship.setAmmoHeavy(this.ship.getAmmoHeavy() + addAmmo);
+                if (shipEntity.getEmotesTick() <= 0) {
+                    shipEntity.setEmotesTick(40);
+                    int rnd = this.ship.getRandom().nextInt(3);
+                    if (rnd == 0) shipEntity.applyParticleEmotion(EmotionParticleType.DROOL);
+                    else if (rnd == 1) shipEntity.applyParticleEmotion(EmotionParticleType.BLINK);
+                    else shipEntity.applyParticleEmotion(EmotionParticleType.SIGH);
                 }
             }
         }
-        boolean success = remaining <= 0;
-        if (success) {
-            this.ship.setCombatTick(this.ship.getTickCount());
+
+        if (this.ship.getAmmoHeavy() < amount) {
+            if (shipEntity.getEmotesTick() <= 0) {
+                shipEntity.setEmotesTick(20);
+                shipEntity.applyParticleEmotion(EmotionParticleType.BLINK);
+            }
+            return false;
         }
-        return success;
+
+        this.ship.setAmmoHeavy(this.ship.getAmmoHeavy() - amount);
+        this.ship.setCombatTick(this.ship.getTickCount());
+        return true;
     }
 
     boolean consumeLightAmmo(int amount) {
         if (amount <= 0) {
             return true;
         }
-        int remaining = amount;
-        for (int i = 0; i < this.ship.getInventory().getSlots() && remaining > 0; i++) {
-            ItemStack stack = this.ship.getInventory().getStackInSlot(i);
-            if (stack.isEmpty()) {
-                continue;
+        EntityShipBase shipEntity = this.ship.asShipEntity();
+        if (shipEntity == null || shipEntity.isHostileShipMob()) {
+            return true;
+        }
+
+        if (this.ship.getAmmoLight() < amount) {
+            float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_AMMO_CONSUMPTION);
+            int multiplier = org.trp.shincolle.Config.consumptionLevel == 0 ? 10 : 1;
+            int addAmmo = 0;
+            boolean supplied = false;
+
+            if (shipEntity.consumeItemInInventory(ModItems.AMMO_LIGHT.get())) {
+                addAmmo = (int) (30 * modAmmo * multiplier);
+                supplied = true;
+            } else if (shipEntity.consumeItemInInventory(ModItems.AMMO_LIGHT_CONTAINER.get())) {
+                addAmmo = (int) (270 * modAmmo * multiplier);
+                supplied = true;
             }
-            if (isLightAmmo(stack)) {
-                int take = Math.min(stack.getCount(), remaining);
-                ItemStack updated = stack.copy();
-                updated.shrink(take);
-                this.ship.getInventory().setStackInSlot(i, updated);
-                remaining -= take;
-            } else if (isLightAmmoContainer(stack)) {
-                if (stack.getCount() <= 0) {
-                    continue;
-                }
-                ItemStack updated = stack.copy();
-                updated.shrink(1);
-                this.ship.getInventory().setStackInSlot(i, updated);
 
-                int used = Math.min(remaining, AMMO_LIGHT_CONTAINER_VALUE);
-                int leftover = AMMO_LIGHT_CONTAINER_VALUE - used;
-                remaining -= used;
-
-                if (leftover > 0) {
-                    insertAmmoRemainder(ModItems.AMMO_LIGHT.get(), leftover, i);
+            if (supplied) {
+                this.ship.setAmmoLight(this.ship.getAmmoLight() + addAmmo);
+                if (shipEntity.getEmotesTick() <= 0) {
+                    shipEntity.setEmotesTick(40);
+                    int rnd = this.ship.getRandom().nextInt(3);
+                    if (rnd == 0) shipEntity.applyParticleEmotion(EmotionParticleType.DROOL);
+                    else if (rnd == 1) shipEntity.applyParticleEmotion(EmotionParticleType.BLINK);
+                    else shipEntity.applyParticleEmotion(EmotionParticleType.SIGH);
                 }
             }
         }
-        boolean success = remaining <= 0;
-        if (success) {
-            this.ship.setCombatTick(this.ship.getTickCount());
-        }
-        return success;
-    }
 
-    private boolean isLightAmmo(ItemStack stack) {
-        return stack.is(ModItems.AMMO_LIGHT.get());
+        if (this.ship.getAmmoLight() < amount) {
+            if (shipEntity.getEmotesTick() <= 0) {
+                shipEntity.setEmotesTick(20);
+                shipEntity.applyParticleEmotion(EmotionParticleType.BLINK);
+            }
+            return false;
+        }
+
+        this.ship.setAmmoLight(this.ship.getAmmoLight() - amount);
+        this.ship.setCombatTick(this.ship.getTickCount());
+        return true;
     }
 
     void returnAircraftToDeck(boolean lightAircraft) {
@@ -537,6 +591,10 @@ class EntityShipBaseCombat {
         }
     }
 
+    private boolean isLightAmmo(ItemStack stack) {
+        return stack.is(ModItems.AMMO_LIGHT.get());
+    }
+
     private boolean isLightAmmoContainer(ItemStack stack) {
         return stack.is(ModItems.AMMO_LIGHT_CONTAINER.get());
     }
@@ -549,27 +607,11 @@ class EntityShipBaseCombat {
         return stack.is(ModItems.AMMO_HEAVY_CONTAINER.get());
     }
 
-    private void insertAmmoRemainder(net.minecraft.world.item.Item item, int count, int avoidSlot) {
-        if (count <= 0) {
-            return;
-        }
-        ItemStack remaining = new ItemStack(item, count);
-        for (int i = 0; i < this.ship.getInventory().getSlots() && !remaining.isEmpty(); i++) {
-            if (i == avoidSlot) {
-                continue;
-            }
-            remaining = this.ship.getInventory().insertItem(i, remaining, false);
-        }
-        if (!remaining.isEmpty() && this.ship.level() instanceof ServerLevel serverLevel) {
-            serverLevel.addFreshEntity(new ItemEntity(serverLevel, this.ship.getX(), this.ship.getY(), this.ship.getZ(), remaining));
-        }
-    }
-
-    private int getMaxAircraftLight() {
+    int getMaxAircraftLight() {
         return 8 + this.ship.getLevel() / 5 + (int) (this.ship.getLevel() * this.ship.getAircraftLightLevelBonus());
     }
 
-    private int getMaxAircraftHeavy() {
+    int getMaxAircraftHeavy() {
         return 4 + this.ship.getLevel() / 10 + (int) (this.ship.getLevel() * this.ship.getAircraftHeavyLevelBonus());
     }
 

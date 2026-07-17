@@ -23,6 +23,21 @@ import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.LegacyEquipStats;
 import org.trp.shincolle.item.ShipSpawnEggItem;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.fml.loading.FMLPaths;
+
+import java.io.Reader;
+import java.io.Writer;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,37 +63,37 @@ public final class ShipyardRecipes {
     private static final int LAVA_FUEL_MB = 1000;
     private static final int LAVA_FUEL_VALUE = 20000;
 
-    private static final List<Candidate> SMALL_SHIP_CANDIDATES = List.of(
-            new Candidate(0, 80, 0),
-            new Candidate(1, 90, 0),
-            new Candidate(2, 100, 0),
-            new Candidate(3, 110, 0),
-            new Candidate(16, 120, 1),
-            new Candidate(17, 140, 2),
-            new Candidate(18, 160, 2),
-            new Candidate(19, 180, 2),
-            new Candidate(9, 200, 2),
-            new Candidate(10, 256, 2)
-    );
+    private static List<ShipCandidate> SMALL_SHIP_CANDIDATES = new ArrayList<>(List.of(
+            new ShipCandidate(ModEntities.DESTROYER_I.get(), 80, 0),
+            new ShipCandidate(ModEntities.DESTROYER_RO.get(), 90, 0),
+            new ShipCandidate(ModEntities.DESTROYER_HA.get(), 100, 0),
+            new ShipCandidate(ModEntities.DESTROYER_NI.get(), 110, 0),
+            new ShipCandidate(ModEntities.TRANSPORT_WA.get(), 120, 1),
+            new ShipCandidate(ModEntities.SUBM_KA.get(), 140, 2),
+            new ShipCandidate(ModEntities.SUBM_YO.get(), 160, 2),
+            new ShipCandidate(ModEntities.SUBM_SO.get(), 180, 2),
+            new ShipCandidate(ModEntities.HEAVY_CRUISER_RI.get(), 200, 2),
+            new ShipCandidate(ModEntities.HEAVY_CRUISER_NE.get(), 256, 2)
+    ));
 
-    private static final List<Candidate> LARGE_SHIP_CANDIDATES = List.of(
-            new Candidate(27, 500, 0),
-            new Candidate(12, 650, 3),
-            new Candidate(14, 800, 2),
-            new Candidate(13, 800, 2),
-            new Candidate(49, 2000, 2),
-            new Candidate(31, 2600, 1),
-            new Candidate(72, 2600, 2),
-            new Candidate(29, 2700, 1),
-            new Candidate(28, 2800, 1),
-            new Candidate(21, 3000, 1),
-            new Candidate(20, 3000, 3),
-            new Candidate(44, 3500, 2),
-            new Candidate(15, 3800, 2),
-            new Candidate(26, 4600, 2),
-            new Candidate(30, 4800, 1),
-            new Candidate(33, 5000, 3)
-    );
+    private static List<ShipCandidate> LARGE_SHIP_CANDIDATES = new ArrayList<>(List.of(
+            new ShipCandidate(ModEntities.DESTROYER_HIME.get(), 500, 0),
+            new ShipCandidate(ModEntities.CARRIER_WO.get(), 650, 3),
+            new ShipCandidate(ModEntities.BATTLESHIP_TA.get(), 800, 2),
+            new ShipCandidate(ModEntities.BATTLESHIP_RU.get(), 800, 2),
+            new ShipCandidate(ModEntities.CA_HIME.get(), 2000, 2),
+            new ShipCandidate(ModEntities.NORTHERN_HIME.get(), 2600, 1),
+            new ShipCandidate(ModEntities.SSNH.get(), 2600, 2),
+            new ShipCandidate(ModEntities.ISOLATED_HIME.get(), 2700, 1),
+            new ShipCandidate(ModEntities.HARBOUR_HIME.get(), 2800, 1),
+            new ShipCandidate(ModEntities.AIRFIELD_HIME.get(), 3000, 1),
+            new ShipCandidate(ModEntities.CARRIER_HIME.get(), 3000, 3),
+            new ShipCandidate(ModEntities.SUBM_HIME.get(), 3500, 2),
+            new ShipCandidate(ModEntities.BATTLESHIP_RE.get(), 3800, 2),
+            new ShipCandidate(ModEntities.BATTLESHIP_HIME.get(), 4600, 2),
+            new ShipCandidate(ModEntities.MIDWAY_HIME.get(), 4800, 1),
+            new ShipCandidate(ModEntities.CARRIER_W_DEMON.get(), 5000, 3)
+    ));
 
     private static final List<Candidate> SMALL_EQUIP_TYPE_CANDIDATES = List.of(
             new Candidate(18, 80, 1),
@@ -287,8 +302,7 @@ public final class ShipyardRecipes {
             mats = new int[]{0, 0, 0, 0};
         }
 
-        int type = rollShipType(largeShipyard, mats);
-        return getShipEntityTypeForType(type, largeShipyard);
+        return rollShipType(largeShipyard, mats);
     }
 
     public static int getShipClassFromEntityType(EntityType<?> type) {
@@ -642,78 +656,131 @@ public final class ShipyardRecipes {
         return new int[]{mats[0], mats[1], mats[2], mats[3]};
     }
 
-    private static EntityType<? extends Mob> getShipEntityTypeForType(int type, boolean largeShipyard) {
-        return switch (type) {
-            case 0 -> ModEntities.DESTROYER_I.get();
-            case 1 -> ModEntities.DESTROYER_RO.get();
-            case 2 -> ModEntities.DESTROYER_HA.get();
-            case 3 -> ModEntities.DESTROYER_NI.get();
-            case 9 -> ModEntities.HEAVY_CRUISER_RI.get();
-            case 10 -> ModEntities.HEAVY_CRUISER_NE.get();
-            case 12 -> ModEntities.CARRIER_WO.get();
-            case 13 -> ModEntities.BATTLESHIP_RU.get();
-            case 14 -> ModEntities.BATTLESHIP_TA.get();
-            case 15 -> ModEntities.BATTLESHIP_RE.get();
-            case 16 -> ModEntities.TRANSPORT_WA.get();
-            case 17 -> ModEntities.SUBM_KA.get();
-            case 18 -> ModEntities.SUBM_YO.get();
-            case 19 -> ModEntities.SUBM_SO.get();
-            case 20 -> ModEntities.CARRIER_HIME.get();
-            case 21 -> ModEntities.AIRFIELD_HIME.get();
-            case 26 -> ModEntities.BATTLESHIP_HIME.get();
-            case 27 -> ModEntities.DESTROYER_HIME.get();
-            case 28 -> ModEntities.HARBOUR_HIME.get();
-            case 29 -> ModEntities.ISOLATED_HIME.get();
-            case 30 -> ModEntities.MIDWAY_HIME.get();
-            case 31 -> ModEntities.NORTHERN_HIME.get();
-            case 33 -> ModEntities.CARRIER_W_DEMON.get();
-            case 44 -> ModEntities.SUBM_HIME.get();
-            case 49 -> ModEntities.CA_HIME.get();
-            case 72 -> ModEntities.SSNH.get();
-            default -> largeShipyard ? ModEntities.DESTROYER_HIME.get() : ModEntities.DESTROYER_I.get();
-        };
+    public static void loadConfig() {
+        Path configDir = FMLPaths.CONFIGDIR.get().resolve("shincolle");
+        Path configFile = configDir.resolve("shipyard_recipes.json");
+
+        if (!Files.exists(configDir)) {
+            try {
+                Files.createDirectories(configDir);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        if (!Files.exists(configFile)) {
+            writeDefaultConfig(configFile, gson);
+            return;
+        }
+
+        readConfig(configFile, gson);
     }
 
-    private static Item getShipEggForType(int type, boolean largeShipyard) {
-        return switch (type) {
-            case 0 -> ModItems.DESTROYER_I_SPAWN_EGG.get();
-            case 1 -> ModItems.DESTROYER_RO_SPAWN_EGG.get();
-            case 2 -> ModItems.DESTROYER_HA_SPAWN_EGG.get();
-            case 3 -> ModItems.DESTROYER_NI_SPAWN_EGG.get();
-            case 9 -> ModItems.HEAVY_CRUISER_RI_SPAWN_EGG.get();
-            case 10 -> ModItems.HEAVY_CRUISER_NE_SPAWN_EGG.get();
-            case 12 -> ModItems.CARRIER_WO_SPAWN_EGG.get();
-            case 13 -> ModItems.BATTLESHIP_RU_SPAWN_EGG.get();
-            case 14 -> ModItems.BATTLESHIP_TA_SPAWN_EGG.get();
-            case 15 -> ModItems.BATTLESHIP_RE_SPAWN_EGG.get();
-            case 16 -> ModItems.TRANSPORT_WA_SPAWN_EGG.get();
-            case 17 -> ModItems.SUBM_KA_SPAWN_EGG.get();
-            case 18 -> ModItems.SUBM_YO_SPAWN_EGG.get();
-            case 19 -> ModItems.SUBM_SO_SPAWN_EGG.get();
-            case 20 -> ModItems.CARRIER_HIME_SPAWN_EGG.get();
-            case 21 -> ModItems.AIRFIELD_HIME_SPAWN_EGG.get();
-            case 26 -> ModItems.BATTLESHIP_HIME_SPAWN_EGG.get();
-            case 27 -> ModItems.DESTROYER_HIME_SPAWN_EGG.get();
-            case 28 -> ModItems.HARBOUR_HIME_SPAWN_EGG.get();
-            case 29 -> ModItems.ISOLATED_HIME_SPAWN_EGG.get();
-            case 30 -> ModItems.MIDWAY_HIME_SPAWN_EGG.get();
-            case 31 -> ModItems.NORTHERN_HIME_SPAWN_EGG.get();
-            case 33 -> ModItems.CARRIER_W_DEMON_SPAWN_EGG.get();
-            case 44 -> ModItems.SUBM_HIME_SPAWN_EGG.get();
-            case 49 -> ModItems.CA_HIME_SPAWN_EGG.get();
-            case 72 -> ModItems.SSNH_SPAWN_EGG.get();
-            default -> largeShipyard ? ModItems.DESTROYER_HIME_SPAWN_EGG.get() : ModItems.DESTROYER_I_SPAWN_EGG.get();
-        };
+    private static void writeDefaultConfig(Path configFile, Gson gson) {
+        JsonObject root = new JsonObject();
+        
+        JsonArray smallArray = new JsonArray();
+        for (ShipCandidate candidate : SMALL_SHIP_CANDIDATES) {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("result_ship", BuiltInRegistries.ENTITY_TYPE.getKey(candidate.entityType).toString());
+            obj.addProperty("target_total_mats", candidate.mean);
+            obj.addProperty("preferred_material", ShipyardMaterial.fromIndex(candidate.preferredMaterial).getSerializedName());
+            smallArray.add(obj);
+        }
+        root.add("small_shipyards", smallArray);
+
+        JsonArray largeArray = new JsonArray();
+        for (ShipCandidate candidate : LARGE_SHIP_CANDIDATES) {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("result_ship", BuiltInRegistries.ENTITY_TYPE.getKey(candidate.entityType).toString());
+            obj.addProperty("target_total_mats", candidate.mean);
+            obj.addProperty("preferred_material", ShipyardMaterial.fromIndex(candidate.preferredMaterial).getSerializedName());
+            largeArray.add(obj);
+        }
+        root.add("large_shipyards", largeArray);
+
+        try (Writer writer = Files.newBufferedWriter(configFile)) {
+            gson.toJson(root, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private static int rollShipType(boolean largeShipyard, int[] mats) {
-        List<Candidate> candidates = largeShipyard ? LARGE_SHIP_CANDIDATES : SMALL_SHIP_CANDIDATES;
+    private static void readConfig(Path configFile, Gson gson) {
+        try (Reader reader = Files.newBufferedReader(configFile)) {
+            JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
+            
+            if (root.has("small_shipyards")) {
+                JsonArray smallArray = root.getAsJsonArray("small_shipyards");
+                List<ShipCandidate> tempSmall = new ArrayList<>();
+                for (int i = 0; i < smallArray.size(); i++) {
+                    JsonObject obj = smallArray.get(i).getAsJsonObject();
+                    String shipId = obj.get("result_ship").getAsString();
+                    int targetMats = obj.get("target_total_mats").getAsInt();
+                    String preferredMatStr = obj.get("preferred_material").getAsString();
+                    ResourceLocation resLoc = ResourceLocation.parse(shipId);
+                    if (BuiltInRegistries.ENTITY_TYPE.containsKey(resLoc)) {
+                        EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(resLoc);
+                        @SuppressWarnings("unchecked")
+                        EntityType<? extends Mob> mobType = (EntityType<? extends Mob>) entityType;
+                        int matIndex = -1;
+                        for (ShipyardMaterial mat : ShipyardMaterial.values()) {
+                            if (mat.getSerializedName().equals(preferredMatStr)) {
+                                matIndex = mat.getIndex();
+                                break;
+                            }
+                        }
+                        tempSmall.add(new ShipCandidate(mobType, targetMats, matIndex));
+                    }
+                }
+                if (!tempSmall.isEmpty()) {
+                    SMALL_SHIP_CANDIDATES = tempSmall;
+                }
+            }
+
+            if (root.has("large_shipyards")) {
+                JsonArray largeArray = root.getAsJsonArray("large_shipyards");
+                List<ShipCandidate> tempLarge = new ArrayList<>();
+                for (int i = 0; i < largeArray.size(); i++) {
+                    JsonObject obj = largeArray.get(i).getAsJsonObject();
+                    String shipId = obj.get("result_ship").getAsString();
+                    int targetMats = obj.get("target_total_mats").getAsInt();
+                    String preferredMatStr = obj.get("preferred_material").getAsString();
+                    
+                    ResourceLocation resLoc = ResourceLocation.parse(shipId);
+                    if (BuiltInRegistries.ENTITY_TYPE.containsKey(resLoc)) {
+                        EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(resLoc);
+                        @SuppressWarnings("unchecked")
+                        EntityType<? extends Mob> mobType = (EntityType<? extends Mob>) entityType;
+                        int matIndex = -1;
+                        for (ShipyardMaterial mat : ShipyardMaterial.values()) {
+                            if (mat.getSerializedName().equals(preferredMatStr)) {
+                                matIndex = mat.getIndex();
+                                break;
+                            }
+                        }
+                        tempLarge.add(new ShipCandidate(mobType, targetMats, matIndex));
+                    }
+                }
+                if (!tempLarge.isEmpty()) {
+                    LARGE_SHIP_CANDIDATES = tempLarge;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static EntityType<? extends Mob> rollShipType(boolean largeShipyard, int[] mats) {
+        List<ShipCandidate> candidates = largeShipyard ? LARGE_SHIP_CANDIDATES : SMALL_SHIP_CANDIDATES;
         int totalMats = sumMats(mats);
 
         float[] probs = new float[candidates.size()];
         float totalProb = 0.0F;
         for (int i = 0; i < candidates.size(); i++) {
-            Candidate candidate = candidates.get(i);
+            ShipCandidate candidate = candidates.get(i);
             int meanNew = candidate.preferredMaterial >= 0 && candidate.preferredMaterial <= 3
                     ? candidate.mean - mats[candidate.preferredMaterial]
                     : candidate.mean;
@@ -727,7 +794,7 @@ public final class ShipyardRecipes {
         }
 
         if (totalProb <= 0.0F) {
-            return candidates.getFirst().id;
+            return candidates.getFirst().entityType;
         }
 
         float random = ThreadLocalRandom.current().nextFloat() * totalProb;
@@ -735,10 +802,10 @@ public final class ShipyardRecipes {
         for (int i = 0; i < probs.length; i++) {
             sum += probs[i];
             if (sum > random) {
-                return candidates.get(i).id;
+                return candidates.get(i).entityType;
             }
         }
-        return candidates.getLast().id;
+        return candidates.getLast().entityType;
     }
 
     private static int rollEquipType(boolean largeShipyard, int[] mats) {
@@ -878,5 +945,8 @@ public final class ShipyardRecipes {
     }
 
     private record Candidate(int id, int mean, int preferredMaterial) {
+    }
+
+    private record ShipCandidate(EntityType<? extends Mob> entityType, int mean, int preferredMaterial) {
     }
 }

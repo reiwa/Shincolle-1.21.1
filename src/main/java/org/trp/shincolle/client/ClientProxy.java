@@ -52,51 +52,74 @@ public class ClientProxy {
         );
 
         int displayedCount = 1;
-        for (
-            int i = 0;
-            i < org.trp.shincolle.attachment.AdmiralData.SLOT_COUNT;
-            i++
-        ) {
-            java.util.UUID uuid = data.getShipUUID(teamId, i);
-            if (uuid != null) {
-                String name = null;
-                int level = 0;
-                if (mc.level != null) {
-                    for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
-                        if (
-                            e.getUUID().equals(uuid) &&
-                            e instanceof
-                                org.trp.shincolle.entity.base.EntityShipBase ship
-                        ) {
-                            name = ship.hasCustomName()
-                                ? ship.getCustomName().getString()
-                                : ship.getDisplayName().getString();
-                            level = ship.getLevel();
-                            break;
+        if (mode == org.trp.shincolle.item.PointerItem.MODE_FORMATION) {
+            for (
+                int i = 0;
+                i < org.trp.shincolle.attachment.AdmiralData.SLOT_COUNT;
+                i++
+            ) {
+                java.util.UUID uuid = data.getShipUUID(teamId, i);
+                if (uuid != null) {
+                    String name = null;
+                    int level = 0;
+                    if (mc.level != null) {
+                        for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
+                            if (
+                                e.getUUID().equals(uuid) &&
+                                e instanceof
+                                    org.trp.shincolle.entity.base.EntityShipBase ship
+                            ) {
+                                name = ship.hasCustomName()
+                                    ? ship.getCustomName().getString()
+                                    : ship.getDisplayName().getString();
+                                level = ship.getLevel();
+                                break;
+                            }
                         }
                     }
-                }
 
-                if (name != null) {
-                    ChatFormatting color = data.isSelected(teamId, i)
-                        ? ChatFormatting.WHITE
-                        : ChatFormatting.GRAY;
-                    tooltipComponents.add(
-                        Component.literal(
-                            displayedCount + ": " + name + " - Lv " + level
-                        ).withStyle(color)
-                    );
-                } else {
-                    tooltipComponents.add(
-                        Component.translatable(
-                            "gui.shincolle.formation.nosignal"
-                        ).withStyle(
-                            ChatFormatting.DARK_RED,
-                            ChatFormatting.OBFUSCATED
-                        )
-                    );
+                    if (name != null) {
+                        ChatFormatting color = data.isSelected(teamId, i)
+                            ? ChatFormatting.WHITE
+                            : ChatFormatting.GRAY;
+                        tooltipComponents.add(
+                            Component.literal(
+                                displayedCount + ": " + name + " - Lv " + level
+                            ).withStyle(color)
+                        );
+                    } else {
+                        tooltipComponents.add(
+                            Component.translatable(
+                                "gui.shincolle.formation.nosignal"
+                            ).withStyle(
+                                ChatFormatting.DARK_RED,
+                                ChatFormatting.OBFUSCATED
+                            )
+                        );
+                    }
+                    displayedCount++;
                 }
-                displayedCount++;
+            }
+        } else {
+            if (mc.level != null) {
+                for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
+                    if (e instanceof org.trp.shincolle.entity.base.EntityShipBase ship && ship.isOwnedBy(mc.player) && ship.isPointerSelected()) {
+                        String name = ship.hasCustomName()
+                            ? ship.getCustomName().getString()
+                            : ship.getDisplayName().getString();
+                        tooltipComponents.add(
+                            Component.literal(
+                                displayedCount + ": " + name + " - Lv " + ship.getLevel()
+                            ).withStyle(ChatFormatting.WHITE)
+                        );
+                        displayedCount++;
+                    }
+                }
+            }
+            if (displayedCount == 1) {
+                tooltipComponents.add(
+                    Component.literal("  None").withStyle(ChatFormatting.GRAY)
+                );
             }
         }
     }
@@ -133,6 +156,21 @@ public class ClientProxy {
                     vehicle.setDeltaMovement(vehicle.getDeltaMovement().add(0.0, 0.4, 0.0));
                 }
             }
+        }
+    }
+
+    public static void appendMarriageRingTooltip(ItemStack stack, List<Component> tooltipComponents) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        org.trp.shincolle.attachment.AdmiralData data = mc.player.getData(
+            org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA
+        );
+        if (data != null) {
+            tooltipComponents.add(
+                Component.translatable("gui.shincolle.ringText")
+                    .append(" " + data.getMarriageNum())
+                    .withStyle(ChatFormatting.AQUA)
+            );
         }
     }
 }

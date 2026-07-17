@@ -21,34 +21,7 @@ public class TrainingBookItem extends Item {
 
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity interactionTarget, InteractionHand usedHand) {
-        if (!(interactionTarget instanceof EntityShipBase ship)) {
-            return InteractionResult.PASS;
-        }
-
-        if (!ship.isTame() || !ship.isOwnedBy(player)) {
-            return InteractionResult.PASS;
-        }
-
-        if (player.level().isClientSide) {
-            return InteractionResult.sidedSuccess(true);
-        }
-
-        int minLevelGain = Config.trainingBookLevelMin;
-        int maxLevelGain = Math.max(minLevelGain, Config.trainingBookLevelMax);
-        int levelGain = minLevelGain;
-        if (maxLevelGain > minLevelGain) {
-            levelGain += player.getRandom().nextInt(maxLevelGain - minLevelGain + 1);
-        }
-
-        if (!ship.addTrainingBookLevel(levelGain)) {
-            return InteractionResult.FAIL;
-        }
-
-        if (!player.getAbilities().instabuild) {
-            stack.shrink(1);
-        }
-
-        return InteractionResult.sidedSuccess(false);
+        return InteractionResult.PASS;
     }
 
     @Override

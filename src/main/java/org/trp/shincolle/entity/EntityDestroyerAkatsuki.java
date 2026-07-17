@@ -287,7 +287,7 @@ public class EntityDestroyerAkatsuki
                 this.getOwnerPlayer().addEffect(
                     new MobEffectInstance(
                         MobEffects.DIG_SPEED,
-                        80 + this.getStateComponent().getAffectionLegacy(),
+                        300,
                         amp,
                         false,
                         false

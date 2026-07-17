@@ -164,7 +164,7 @@ public class EntityBattleshipRe extends EntityShipBase {
             if (owner != null && this.distanceToSqr(owner) < 256.0D) {
                 int duration = 50 + this.getStateComponent().getAffectionLegacy();
                 int amp = Math.max(0, this.getStateComponent().getAffectionLegacy() / 50);
-                owner.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, duration, amp, false, false));
+                owner.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 300, amp, false, false));
             }
         }
 

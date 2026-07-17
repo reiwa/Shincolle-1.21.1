@@ -31,6 +31,9 @@ final class EntityShipGuardGoal extends Goal {
         if (ship.getGuardedPos(4) != 1) {
             return false;
         }
+        if (ship.getTarget() != null) {
+            return false;
+        }
         return true;
     }
 

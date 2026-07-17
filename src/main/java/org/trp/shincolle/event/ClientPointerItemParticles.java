@@ -151,9 +151,23 @@ public final class ClientPointerItemParticles {
         boolean isIntervalTick =
             level.getGameTime() % PARTICLE_INTERVAL_TICKS == 0;
         Set<Integer> activeShipIds = new HashSet<>();
+        Set<Integer> activeTargetEntityIds = new HashSet<>();
 
         for (EntityShipBase ship : ships) {
             activeShipIds.add(ship.getId());
+            if (ship.isPointerSelected() && ship.hasPointerTargetEntity()) {
+                Entity target = ship.getPointerTargetEntity();
+                if (target != null) {
+                    activeTargetEntityIds.add(target.getId());
+                    ParticleTeam existingTargetPart = ParticleTeam.getFollowParticle(
+                        ParticleTeam.FollowKind.TARGET_ENTITY,
+                        target.getId()
+                    );
+                    if (existingTargetPart == null || !existingTargetPart.isAliveParticle()) {
+                        spawnEntityTargetMarker(level, target);
+                    }
+                }
+            }
 
             boolean groupMode = pointerMode == PointerItem.MODE_GROUP;
             boolean formationMode = pointerMode == PointerItem.MODE_FORMATION;
@@ -185,6 +199,10 @@ public final class ClientPointerItemParticles {
             ParticleTeam.clearFollowParticles(
                 ParticleTeam.FollowKind.SHIP_MARKER,
                 activeShipIds
+            );
+            ParticleTeam.clearFollowParticles(
+                ParticleTeam.FollowKind.TARGET_ENTITY,
+                activeTargetEntityIds
             );
         }
     }
@@ -329,9 +347,7 @@ public final class ClientPointerItemParticles {
             boolean isIntervalTick = level.getGameTime() % 16 == 0;
 
             if (isIntervalTick) {
-                if (isEntity) {
-                    spawnEntityTargetMarker(level, targetPos);
-                } else {
+                if (!isEntity) {
                     spawnTargetMarker(
                         level,
                         targetPos,
@@ -661,6 +677,26 @@ public final class ClientPointerItemParticles {
                 light,
                 clientPlayer
             );
+        }
+    }
+
+    @SubscribeEvent
+    public static void onSetLiquidFog(net.neoforged.neoforge.client.event.ViewportEvent.RenderFog event) {
+        if (org.trp.shincolle.Config.ringAbility[3] < 0) return;
+        Entity entity = event.getCamera().getEntity();
+        if (!(entity instanceof Player player)) return;
+        if (!(player.isInWaterOrBubble() || player.isInLava())) return;
+
+        org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+        if (data.hasRing() && data.isRingActive()) {
+            float far = event.getFarPlaneDistance();
+            if (org.trp.shincolle.Config.ringAbility[3] == 0) {
+                event.setFarPlaneDistance(far * 10.0f);
+            } else {
+                float factor = (float) data.getMarriageNum() / (float) org.trp.shincolle.Config.ringAbility[3];
+                event.setFarPlaneDistance(far * (1.0f + factor * 9.0f));
+            }
+            event.setCanceled(true);
         }
     }
 }

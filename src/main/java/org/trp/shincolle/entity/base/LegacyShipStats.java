@@ -332,6 +332,14 @@ public class LegacyShipStats {
         return buffed[STAT_ATTACK_RANGE];
     }
 
+    public float getLightAircraftFirepower() {
+        return buffed[STAT_LIGHT_AIRCRAFT_FIREPOWER];
+    }
+
+    public float getHeavyAircraftFirepower() {
+        return buffed[STAT_HEAVY_AIRCRAFT_FIREPOWER];
+    }
+
     public float getDefenseReducedDamage(float incoming, RandomSource random) {
         float reduced = incoming * (1.0F - getArmor() + (random.nextFloat() * 0.5F - 0.25F));
         if (reduced > 0.0F && reduced < 1.0F) {

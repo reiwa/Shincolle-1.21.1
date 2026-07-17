@@ -162,7 +162,7 @@ class EntityShipBaseMovementHelper {
         if (this.ship.getGuardedPos(4) == 1 || this.ship.hasPointerTarget()) {
             return false;
         }
-        if (this.ship.hasPointerTargetEntity()) {
+        if (this.ship.hasPointerTargetEntity() || this.ship.getTarget() != null) {
             return false;
         }
 

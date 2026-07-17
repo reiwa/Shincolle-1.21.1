@@ -1,3 +1,12 @@
+## v0.9.2(2026/07/17 JST)
+- Implemented Shipyard shipbuilding table settings from the config
+- Implemented special effects for MarriageRing
+- Changed the ammunition consumption logic for entities
+- Fixed an issue with pointeritem particles
+- Fixed an issue where training books could not be used on entities
+- Fixed issues related to inventory GUI translations, unimplemented features, and tooltips
+- Many other fixes
+
 ## v0.9.1(2026/06/25 JST)
 - Fixed minion entities' drowning issue
 - Restored BlockFrame functionality

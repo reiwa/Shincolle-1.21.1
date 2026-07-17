@@ -91,10 +91,9 @@ public class EntitySubmYo extends EntityShipBase {
 
     private void updateServerLogic() {
         if (this.isStateRingEffect()) {
-            int duration = 40 + this.getLevel();
-            this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
+            this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 300, 0, false, false));
             if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
-                this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
+                this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 300, 0, false, false));
             }
         }
     }

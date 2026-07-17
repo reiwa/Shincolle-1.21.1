@@ -34,7 +34,7 @@ public class EntityCruiserTatsuta extends EntityShipBase {
     @Override
     protected void applyAuraEffects() {
         if (!this.level().isDay() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
-            this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 150, 0, false, false));
+            this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 300, 0, false, false));
         }
     }
 

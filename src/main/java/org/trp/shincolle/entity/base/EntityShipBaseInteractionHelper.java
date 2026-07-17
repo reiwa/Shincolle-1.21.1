@@ -61,7 +61,87 @@ public class EntityShipBaseInteractionHelper {
         }
 
         if (stack.is(ModItems.TRAINING_BOOK.get())) {
-            return InteractionResult.PASS;
+            if (player.level().isClientSide) {
+                return InteractionResult.sidedSuccess(this.ship.level().isClientSide);
+            }
+
+            int minLevelGain = org.trp.shincolle.Config.trainingBookLevelMin;
+            int maxLevelGain = Math.max(minLevelGain, org.trp.shincolle.Config.trainingBookLevelMax);
+            int levelGain = minLevelGain;
+            if (maxLevelGain > minLevelGain) {
+                levelGain += player.getRandom().nextInt(maxLevelGain - minLevelGain + 1);
+            }
+
+            if (!this.ship.addTrainingBookLevel(levelGain)) {
+                return InteractionResult.FAIL;
+            }
+
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+
+            this.ship.focusOnPlayer(player);
+            return InteractionResult.sidedSuccess(this.ship.level().isClientSide);
+        }
+
+        if (stack.is(ModItems.AMMO_LIGHT.get())) {
+            float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_AMMO_CONSUMPTION);
+            int multiplier = org.trp.shincolle.Config.consumptionLevel == 0 ? 10 : 1;
+            int gain = (int) (30 * modAmmo * multiplier);
+            this.ship.setAmmoLight(this.ship.getAmmoLight() + gain);
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+            this.ship.suppliesHelper.checkAndPlayFeedSound();
+            this.ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
+            this.ship.resetInteractionEmotionState();
+            this.ship.focusOnPlayer(player);
+            return InteractionResult.sidedSuccess(this.ship.level().isClientSide);
+        }
+
+        if (stack.is(ModItems.AMMO_LIGHT_CONTAINER.get())) {
+            float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_AMMO_CONSUMPTION);
+            int multiplier = org.trp.shincolle.Config.consumptionLevel == 0 ? 10 : 1;
+            int gain = (int) (270 * modAmmo * multiplier);
+            this.ship.setAmmoLight(this.ship.getAmmoLight() + gain);
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+            this.ship.suppliesHelper.checkAndPlayFeedSound();
+            this.ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
+            this.ship.resetInteractionEmotionState();
+            this.ship.focusOnPlayer(player);
+            return InteractionResult.sidedSuccess(this.ship.level().isClientSide);
+        }
+
+        if (stack.is(ModItems.AMMO_HEAVY.get())) {
+            float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_AMMO_CONSUMPTION);
+            int multiplier = org.trp.shincolle.Config.consumptionLevel == 0 ? 10 : 1;
+            int gain = (int) (15 * modAmmo * multiplier);
+            this.ship.setAmmoHeavy(this.ship.getAmmoHeavy() + gain);
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+            this.ship.suppliesHelper.checkAndPlayFeedSound();
+            this.ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
+            this.ship.resetInteractionEmotionState();
+            this.ship.focusOnPlayer(player);
+            return InteractionResult.sidedSuccess(this.ship.level().isClientSide);
+        }
+
+        if (stack.is(ModItems.AMMO_HEAVY_CONTAINER.get())) {
+            float modAmmo = this.ship.getLegacyShipStats().getBuffedAttr(LegacyShipStats.STAT_AMMO_CONSUMPTION);
+            int multiplier = org.trp.shincolle.Config.consumptionLevel == 0 ? 10 : 1;
+            int gain = (int) (135 * modAmmo * multiplier);
+            this.ship.setAmmoHeavy(this.ship.getAmmoHeavy() + gain);
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+            this.ship.suppliesHelper.checkAndPlayFeedSound();
+            this.ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
+            this.ship.resetInteractionEmotionState();
+            this.ship.focusOnPlayer(player);
+            return InteractionResult.sidedSuccess(this.ship.level().isClientSide);
         }
 
         if (
@@ -74,6 +154,11 @@ public class EntityShipBaseInteractionHelper {
             this.ship.setMorale(16000);
             this.ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
             this.ship.applyParticleEmotion(EmotionParticleType.HEART);
+            org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+            data.setMarriageNum(data.getMarriageNum() + 1);
+            if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer, new org.trp.shincolle.network.S2CAdmiralDataSyncPayload(data.serializeNBT()));
+            }
             if (this.ship.level() instanceof ServerLevel serverLevel) {
                 for (int i = 0; i < 7; ++i) {
                     double px =

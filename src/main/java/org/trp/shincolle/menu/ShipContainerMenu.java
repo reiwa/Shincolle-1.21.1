@@ -657,6 +657,14 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         return ship.getLegacyShipStats().getFirepower();
     }
 
+    public float getShipLightAircraftFirepower() {
+        return ship.getLegacyShipStats().getLightAircraftFirepower();
+    }
+
+    public float getShipHeavyAircraftFirepower() {
+        return ship.getLegacyShipStats().getHeavyAircraftFirepower();
+    }
+
     public float getShipArmor() {
         return ship.getLegacyShipStats().getArmor();
     }
