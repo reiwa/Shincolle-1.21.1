@@ -24,11 +24,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.Config;
+import org.trp.shincolle.utility.BlockHelper;
 import org.trp.shincolle.entity.EntityNorthernHime;
 import org.trp.shincolle.entity.EntityShipFishingHook;
 import org.trp.shincolle.entity.base.path.ShipLegacyNavigation;
@@ -1858,6 +1860,7 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
     }
 
     protected void tickAliveLogic() {
+        this.protectAgainstSlopeFallAndVoid();
         this.emotions.tickEmotions();
 
         if (!this.level().isClientSide && tickHostileDespawn()) {
@@ -1910,6 +1913,21 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
         }
     }
 
+    private void protectAgainstSlopeFallAndVoid() {
+        if (this.level().isClientSide) return;
+
+        if (this.getY() < this.level().getMinBuildHeight() - 10) {
+            Entity owner = this.getOwner();
+            if (owner != null && owner.isAlive()) {
+                this.teleportTo(owner.getX(), owner.getY() + 0.5D, owner.getZ());
+            } else {
+                this.teleportTo(this.getX(), Math.max((double) this.level().getSeaLevel() + 2.0D, this.getY() + 64.0D), this.getZ());
+            }
+            this.setDeltaMovement(Vec3.ZERO);
+            this.setXRot(0.0F);
+        }
+    }
+
     @Override
     protected void tickDeath() {
         this.deathHelper.tickDeath();
@@ -1927,43 +1945,30 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
     }
 
 
-    protected void tryFlareTarget(@Nullable Entity target) {
-        if (
-            target == null || this.stateComponent.getEquipFlare() <= 0
-        ) {
+    public void tryFlareTarget(@Nullable Entity target) {
+        if (target != null) {
+            tryFlareTarget(target.blockPosition());
+        }
+    }
+
+    public void tryFlareTarget(@Nullable Vec3 targetPos) {
+        if (targetPos != null) {
+            tryFlareTarget(BlockPos.containing(targetPos));
+        }
+    }
+
+    public void tryFlareTarget(@Nullable BlockPos targetPos) {
+        if (targetPos == null || !Config.canFlare || this.stateComponent.getEquipFlare() <= 0) {
             return;
         }
         if (!(this.level() instanceof ServerLevel serverLevel)) {
             return;
         }
 
-        double posX = target.getX();
-        double posY = target.getY() + target.getBbHeight() * 0.5D;
-        double posZ = target.getZ();
-        serverLevel.sendParticles(
-            ParticleTypes.FIREWORK,
-            posX,
-            posY,
-            posZ,
-            12,
-            0.5D,
-            0.6D,
-            0.5D,
-            0.05D
-        );
-
-        if (target instanceof LivingEntity living) {
-            living.addEffect(
-                new MobEffectInstance(
-                    MobEffects.GLOWING,
-                    SPECIAL_EQUIP_FLARE_GLOW_TICKS,
-                    0,
-                    false,
-                    true,
-                    true
-                ),
-                this
-            );
+        if (serverLevel.getBrightness(LightLayer.BLOCK, targetPos) < 11) {
+            BlockHelper.placeLightBlock(serverLevel, targetPos);
+        } else {
+            BlockHelper.updateNearbyLightBlock(serverLevel, targetPos);
         }
     }
 

@@ -35,7 +35,7 @@ class EntityShipBaseMovementHelper {
     protected void tickWaypointMove() {
         if (
             this.ship.getStateComponent().isStateDisableGuardPos() ||
-            this.ship.getStateComponent().getGuardY() <= 0 ||
+            this.ship.getStateComponent().getGuardY() < this.ship.level().getMinBuildHeight() ||
             this.ship.isOrderedToSit() ||
             this.ship.isLeashed() ||
             this.ship.isVehicle()
@@ -75,9 +75,7 @@ class EntityShipBaseMovementHelper {
         }
 
         if (be instanceof IWaypoint wp) {
-            if (
-                this.ship.getStateComponent().getEquipFlare() > 0 && this.ship.getStateComponent().getEquipSearchlight() > 0
-            ) return;
+            if (this.ship.getFormationTeam() >= 0 && this.ship.getFormationSlot() > 0) return;
             if (distSq < 9.0D) {
                 try {
                     boolean timeout = false;
@@ -103,16 +101,20 @@ class EntityShipBaseMovementHelper {
                                 ? wps[0]
                                 : BlockPos.ZERO;
                         BlockPos targetPos = null;
-                        if (next.getY() > 0 && next.equals(shiplast)) {
-                            if (last.getY() > 0) targetPos = last;
-                            else if (next.getY() > 0) targetPos = next;
-                        } else if (next.getY() > 0) {
+                        boolean hasNext = next != null && !next.equals(BlockPos.ZERO);
+                        boolean hasLast = last != null && !last.equals(BlockPos.ZERO);
+                        if (hasNext && next.equals(shiplast)) {
+                            if (hasLast) targetPos = last;
+                            else if (hasNext) targetPos = next;
+                        } else if (hasNext) {
                             targetPos = next;
                         }
                         if (targetPos != null) {
                             this.ship.getStateComponent().setGuardX(targetPos.getX());
                             this.ship.getStateComponent().setGuardY(targetPos.getY());
                             this.ship.getStateComponent().setGuardZ(targetPos.getZ());
+                            this.ship.getStateComponent().setStateDisableGuardPos(false);
+                            this.ship.setPointerTarget(Vec3.atBottomCenterOf(targetPos), 1200);
                             if (this.ship.getFuel() > 0) {
                                 this.ship.getStateComponent().setFollowMin(2);
                                 this.ship.getNavigation().moveTo(
@@ -133,15 +135,15 @@ class EntityShipBaseMovementHelper {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } else if (
-                (this.ship.tickCount & 0x7F) == 0 && this.ship.getFuel() > 0
-            ) {
-                this.ship.getNavigation().moveTo(
-                    pos.getX() + 0.5D,
-                    pos.getY(),
-                    pos.getZ() + 0.5D,
-                    1.0D
-                );
+            } else if (this.ship.getFuel() > 0) {
+                if (this.ship.getNavigation().isDone() || (this.ship.tickCount & 0x1F) == 0) {
+                    this.ship.getNavigation().moveTo(
+                        pos.getX() + 0.5D,
+                        pos.getY(),
+                        pos.getZ() + 0.5D,
+                        1.0D
+                    );
+                }
             }
         }
     }

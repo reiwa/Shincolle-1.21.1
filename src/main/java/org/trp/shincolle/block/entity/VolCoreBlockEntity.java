@@ -3,11 +3,11 @@ package org.trp.shincolle.block.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -18,6 +18,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.trp.shincolle.entity.EntityAircraftBase;
+import org.trp.shincolle.entity.base.EntityMountBase;
+import org.trp.shincolle.entity.base.EntityShincolleSimpleMob;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModItems;
@@ -142,7 +145,7 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
         if (isNearbyLiquid()) {
             List<EntityShipBase> slist = level.getEntitiesOfClass(EntityShipBase.class, box);
             for (EntityShipBase s : slist) {
-                if (s.isTame() && s.isInWaterOrBubble()) {
+                if (s.isTame() && (s.isInWaterOrBubble() || s.isInLava())) {
                     if (s.getHealth() < s.getMaxHealth()) {
                         s.heal(s.getMaxHealth() * 0.01f + 4.0f);
                     }
@@ -153,21 +156,29 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
             }
         } else {
             List<LivingEntity> elist = level.getEntitiesOfClass(LivingEntity.class, box);
-            DamageSource fireSource = level.damageSources().onFire();
             for (LivingEntity ent : elist) {
-                if (ent instanceof EntityShipBase) continue;
-                if (ent instanceof Player) continue;
+                if (ent instanceof EntityShipBase || ent instanceof EntityMountBase || ent instanceof EntityAircraftBase || ent instanceof EntityShincolleSimpleMob) {
+                    continue;
+                }
 
                 ent.igniteForTicks(40);
-                ent.hurt(fireSource, 4.0f);
+                if (level instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(
+                        ParticleTypes.FLAME,
+                        ent.getX(), ent.getY() + ent.getBbHeight() * 0.5, ent.getZ(),
+                        5,
+                        0.2, 0.2, 0.2,
+                        0.02
+                    );
+                }
             }
         }
     }
 
     private boolean isNearbyLiquid() {
         if (level == null) return false;
-        for (Direction dir : Direction.values()) {
-            if (!level.getFluidState(worldPosition.relative(dir)).isEmpty()) {
+        for (BlockPos p : BlockPos.betweenClosed(worldPosition.offset(-1, -1, -1), worldPosition.offset(1, 1, 1))) {
+            if (!level.getFluidState(p).isEmpty()) {
                 return true;
             }
         }

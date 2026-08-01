@@ -1,3 +1,8 @@
+## v0.9.3
+- Fixed the logic for Waypoint, EquipFlare, and VolCore
+- Fixed the attack power of the aircraft
+- Few bug fixes
+
 ## v0.9.2(2026/07/17 JST)
 - Implemented Shipyard shipbuilding table settings from the config
 - Implemented special effects for MarriageRing

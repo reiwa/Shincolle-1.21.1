@@ -575,6 +575,9 @@ public class ModEventBusEvents {
                 ship.getStateComponent().setGuardZ(guardPos.getZ());
                 ship.getStateComponent().setGuardType(1); 
                 ship.getStateComponent().setStateDisableGuardPos(false); 
+                if (ship.getFuel() > 0) {
+                    ship.getNavigation().moveTo(guardPos.getX() + 0.5D, guardPos.getY(), guardPos.getZ() + 0.5D, 1.2D);
+                }
             }
         }
     }

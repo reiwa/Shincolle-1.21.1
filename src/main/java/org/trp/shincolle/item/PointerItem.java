@@ -79,31 +79,47 @@ public class PointerItem extends Item {
 
         if (nextMode == MODE_SINGLE) {
             double radius = 100.0;
-            net.minecraft.world.phys.AABB searchArea = player
-                .getBoundingBox()
-                .inflate(radius);
-            List<org.trp.shincolle.entity.base.EntityShipBase> ships = player
-                .level()
-                .getEntitiesOfClass(
-                    org.trp.shincolle.entity.base.EntityShipBase.class,
-                    searchArea,
-                    ship ->
-                        ship.isOwnedBy(player) &&
-                        ship.isPointerSelected() &&
-                        !ship.isInDeadPose()
-                );
-            if (ships.size() > 1) {
-                ships.sort((a, b) ->
-                    Double.compare(
-                        a.distanceToSqr(player),
-                        b.distanceToSqr(player)
-                    )
-                );
-                org.trp.shincolle.entity.base.EntityShipBase keep = ships.get(
-                    0
-                );
-                clearOwnedPointerSelection(player, keep, radius);
-                keep.setPointerSelected(true);
+            org.trp.shincolle.attachment.AdmiralData data = player.getData(
+                org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA
+            );
+            int teamId = data.getCurrentTeamID();
+            org.trp.shincolle.entity.base.EntityShipBase firstShip = null;
+
+            if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                for (int slot = 0; slot < org.trp.shincolle.attachment.AdmiralData.SLOT_COUNT; slot++) {
+                    java.util.UUID shipUUID = data.getShipUUID(teamId, slot);
+                    if (shipUUID != null) {
+                        net.minecraft.world.entity.Entity e = serverLevel.getEntity(shipUUID);
+                        if (e instanceof org.trp.shincolle.entity.base.EntityShipBase ship && ship.isOwnedBy(player) && !ship.isInDeadPose()) {
+                            firstShip = ship;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (firstShip != null) {
+                clearOwnedPointerSelection(player, firstShip, radius);
+                firstShip.setPointerSelected(true);
+            } else {
+                net.minecraft.world.phys.AABB searchArea = player
+                    .getBoundingBox()
+                    .inflate(radius);
+                List<org.trp.shincolle.entity.base.EntityShipBase> ships = player
+                    .level()
+                    .getEntitiesOfClass(
+                        org.trp.shincolle.entity.base.EntityShipBase.class,
+                        searchArea,
+                        ship ->
+                            ship.isOwnedBy(player) &&
+                            ship.isPointerSelected() &&
+                            !ship.isInDeadPose()
+                    );
+                if (ships.size() > 1) {
+                    org.trp.shincolle.entity.base.EntityShipBase keep = ships.get(0);
+                    clearOwnedPointerSelection(player, keep, radius);
+                    keep.setPointerSelected(true);
+                }
             }
         } else if (nextMode == MODE_FORMATION) {
             org.trp.shincolle.attachment.AdmiralData data = player.getData(

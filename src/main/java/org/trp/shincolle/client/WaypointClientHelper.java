@@ -53,32 +53,6 @@ public class WaypointClientHelper {
                                 pos.getX() + 0.5, pos.getY() - 0.25, pos.getZ() + 0.5,
                                 0.2, 0.0, 0.0);
                     }
-
-                    StringBuilder sb = new StringBuilder();
-                    String stayTime = be.getStayTimeDisplay();
-                    if (stayTime != null && !stayTime.isEmpty()) {
-                        sb.append(net.minecraft.ChatFormatting.GOLD).append(stayTime);
-                    }
-                    String ownerName = be.getOwnerName();
-                    if (ownerName != null && !ownerName.isEmpty()) {
-                        if (sb.length() > 0) sb.append(" | ");
-                        sb.append(net.minecraft.ChatFormatting.GREEN).append(ownerName);
-                    }
-                    if (!be.getLastPos().equals(BlockPos.ZERO)) {
-                        if (sb.length() > 0) sb.append(" | ");
-                        sb.append(net.minecraft.ChatFormatting.LIGHT_PURPLE).append("F: ").append(be.getLastPos().toShortString());
-                    }
-                    if (!be.getNextPos().equals(BlockPos.ZERO)) {
-                        if (sb.length() > 0) sb.append(" | ");
-                        sb.append(net.minecraft.ChatFormatting.AQUA).append("T: ").append(be.getNextPos().toShortString());
-                    }
-                    if (!be.getChestPos().equals(BlockPos.ZERO)) {
-                        if (sb.length() > 0) sb.append(" | ");
-                        sb.append(net.minecraft.ChatFormatting.YELLOW).append("C: ").append(be.getChestPos().toShortString());
-                    }
-                    if (sb.length() > 0) {
-                        localPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal(sb.toString()), true);
-                    }
                 }
             }
         }

@@ -260,6 +260,7 @@ class EntityShipBaseCombat {
             return;
         }
 
+        this.ship.asShipEntity().tryFlareTarget(target);
         if (this.ship.isSubmarine()) {
             performSubmarineLightAttack(serverLevel, target);
         } else {
@@ -351,6 +352,8 @@ class EntityShipBaseCombat {
             return false;
         }
 
+        this.ship.asShipEntity().tryFlareTarget(target);
+
         float damage = this.ship.getLegacyShipStats().getFirepower();
         if (damage <= 0.0F) {
             damage = 4.0F;
@@ -424,6 +427,8 @@ class EntityShipBaseCombat {
         if (!consumeHeavyAmmo(1)) {
             return false;
         }
+
+        this.ship.asShipEntity().tryFlareTarget(targetPos);
 
         float damage = this.ship.getLegacyShipStats().getFirepower();
         if (damage <= 0.0F) {
@@ -625,6 +630,7 @@ class EntityShipBaseCombat {
         this.ship.setNumAircraftLight(Math.max(0, this.ship.getNumAircraftLight() - 1));
         this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLightAircraft);
         this.ship.decrMorale(3);
+        this.ship.asShipEntity().tryFlareTarget(target);
         return spawnAircraft(target, true);
     }
 
@@ -652,6 +658,7 @@ class EntityShipBaseCombat {
         this.ship.setNumAircraftHeavy(Math.max(0, this.ship.getNumAircraftHeavy() - 1));
         this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavyAircraft);
         this.ship.decrMorale(4);
+        this.ship.asShipEntity().tryFlareTarget(target);
         return spawnAircraft(target, false);
     }
 

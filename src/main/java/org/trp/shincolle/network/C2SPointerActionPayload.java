@@ -77,14 +77,24 @@ public record C2SPointerActionPayload(int action, Optional<UUID> targetEntity, O
                                             1200
                                         );
                                     } else if (
-                                        this.action() == 2 &&
-                                        this.targetPos().isPresent()
-                                    ) {
-                                        ship.setPointerTarget(
-                                            this.targetPos().get(),
-                                            1200
-                                        );
-                                    }
+                                         this.action() == 2 &&
+                                         this.targetPos().isPresent()
+                                     ) {
+                                         net.minecraft.world.phys.Vec3 pos = this.targetPos().get();
+                                         ship.setPointerTarget(
+                                             pos,
+                                             1200
+                                         );
+                                         net.minecraft.core.BlockPos bpos = net.minecraft.core.BlockPos.containing(pos);
+                                         ship.getStateComponent().setGuardX(bpos.getX());
+                                         ship.getStateComponent().setGuardY(bpos.getY());
+                                         ship.getStateComponent().setGuardZ(bpos.getZ());
+                                         ship.getStateComponent().setGuardType(1);
+                                         ship.getStateComponent().setStateDisableGuardPos(false);
+                                         if (ship.getFuel() > 0) {
+                                             ship.getNavigation().moveTo(pos.x, pos.y, pos.z, 1.2D);
+                                         }
+                                     }
                                 }
                             }
                         }

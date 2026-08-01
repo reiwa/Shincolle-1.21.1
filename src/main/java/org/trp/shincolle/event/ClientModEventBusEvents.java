@@ -169,6 +169,8 @@ public class ClientModEventBusEvents {
         event.registerBlockEntityRenderer(ModBlockEntities.LARGE_SHIPYARD.get(), RenderLargeShipyard::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DESK.get(), org.trp.shincolle.client.renderer.block.RenderDesk::new);
         event.registerBlockEntityRenderer(ModBlockEntities.CHAIR.get(), org.trp.shincolle.client.renderer.block.RenderChair::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.WAYPOINT.get(), org.trp.shincolle.client.renderer.block.RenderWaypoint::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.CRANE.get(), org.trp.shincolle.client.renderer.block.RenderWaypoint::new);
     }
 
         public static final net.minecraft.client.model.geom.ModelLayerLocation ACCESSORY_LAYER =
@@ -317,9 +319,9 @@ public class ClientModEventBusEvents {
                 sprites -> new ParticleTeam.Provider(sprites, ParticleTeam.RenderStyle.TARGET_RED));
         event.registerSpriteSet(ModParticles.PARTICLE_SPARKLE.get(), ParticleSparkle.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_WAYPOINT.get(), ParticleWaypoint.Provider::new);
-        event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE.get(), new ParticlePointerLine.Provider(0, null));
-        event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get(), new ParticlePointerLine.Provider(1, null));
-        event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(), new ParticlePointerLine.Provider(2, null));
+        event.registerSpriteSet(ModParticles.PARTICLE_WAYPOINT_LINE.get(), ParticleWaypointLine.ProviderRed::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get(), ParticleWaypointLine.ProviderPurple::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(), ParticleWaypointLine.ProviderRed::new);
         event.registerSpriteSet(ModParticles.PARTICLE_CHI.get(), org.trp.shincolle.client.particle.ParticleChi.Provider::new);
         event.registerSpecial(ModParticles.PARTICLE_91TYPE.get(), new org.trp.shincolle.client.particle.Particle91Type.Provider());
         event.registerSpriteSet(ModParticles.PARTICLE_CUBE.get(), org.trp.shincolle.client.particle.ParticleCube.Provider::new);

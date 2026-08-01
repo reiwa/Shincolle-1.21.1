@@ -363,12 +363,14 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     public void attackWithLightAmmo(Entity target) {
         EntityShipBase carrier = getCarrier();
         if (carrier == null) return;
+        carrier.tryFlareTarget(target);
         if (this.numAmmoLight > 0) {
             this.numAmmoLight--;
         }
         this.attackDelay = this.maxAttackDelay;
         this.playSound(ModSounds.SHIP_MACHINEGUN.get(), 1.0F, 1.0F);
-        float atk = Math.max(2.0F, carrier.getLegacyShipStats().getFirepower() * 0.35F);
+        float firepower = carrier.getLegacyShipStats().getLightAircraftFirepower();
+        float atk = Math.max(2.0F, firepower);
         boolean hurt = target.hurt(this.damageSources().mobProjectile(this, carrier), atk);
         if (hurt && target instanceof LivingEntity livingTarget) {
             carrier.applyAttackEffects(livingTarget);
@@ -378,13 +380,15 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     public void attackWithHeavyAmmo(Entity target) {
         EntityShipBase carrier = getCarrier();
         if (carrier == null) return;
+        carrier.tryFlareTarget(target);
         if (this.numAmmoHeavy > 0) {
             this.numAmmoHeavy--;
         }
         this.attackDelay = this.maxAttackDelay;
-        float atk = Math.max(4.0F, carrier.getLegacyShipStats().getFirepower() * 0.55F);
+        float firepower = carrier.getLegacyShipStats().getHeavyAircraftFirepower();
+        float atk = Math.max(4.0F, firepower);
         if (this.level() instanceof ServerLevel serverLevel) {
-            float missileDamage = atk * 1.4F;
+            float missileDamage = atk;
             Vec3 targetPos = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
             double distance = this.distanceTo(target);
             
