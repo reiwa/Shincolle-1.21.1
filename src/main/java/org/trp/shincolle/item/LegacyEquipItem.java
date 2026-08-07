@@ -121,7 +121,7 @@ public class LegacyEquipItem extends Item {
             return java.util.Optional.empty();
         }
 
-        return java.util.Optional.of(new ScaledTextTooltipData(scaledLines, 0.75F));
+        return java.util.Optional.of(new ScaledTextTooltipData(scaledLines, 1.00F));
     }
 
     private void addSpecialTooltip(ItemStack stack, List<Component> tooltipComponents) {
