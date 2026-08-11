@@ -77,5 +77,20 @@ public class ModNetwork {
             C2SPetShipPayload.STREAM_CODEC,
             C2SPetShipPayload::handle
         );
+        registrar.playToServer(
+            C2STeamActionPayload.TYPE,
+            C2STeamActionPayload.STREAM_CODEC,
+            C2STeamActionPayload::handle
+        );
+        registrar.playToClient(
+            S2CTeamSyncPayload.TYPE,
+            S2CTeamSyncPayload.STREAM_CODEC,
+            S2CTeamSyncPayload::handle
+        );
+        registrar.playToServer(
+            C2STargetClassTogglePayload.TYPE,
+            C2STargetClassTogglePayload.STREAM_CODEC,
+            C2STargetClassTogglePayload::handle
+        );
     }
 }

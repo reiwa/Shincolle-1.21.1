@@ -235,6 +235,9 @@ public abstract class ShipModelBaseAdv<T extends Entity & IShipRenderState> exte
         for (ModelPart part : parts) {
             part.translateAndRotate(poseStack);
         }
+        if (parts.length <= 2) {
+            poseStack.translate(0.0F, 1.0F, 0.0F);
+        }
     }
 
     private void resolveArmParts() {
@@ -249,11 +252,13 @@ public abstract class ShipModelBaseAdv<T extends Entity & IShipRenderState> exte
     private ModelPart[] resolveArmParts(String baseName) {
         List<ModelPart> parts = new ArrayList<>();
         addArmPart(parts, "BodyMain");
-        addArmPart(parts, baseName + "01");
-        addArmPart(parts, baseName + "02");
-        addArmPart(parts, baseName + "03");
-        if (parts.isEmpty()) {
-            addArmPart(parts, baseName);
+        ModelPart singleArm = findModelPartField(baseName);
+        if (singleArm != null) {
+            parts.add(singleArm);
+        } else {
+            addArmPart(parts, baseName + "01");
+            addArmPart(parts, baseName + "02");
+            addArmPart(parts, baseName + "03");
         }
         return parts.isEmpty() ? null : parts.toArray(new ModelPart[0]);
     }

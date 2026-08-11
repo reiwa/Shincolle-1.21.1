@@ -1,6 +1,7 @@
-## v0.9.3
+## v0.9.3(2026/08/11 JST)
 - Fixed the logic for Waypoint, EquipFlare, and VolCore
 - Fixed the attack power of the aircraft
+- implemented the logic for the BlockDesk
 - Few bug fixes
 
 ## v0.9.2(2026/07/17 JST)
