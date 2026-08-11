@@ -163,23 +163,20 @@ public class TaskHelper {
         if (host == null) return;
         Level level = host.level();
         ItemStack rod = host.getHeldItemMainhandSlot();
+        if (rod.isEmpty() || rod.getItem() != Items.FISHING_ROD) {
+            rod = host.getHeldItemOffhandSlot();
+        }
         if (rod.isEmpty() || rod.getItem() != Items.FISHING_ROD) return;
 
         int gx = host.getGuardedPos(0);
         int gy = host.getGuardedPos(1);
         int gz = host.getGuardedPos(2);
-        if (gy <= 0) return;
-        
-        
-        
-        
-
-        if (host.distanceToSqr(gx + 0.5, gy, gz + 0.5) > 10.0D) {
+        if (gy > 0 && host.distanceToSqr(gx + 0.5, gy, gz + 0.5) > 25.0D) {
             host.getNavigation().moveTo(gx + 0.5D, gy, gz + 0.5D, 1.0D);
             return;
         }
 
-        if (Math.abs(host.getDeltaMovement().x) > 0.1D || Math.abs(host.getDeltaMovement().z) > 0.1D || host.getDeltaMovement().y > 0.1D) return;
+        if (Math.abs(host.getDeltaMovement().x) > 0.1D || Math.abs(host.getDeltaMovement().z) > 0.1D) return;
 
 
         BlockPos waterPos = null;
