@@ -1,3 +1,10 @@
+## v0.9.4(2026/08/23 JST)
+- Fixed a range issue of the Pointeritem
+- Fixed enemy attribute and attack logics
+- Implemented block-by-block LargeShipYard resource storaging
+- Attempted to fix the distinction between enemy and ally entities
+- Small fixes
+
 ## v0.9.3(2026/08/11 JST)
 - Fixed the logic for Waypoint, EquipFlare, and VolCore
 - Fixed the attack power of the aircraft

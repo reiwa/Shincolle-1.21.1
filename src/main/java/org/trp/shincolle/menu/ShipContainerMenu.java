@@ -870,7 +870,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return ship.isAlive() && player.distanceToSqr(ship) < 64.0D;
+        return ship.isAlive() && ship.isOwnedBy(player) && player.distanceToSqr(ship) < 64.0D;
     }
 
     @Override

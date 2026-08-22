@@ -43,6 +43,9 @@ public class RenderLargeShipyard implements BlockEntityRenderer<LargeShipyardBlo
     public void render(LargeShipyardBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource,
                        int packedLight, int packedOverlay) {
         BlockState state = blockEntity.getBlockState();
+        if (!state.is(org.trp.shincolle.init.ModBlocks.LARGE_SHIPYARD.get())) {
+            return;
+        }
         boolean isActive = state.hasProperty(LargeShipyardBlock.ACTIVE) && state.getValue(LargeShipyardBlock.ACTIVE);
 
         float yaw = 0.0F;

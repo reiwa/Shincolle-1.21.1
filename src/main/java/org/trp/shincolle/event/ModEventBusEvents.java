@@ -422,6 +422,33 @@ public class ModEventBusEvents {
         event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
     }
 
+    @SubscribeEvent
+    public static void onPointerItemInteractEntitySpecific(PlayerInteractEvent.EntityInteractSpecific event) {
+        Player player = event.getEntity();
+        if (player == null) return;
+        ItemStack pointerStack = event.getItemStack();
+        if (!isPointerItem(pointerStack)) {
+            return;
+        }
+
+        if (player.isShiftKeyDown()) {
+            return;
+        }
+
+        if (pointerStack.getItem() instanceof PointerItem pointerItem && pointerItem.isPetting(pointerStack)) {
+            if (event.getTarget() instanceof EntityShipBase) {
+                return;
+            }
+        }
+
+        if (event.getTarget() instanceof EntityShipBase ship && ship.isOwnedBy(player)) {
+            return;
+        }
+
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
+    }
+
 
     @SubscribeEvent
     public static void onHostileEntityDropsGrudge(LivingDropsEvent event) {

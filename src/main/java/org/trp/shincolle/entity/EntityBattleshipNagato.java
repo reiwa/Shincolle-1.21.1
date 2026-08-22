@@ -63,7 +63,7 @@ public class EntityBattleshipNagato extends EntityShipBase {
         }
 
         if (!this.level().isClientSide && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
-            if (!this.isStateGuiBtn2() || !this.isStateHeavyAttack() || this.getAmmoHeavy() <= 0) {
+            if (!this.isHostile() && (!this.isStateGuiBtn2() || !this.isStateHeavyAttack() || this.getAmmoHeavy() <= 0)) {
                 this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
             }
         }
@@ -98,10 +98,13 @@ public class EntityBattleshipNagato extends EntityShipBase {
         if (target == null || !target.isAlive()) {
             return false;
         }
-        if (!consumeHeavyAmmo(1)) {
-            return false;
+        if (!this.isHostile()) {
+            if (!consumeHeavyAmmo(1)) {
+                this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
+                return false;
+            }
+            this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
         }
-        this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
 
         int phase = this.getStateEmotion(EMOTION_ATTACK_PHASE) + 1;
         
@@ -257,9 +260,9 @@ public class EntityBattleshipNagato extends EntityShipBase {
         double dy = ty - originY;
         double dz = tz - originZ;
 
-        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(), originX, originY, originZ, 0, dx, dy, dz, 1.0D);
-        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(), originX, originY + 0.4D, originZ, 0, dx, dy, dz, 1.0D);
-        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(), originX, originY + 0.8D, originZ, 0, dx, dy, dz, 1.0D);
+        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_LINE_RED.get(), originX, originY, originZ, 0, dx, dy, dz, 1.0D);
+        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_LINE_RED.get(), originX, originY + 0.4D, originZ, 0, dx, dy, dz, 1.0D);
+        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_LINE_RED.get(), originX, originY + 0.8D, originZ, 0, dx, dy, dz, 1.0D);
 
         for (int i = 0; i < 20; ++i) {
             float[] newPos1 = rotateXZByAxis(1.0F, 0.0F, 0.314F * i, 1.0F);

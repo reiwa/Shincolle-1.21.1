@@ -42,7 +42,8 @@ public class ModBlockEntities {
     > LARGE_SHIPYARD = BLOCK_ENTITY_TYPES.register("large_shipyard", () ->
         BlockEntityType.Builder.of(
             LargeShipyardBlockEntity::new,
-            ModBlocks.LARGE_SHIPYARD.get()
+            ModBlocks.LARGE_SHIPYARD.get(),
+            ModBlocks.GRUDGE_HEAVY_BLOCK.get()
         ).build(null)
     );
 

@@ -57,7 +57,7 @@ public class EntityBattleshipYamato extends EntityShipBase {
         }
 
         if (!this.level().isClientSide && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
-            if (!this.isStateGuiBtn2() || !this.isStateHeavyAttack() || this.getAmmoHeavy() <= 0) {
+            if (!this.isHostile() && (!this.isStateGuiBtn2() || !this.isStateHeavyAttack() || this.getAmmoHeavy() <= 0)) {
                 this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
             }
         }
@@ -98,10 +98,13 @@ public class EntityBattleshipYamato extends EntityShipBase {
         }
 
         if (this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
-            if (!consumeHeavyAmmo(1)) {
-                return false;
+            if (!this.isHostile()) {
+                if (!consumeHeavyAmmo(1)) {
+                    this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
+                    return false;
+                }
+                this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
             }
-            this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
             float baseDamage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
             float damage = Math.max(6.0F, baseDamage * 1.6F);
             this.playSound(org.trp.shincolle.init.ModSounds.SHIP_YAMATO_SHOT.get(), 1.0F, 1.0F);

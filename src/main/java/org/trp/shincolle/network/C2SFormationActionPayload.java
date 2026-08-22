@@ -115,7 +115,8 @@ public record C2SFormationActionPayload(int action, int param1, int param2, Stri
                             serverLevel.getEntity(guiTarget);
                         if (
                             e instanceof
-                                org.trp.shincolle.entity.base.EntityShipBase ship
+                                org.trp.shincolle.entity.base.EntityShipBase ship &&
+                            ship.isOwnedBy(player)
                         ) {
                             ship.openShipMenu(player);
                         }
@@ -154,11 +155,6 @@ public record C2SFormationActionPayload(int action, int param1, int param2, Stri
                     break;
                 case 5:
                     this.paramUUID().ifPresent(uuid -> {
-                        data.setShipUUID(
-                            data.getCurrentTeamID(),
-                            this.param1(),
-                            uuid
-                        );
                         if (
                             player.level() instanceof
                                 net.minecraft.server.level.ServerLevel serverLevel
@@ -166,10 +162,18 @@ public record C2SFormationActionPayload(int action, int param1, int param2, Stri
                             net.minecraft.world.entity.Entity entity =
                                 serverLevel.getEntity(uuid);
                             if (entity instanceof EntityShipBase ship) {
+                                if (!ship.isOwnedBy(player)) {
+                                    return;
+                                }
                                 ship.setFormationTeam(data.getCurrentTeamID());
                                 ship.setFormationSlot(this.param1());
                             }
                         }
+                        data.setShipUUID(
+                            data.getCurrentTeamID(),
+                            this.param1(),
+                            uuid
+                        );
                     });
                     break;
                 case 6:

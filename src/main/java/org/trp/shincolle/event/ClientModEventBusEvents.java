@@ -322,6 +322,9 @@ public class ClientModEventBusEvents {
         event.registerSpriteSet(ModParticles.PARTICLE_WAYPOINT_LINE.get(), ParticleWaypointLine.ProviderPurple::new);
         event.registerSpriteSet(ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get(), ParticleWaypointLine.ProviderCyan::new);
         event.registerSpriteSet(ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(), ParticleWaypointLine.ProviderRed::new);
+        event.registerSpecial(ModParticles.PARTICLE_LINE.get(), new org.trp.shincolle.client.particle.ParticleLine.ProviderCyan());
+        event.registerSpecial(ModParticles.PARTICLE_LINE_PURPLE.get(), new org.trp.shincolle.client.particle.ParticleLine.ProviderPurple());
+        event.registerSpecial(ModParticles.PARTICLE_LINE_RED.get(), new org.trp.shincolle.client.particle.ParticleLine.ProviderRed());
         event.registerSpriteSet(ModParticles.PARTICLE_CHI.get(), org.trp.shincolle.client.particle.ParticleChi.Provider::new);
         event.registerSpecial(ModParticles.PARTICLE_91TYPE.get(), new org.trp.shincolle.client.particle.Particle91Type.Provider());
         event.registerSpriteSet(ModParticles.PARTICLE_CUBE.get(), org.trp.shincolle.client.particle.ParticleCube.Provider::new);

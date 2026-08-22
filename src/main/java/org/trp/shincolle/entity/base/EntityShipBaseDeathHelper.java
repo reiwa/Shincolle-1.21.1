@@ -34,12 +34,40 @@ class EntityShipBaseDeathHelper {
             !this.ship.level().isClientSide &&
             this.ship.shipDeathTicks == EntityShipBase.SHIP_DEATH_MAX_TICKS
         ) {
-            spawnShipGrudge();
+            if (this.ship.isHostileShipMob()) {
+                spawnHostileDrop();
+            } else {
+                spawnShipGrudge();
+            }
         }
         if (this.ship.shipDeathTicks >= EntityShipBase.SHIP_DEATH_MAX_TICKS) {
             this.ship.discard();
         }
         this.ship.deathTime = 0;
+    }
+
+    private void spawnHostileDrop() {
+        if (!this.ship.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+            return;
+        }
+        int scaleLevel = this.ship.getScaleLevel();
+        boolean drop = switch (scaleLevel) {
+            case 0 -> this.ship.getRandom().nextInt(5) == 0;
+            case 1 -> this.ship.getRandom().nextInt(3) == 0;
+            default -> this.ship.getRandom().nextInt(10) > 0;
+        };
+        if (drop) {
+            ItemStack egg = new ItemStack(this.ship.getShipSpawnEggItem());
+            EntityShipGrudge grudge = new EntityShipGrudge(
+                this.ship.level(),
+                this.ship.getX(),
+                this.ship.getY() + 0.5D,
+                this.ship.getZ(),
+                egg,
+                null
+            );
+            this.ship.level().addFreshEntity(grudge);
+        }
     }
 
     void die(DamageSource cause, Runnable superCall) {

@@ -34,7 +34,7 @@ public final class FormationHelper {
         int totalShips = 0;
         for (UUID uuid : shipUuids) {
             Entity e = world.getEntity(uuid);
-            if (e instanceof EntityShipBase) totalShips++;
+            if (e instanceof EntityShipBase ship && ship.isOwnedBy(player)) totalShips++;
         }
 
         final int maxPerRow = 4;
@@ -45,7 +45,7 @@ public final class FormationHelper {
 
         for (UUID uuid : shipUuids) {
             Entity entity = world.getEntity(uuid);
-            if (!(entity instanceof EntityShipBase ship)) continue;
+            if (!(entity instanceof EntityShipBase ship) || !ship.isOwnedBy(player)) continue;
 
             if (totalShips == 1) {
                 col = 1;
@@ -96,7 +96,7 @@ public final class FormationHelper {
         int totalShips = 0;
         for (UUID uuid : shipUuids) {
             Entity e = world.getEntity(uuid);
-            if (e instanceof EntityShipBase) totalShips++;
+            if (e instanceof EntityShipBase ship && ship.isOwnedBy(player)) totalShips++;
         }
 
         final int maxPerRow = 4;
@@ -107,7 +107,7 @@ public final class FormationHelper {
 
         for (UUID uuid : shipUuids) {
             Entity entity = world.getEntity(uuid);
-            if (!(entity instanceof EntityShipBase ship)) continue;
+            if (!(entity instanceof EntityShipBase ship) || !ship.isOwnedBy(player)) continue;
 
             if (totalShips == 1) {
                 col = 1;

@@ -90,10 +90,16 @@ public class EntitySubmYo extends EntityShipBase {
     }
 
     private void updateServerLogic() {
-        if (this.isStateRingEffect()) {
-            this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 300, 0, false, false));
+        if (this.isHostile()) {
+            if (this.getRandom().nextInt(2) == 0) {
+                int duration = 40 + this.getScaleLevel() * 10;
+                this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
+            }
+        } else if (this.isStateRingEffect() && this.getStateComponent().getFuel() > 0) {
+            int duration = 40 + (int) (this.getLevel() * 50.0F / 150.0F);
+            this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
             if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
-                this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 300, 0, false, false));
+                this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
             }
         }
     }

@@ -330,10 +330,11 @@ public final class ClientPointerItemParticles {
     ) {
         Vec3 targetPos = null;
         boolean isEntity = false;
+        boolean isGuardPos = false;
 
         if (ship.hasPointerTargetEntity()) {
             Entity target = ship.getPointerTargetEntity();
-            if (target != null) {
+            if (target != null && target.isAlive()) {
                 targetPos = target
                     .position()
                     .add(0, target.getBbHeight() * 0.5, 0);
@@ -341,6 +342,19 @@ public final class ClientPointerItemParticles {
             }
         } else if (ship.hasPointerTarget()) {
             targetPos = ship.getPointerTarget();
+        } else if (ship.getTarget() != null && ship.getTarget().isAlive()) {
+            targetPos = ship
+                .getTarget()
+                .position()
+                .add(0, ship.getTarget().getBbHeight() * 0.5, 0);
+            isEntity = true;
+        } else if (ship.getGuardedPos(4) == 1) {
+            targetPos = new Vec3(
+                ship.getGuardedPos(0) + 0.5,
+                ship.getGuardedPos(1) + 0.5,
+                ship.getGuardedPos(2) + 0.5
+            );
+            isGuardPos = true;
         }
 
         if (targetPos != null) {
@@ -356,21 +370,23 @@ public final class ClientPointerItemParticles {
                     );
                 }
 
-                Vec3 start = ship
-                    .position()
-                    .add(0, ship.getBbHeight() * 0.5, 0);
-                Vec3 dir = targetPos.subtract(start);
-                double dist = dir.length();
-                if (dist > 1.0 && !isEntity) {
-                    level.addParticle(
-                        ModParticles.PARTICLE_WAYPOINT_LINE.get(),
-                        start.x,
-                        start.y,
-                        start.z,
-                        dir.x,
-                        dir.y,
-                        dir.z
-                    );
+                if (isGuardPos) {
+                    Vec3 start = ship
+                        .position()
+                        .add(0, ship.getBbHeight() * 0.5, 0);
+                    Vec3 dir = targetPos.subtract(start);
+                    double dist = dir.length();
+                    if (dist > 0.5) {
+                        level.addParticle(
+                            ModParticles.PARTICLE_LINE.get(),
+                            start.x,
+                            start.y,
+                            start.z,
+                            dir.x,
+                            dir.y,
+                            dir.z
+                        );
+                    }
                 }
             }
         }

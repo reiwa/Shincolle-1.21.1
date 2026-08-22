@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -107,9 +108,68 @@ public class LargeShipyardBlock extends BaseEntityBlock {
     }
 
     @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, net.minecraft.world.entity.LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (!level.isClientSide) {
+            net.minecraft.world.item.component.CustomData customData = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+            if (customData == null) {
+                customData = stack.get(net.minecraft.core.component.DataComponents.BLOCK_ENTITY_DATA);
+            }
+            if (customData != null) {
+                BlockEntity be = level.getBlockEntity(pos);
+                if (be instanceof LargeShipyardBlockEntity shipyard) {
+                    net.minecraft.nbt.CompoundTag tag = customData.copyTag();
+                    if (tag.contains("MatsStock")) {
+                        shipyard.setMatsStock(tag.getIntArray("MatsStock"));
+                    }
+                    if (tag.contains("PowerRemained")) {
+                        shipyard.setPowerRemained(tag.getInt("PowerRemained"));
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        BlockEntity blockentity = level.getBlockEntity(pos);
+        if (blockentity instanceof LargeShipyardBlockEntity shipyard) {
+            if (!level.isClientSide && player.isCreative()) {
+                ItemStack stack = new ItemStack(org.trp.shincolle.init.ModBlocks.GRUDGE_HEAVY_BLOCK.get());
+                net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+                int[] mats = shipyard.getMatsStock().clone();
+                for (int i = 0; i < 4; i++) {
+                    mats[i] += shipyard.getMatBuild(i);
+                }
+                tag.putIntArray("MatsStock", mats);
+                tag.putInt("PowerRemained", shipyard.getPowerRemained());
+                stack.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag));
+
+                net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                        level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+                itemEntity.setDefaultPickUpDelay();
+                level.addFreshEntity(itemEntity);
+            }
+        }
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
             GrudgeHeavyBlock.setLargeShipyardSupportFormed(level, pos, false);
+            if (!level.isClientSide) {
+                BlockEntity blockEntity = level.getBlockEntity(pos);
+                if (blockEntity instanceof LargeShipyardBlockEntity shipyard && !newState.is(org.trp.shincolle.init.ModBlocks.GRUDGE_HEAVY_BLOCK.get())) {
+                    for (int i = 0; i < LargeShipyardBlockEntity.SLOT_COUNT; i++) {
+                        ItemStack itemStack = shipyard.getInventory().getStackInSlot(i);
+                        if (!itemStack.isEmpty()) {
+                            popResource(level, pos, itemStack.copy());
+                            shipyard.getInventory().setStackInSlot(i, ItemStack.EMPTY);
+                        }
+                    }
+                }
+            }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }

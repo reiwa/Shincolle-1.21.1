@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 
+@Deprecated
 public class LargeShipyardSavedData extends SavedData {
     public static final String SAVE_ID = "shincolle_large_shipyard";
     private static final int MAT_COUNT = 4;

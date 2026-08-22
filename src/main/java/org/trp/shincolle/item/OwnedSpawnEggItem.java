@@ -113,6 +113,18 @@ public class OwnedSpawnEggItem extends DeferredSpawnEggItem {
                     return InteractionResultHolder.fail(stack);
                 }
             }
+
+            stack.update(DataComponents.ENTITY_DATA, CustomData.EMPTY, existingData -> existingData.update(tag -> {
+                if (!tag.hasUUID("Owner")) {
+                    tag.putUUID("Owner", player.getUUID());
+                }
+                if (!tag.contains("Tame")) {
+                    tag.putBoolean("Tame", true);
+                }
+                if (!tag.contains("id")) {
+                    tag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(this.typeSupplier.get()).toString());
+                }
+            }));
             
             InteractionResultHolder<ItemStack> result = super.use(level, player, hand);
             if (result.getResult().consumesAction() && isResurrection && costLevel > 0 && !player.isCreative()) {

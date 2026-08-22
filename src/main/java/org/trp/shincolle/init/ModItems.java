@@ -1,13 +1,9 @@
 package org.trp.shincolle.init;
 
-import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.trp.shincolle.Shincolle;
@@ -188,11 +184,7 @@ public class ModItems {
             () -> new ShipSpawnEggItem(ModEntities.SUBM_RO500, ShipClass.SUBMARINE, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
     public static final DeferredItem<Item> POINTER_ITEM = ITEMS.register("pointer_item",
-            () -> new PointerItem(new Item.Properties().attributes(
-                    ItemAttributeModifiers.builder()
-                            .add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "pointer_reach"), 100.0D, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-                            .build()
-            )));
+            () -> new PointerItem(new Item.Properties()));
 
     public static final DeferredItem<Item> OP_TOOL = ITEMS.register("optool",
             () -> new OPToolItem(new Item.Properties().stacksTo(1)));

@@ -248,10 +248,10 @@ public class PointerItem extends Item {
                         Component.translatable("gui.shincolle.formation.title")
                     )
                 );
-                return InteractionResultHolder.success(stack);
+                return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
             }
         }
-        return InteractionResultHolder.pass(stack);
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
     }
 
     @Override
@@ -260,7 +260,7 @@ public class PointerItem extends Item {
     ) {
         Player player = context.getPlayer();
         if (player != null && player.isShiftKeyDown()) {
-            return net.minecraft.world.InteractionResult.PASS;
+            return net.minecraft.world.InteractionResult.sidedSuccess(context.getLevel().isClientSide);
         }
 
         Level level = context.getLevel();
@@ -276,10 +276,10 @@ public class PointerItem extends Item {
                         Optional.of(pos)
                     )
                 );
-                return net.minecraft.world.InteractionResult.SUCCESS;
+                return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
             }
         }
-        return net.minecraft.world.InteractionResult.PASS;
+        return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override
@@ -290,7 +290,7 @@ public class PointerItem extends Item {
         InteractionHand hand
     ) {
         if (player.isShiftKeyDown()) {
-            return net.minecraft.world.InteractionResult.PASS;
+            return net.minecraft.world.InteractionResult.sidedSuccess(player.level().isClientSide);
         }
 
         if (isPetting(stack)) {
@@ -334,9 +334,7 @@ public class PointerItem extends Item {
                         org.trp.shincolle.entity.base.EntityShipBase ship &&
                     ship.isOwnedBy(player)
                 ) {
-                    return player.level().isClientSide
-                        ? net.minecraft.world.InteractionResult.SUCCESS
-                        : net.minecraft.world.InteractionResult.PASS;
+                    return net.minecraft.world.InteractionResult.sidedSuccess(player.level().isClientSide);
                 } else {
                     org.trp.shincolle.network.ModNetwork.sendToServer(
                         new C2SPointerActionPayload(
@@ -345,11 +343,11 @@ public class PointerItem extends Item {
                             Optional.empty()
                         )
                     );
-                    return net.minecraft.world.InteractionResult.SUCCESS;
+                    return net.minecraft.world.InteractionResult.sidedSuccess(player.level().isClientSide);
                 }
             }
         }
-        return net.minecraft.world.InteractionResult.PASS;
+        return net.minecraft.world.InteractionResult.sidedSuccess(player.level().isClientSide);
     }
 
     public void onSwingMiss(Player player, ItemStack stack) {

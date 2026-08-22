@@ -64,6 +64,15 @@ public class ModParticles {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_WAYPOINT_LINE_RED =
             PARTICLES.register("particle_waypoint_line_red", () -> new SimpleParticleType(false));
 
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_LINE =
+            PARTICLES.register("particle_line", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_LINE_PURPLE =
+            PARTICLES.register("particle_line_purple", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_LINE_RED =
+            PARTICLES.register("particle_line_red", () -> new SimpleParticleType(false));
+
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_CRANING =
             PARTICLES.register("particle_craning", () -> new SimpleParticleType(false));
 

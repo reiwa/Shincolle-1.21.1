@@ -1477,6 +1477,10 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
         return !this.isTame() && this.getOwnerUUID() == null;
     }
 
+    public boolean isHostile() {
+        return isHostileShipMob();
+    }
+
     public void initializeHostileSpawnState(int scaleLevel) {
         int clampedScale = Mth.clamp(scaleLevel, 0, 3);
 
@@ -1788,6 +1792,11 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
         return super.removeWhenFarAway(distanceToClosestPlayer);
     }
 
+    @Override
+    public boolean canBeLeashed() {
+        return !this.isHostileShipMob() && super.canBeLeashed();
+    }
+
     protected boolean tickHostileDespawn() {
         if (!this.isHostileShipMob()) {
             return false;
@@ -2036,20 +2045,24 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
                 return result;
             }
 
-            if (player.isShiftKeyDown()) {
-                this.openShipMenu(player);
+            if (this.isTame() && this.isOwnedBy(player)) {
+                if (player.isShiftKeyDown()) {
+                    this.openShipMenu(player);
+                    this.resetInteractionEmotionState();
+                    this.focusOnPlayer(player);
+                    return InteractionResult.sidedSuccess(this.level().isClientSide);
+                }
+
+                boolean isSitting = !this.isOrderedToSit();
+                this.setOrderedToSit(isSitting);
+                this.setInSittingPose(isSitting);
                 this.resetInteractionEmotionState();
                 this.focusOnPlayer(player);
+
                 return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
 
-            boolean isSitting = !this.isOrderedToSit();
-            this.setOrderedToSit(isSitting);
-            this.setInSittingPose(isSitting);
-            this.resetInteractionEmotionState();
-            this.focusOnPlayer(player);
-
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
+            return InteractionResult.PASS;
         }
         return super.mobInteract(player, hand);
     }
