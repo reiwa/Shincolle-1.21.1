@@ -403,11 +403,19 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
                         1, 0.0D, 0.1D, 0.5D, 0.0D);
             }
             
+            boolean targetInLiquid = target.isInWaterOrBubble();
+            org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType moveType =
+                    targetInLiquid
+                            ? org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType.TORPEDO
+                            : org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType.ARC;
+            float accY1 = targetInLiquid ? 1.04F : 0.0F;
+            float accY2 = targetInLiquid ? 1.05F : 0.0F;
+
             org.trp.shincolle.entity.projectile.EntityAbyssMissile missile =
                     new org.trp.shincolle.entity.projectile.EntityAbyssMissile(
                             serverLevel, this, target, targetPos, missileDamage,
-                            org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType.ARC,
-                            0.7F, 0.0F, 0.0F, null,
+                            moveType,
+                            0.7F, accY1, accY2, null,
                             200, 3.5F);
             serverLevel.addFreshEntity(missile);
         }

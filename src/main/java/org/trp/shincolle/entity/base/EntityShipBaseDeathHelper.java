@@ -57,7 +57,9 @@ class EntityShipBaseDeathHelper {
             default -> this.ship.getRandom().nextInt(10) > 0;
         };
         if (drop) {
-            ItemStack egg = new ItemStack(this.ship.getShipSpawnEggItem());
+            ItemStack egg = this.ship instanceof org.trp.shincolle.entity.EntityCustomShip customShip
+                ? customShip.createCustomSpawnEgg()
+                : new ItemStack(this.ship.getShipSpawnEggItem());
             EntityShipGrudge grudge = new EntityShipGrudge(
                 this.ship.level(),
                 this.ship.getX(),

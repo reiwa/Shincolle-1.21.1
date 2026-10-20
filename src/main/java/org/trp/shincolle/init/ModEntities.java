@@ -16,6 +16,11 @@ public class ModEntities {
 
     private ModEntities() {}
 
+    public static final DeferredHolder<EntityType<?>, EntityType<EntityCustomShip>> CUSTOM_SHIP = ENTITY_TYPES.register("custom_ship",
+            () -> EntityType.Builder.of(CustomShipFactory::create, MobCategory.MISC)
+                    .sized(0.6f, 1.5f)
+                    .build("custom_ship"));
+
     public static final DeferredHolder<EntityType<?>, EntityType<EntityDestroyerI>> DESTROYER_I = ENTITY_TYPES.register("destroyer_i",
             () -> EntityType.Builder.of(EntityDestroyerI::new, MobCategory.MISC)
                     .sized(0.4f, 1.5f)

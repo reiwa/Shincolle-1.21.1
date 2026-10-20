@@ -187,7 +187,7 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         int limit = this.currentPath.getCurrentPathLength();
 
         for (int i = this.currentPath.getCurrentPathIndex(); i < this.currentPath.getCurrentPathLength(); i++) {
-            if (this.currentPath.getPathPointFromIndex(i).getY() != Mth.floor(hostPos.y)) {
+            if (this.currentPath.getPathPointFromIndex(i).getY() != Mth.floor(hostPos.y) && !isInLiquid()) {
                 limit = i;
                 break;
             }

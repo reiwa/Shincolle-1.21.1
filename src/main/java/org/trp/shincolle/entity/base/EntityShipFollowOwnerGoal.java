@@ -10,13 +10,18 @@ import java.util.EnumSet;
 
 final class EntityShipFollowOwnerGoal extends Goal {
 
-    private static final int TP_COOLDOWN = 200;
-    private static final double TP_DIST_SQ = 256.0;
+    private static final int DEFAULT_TP_COOLDOWN = 200;
+    private static final double DEFAULT_TP_DIST_SQ = 256.0;
+    private static final int BASE_COOLDOWN = 64;
+    private static final int MIN_COOLDOWN = BASE_COOLDOWN / 4;
+    private static final double MIN_RANGE = 2.0 * 2.0;
+    private static final double MAX_RANGE = 32.0 * 32.0;
 
     private final EntityShipBase ship;
     private final double speed;
     private final float defaultMaxDist;
     private final float defaultMinDist;
+    private int findCooldown;
     private int checkTP_T;
     private int checkTP_D;
     private double lastOwnerX;
@@ -39,16 +44,21 @@ final class EntityShipFollowOwnerGoal extends Goal {
             return false;
         }
         LivingEntity owner = this.ship.getOwner();
-        if (owner == null) {
+        if (owner == null || owner.level() != this.ship.level()) {
             return false;
         }
-        double distSq = this.ship.distanceToSqr(owner);
         if (owner instanceof Player player && this.ship.playerHasCombatRation(player)) {
-            return distSq > 1.5 * 1.5;
+            return this.ship.distanceToSqr(owner) > 1.5 * 1.5;
+        }
+        net.minecraft.world.phys.Vec3 moveTarget = resolveMoveTarget(owner);
+        double distSq = this.ship.distanceToSqr(moveTarget.x, moveTarget.y, moveTarget.z);
+        if (hasActiveFormation(owner)) {
+            return distSq > 7.0D;
         }
         float minDist = resolveFollowMinDistance();
         float maxDist = resolveFollowMaxDistance(minDist);
-        return distSq > maxDist * maxDist;
+        double maxDistSq = maxDist * maxDist + this.ship.getBbWidth() * 0.75F;
+        return distSq > maxDistSq;
     }
 
     @Override
@@ -57,19 +67,25 @@ final class EntityShipFollowOwnerGoal extends Goal {
             return false;
         }
         LivingEntity owner = this.ship.getOwner();
-        if (owner == null) {
+        if (owner == null || owner.level() != this.ship.level()) {
             return false;
         }
-        double distSq = this.ship.distanceToSqr(owner);
         if (owner instanceof Player player && this.ship.playerHasCombatRation(player)) {
-            return distSq > 1.5 * 1.5;
+            return this.ship.distanceToSqr(owner) > 1.5 * 1.5;
+        }
+        net.minecraft.world.phys.Vec3 moveTarget = resolveMoveTarget(owner);
+        double distSq = this.ship.distanceToSqr(moveTarget.x, moveTarget.y, moveTarget.z);
+        if (hasActiveFormation(owner)) {
+            return distSq > 4.0D;
         }
         float minDist = resolveFollowMinDistance();
-        return distSq > minDist * minDist;
+        double minDistSq = minDist * minDist + this.ship.getBbWidth() * 0.75F;
+        return distSq > minDistSq;
     }
 
     @Override
     public void start() {
+        this.findCooldown = 0;
         this.checkTP_T = 0;
         this.checkTP_D = 0;
         this.hasOwnerPos = false;
@@ -78,13 +94,16 @@ final class EntityShipFollowOwnerGoal extends Goal {
     @Override
     public void tick() {
         LivingEntity owner = ship.getOwner();
-        if (owner == null) {
+        if (owner == null || owner.level() != this.ship.level()) {
+            this.stop();
             return;
         }
 
+        --this.findCooldown;
         ++this.checkTP_T;
         ship.resetInteractionEmotionState();
-        if (owner instanceof Player player && this.ship.playerHasCombatRation(player)) {
+        boolean hasRation = owner instanceof Player player && this.ship.playerHasCombatRation(player);
+        if (hasRation) {
             ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
             if (this.ship.tickCount % 32 == 0) {
                 EmotionParticleType[] positiveEmotes = {
@@ -102,26 +121,44 @@ final class EntityShipFollowOwnerGoal extends Goal {
                 this.ship.applyParticleEmotion(selected);
             }
         }
-        ship.getLookControl().setLookAt(owner, 30.0F, 30.0F);
-
-        int teamId = ship.getFormationTeam();
-        int slotId = ship.getFormationSlot();
-        net.minecraft.world.phys.Vec3 moveTarget = owner.position();
-
-        if (teamId >= 0 && slotId >= 0) {
-            org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
-            int formationId = data.getFormationID(teamId);
-            updateFormationDirection(owner);
-            moveTarget = org.trp.shincolle.utility.FormationHelper.getFormationPos(formationId, slotId, owner.position(), formationDir[0], formationDir[1]);
+        LivingEntity combatTarget = ship.getTarget();
+        if (combatTarget != null && combatTarget.isAlive() && ship.hasLineOfSight(combatTarget)) {
+            ship.getLookControl().setLookAt(combatTarget, 30.0F, 30.0F);
+        } else {
+            ship.getLookControl().setLookAt(owner, 30.0F, 30.0F);
         }
 
-        ship.getNavigation().moveTo(moveTarget.x, moveTarget.y, moveTarget.z, this.speed);
+        net.minecraft.world.phys.Vec3 moveTarget = hasRation ? owner.position() : resolveMoveTarget(owner);
+        double distSq = ship.distanceToSqr(moveTarget.x, moveTarget.y, moveTarget.z);
+        float minDist = resolveFollowMinDistance();
+        float maxDist = resolveFollowMaxDistance(minDist);
+        double minDistSq = hasRation
+                ? (1.5D * 1.5D)
+                : (hasActiveFormation(owner) ? 4.0D : (minDist * minDist + this.ship.getBbWidth() * 0.75F));
+        double maxDistSq = hasActiveFormation(owner) ? 7.0D : (maxDist * maxDist + this.ship.getBbWidth() * 0.75F);
 
-        double distSq = ship.distanceToSqr(owner);
+        if (distSq <= minDistSq) {
+            ship.getNavigation().stop();
+        } else if (this.findCooldown <= 0 || ship.getNavigation().isDone()) {
+            this.findCooldown = calcCooldown(maxDistSq);
+            ship.getNavigation().moveTo(moveTarget.x, moveTarget.y, moveTarget.z, this.speed);
+        }
 
-        if (distSq > TP_DIST_SQ) {
+        if (!org.trp.shincolle.Config.canTeleport) {
+            return;
+        }
+
+        int tpCooldown = org.trp.shincolle.Config.shipTeleport.length > 0
+                ? org.trp.shincolle.Config.shipTeleport[0]
+                : DEFAULT_TP_COOLDOWN;
+        double configTpDistSq = org.trp.shincolle.Config.shipTeleport.length > 1
+                ? org.trp.shincolle.Config.shipTeleport[1]
+                : DEFAULT_TP_DIST_SQ;
+        double tpDistSq = Math.max(configTpDistSq, maxDistSq);
+
+        if (distSq > tpDistSq) {
             ++this.checkTP_D;
-            if (this.checkTP_D > TP_COOLDOWN) {
+            if (this.checkTP_D > tpCooldown) {
                 this.checkTP_D = 0;
                 applyTeleport(owner);
                 return;
@@ -130,10 +167,40 @@ final class EntityShipFollowOwnerGoal extends Goal {
             this.checkTP_D = 0;
         }
 
-        if (this.checkTP_T > TP_COOLDOWN) {
+        if (this.checkTP_T > tpCooldown) {
             this.checkTP_T = 0;
             applyTeleport(owner);
         }
+    }
+
+    private int calcCooldown(double maxDistSq) {
+        double clamped = Mth.clamp(maxDistSq, MIN_RANGE, MAX_RANGE);
+        double ratio = (clamped - MIN_RANGE) / (MAX_RANGE - MIN_RANGE);
+        return (int) (MIN_COOLDOWN + ratio * (BASE_COOLDOWN - MIN_COOLDOWN));
+    }
+
+    private boolean hasActiveFormation(LivingEntity owner) {
+        int teamId = ship.getFormationTeam();
+        int slotId = ship.getFormationSlot();
+        if (teamId >= 0 && slotId >= 0) {
+            org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+            return data.getFormationID(teamId) > 0;
+        }
+        return false;
+    }
+
+    private net.minecraft.world.phys.Vec3 resolveMoveTarget(LivingEntity owner) {
+        int teamId = ship.getFormationTeam();
+        int slotId = ship.getFormationSlot();
+        if (teamId >= 0 && slotId >= 0) {
+            org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+            int formationId = data.getFormationID(teamId);
+            if (formationId > 0) {
+                updateFormationDirection(owner);
+                return org.trp.shincolle.utility.FormationHelper.getFormationPos(formationId, slotId, owner.position(), formationDir[0], formationDir[1]);
+            }
+        }
+        return owner.position();
     }
 
     @Override

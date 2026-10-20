@@ -6,16 +6,27 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.menu.FormationMenu;
+import org.trp.shincolle.network.C2SPetShipPayload;
 import org.trp.shincolle.network.C2SPointerActionPayload;
+import org.trp.shincolle.network.ModNetwork;
+import org.trp.shincolle.utility.CalcHelper;
 
 import java.util.List;
 import java.util.Optional;
@@ -240,15 +251,104 @@ public class PointerItem extends Item {
         InteractionHand hand
     ) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!level.isClientSide) {
-            if (player.isShiftKeyDown() && getMode(stack) == MODE_FORMATION) {
-                player.openMenu(
-                    new net.minecraft.world.SimpleMenuProvider(
-                        (id, inv, p) -> new FormationMenu(id, inv),
-                        Component.translatable("gui.shincolle.formation.title")
-                    )
-                );
-                return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+        if (level.isClientSide) {
+            double range = 64.0D;
+            Vec3 eyePos = player.getEyePosition();
+            Vec3 look = player.getViewVector(1.0F);
+            Vec3 end = eyePos.add(look.scale(range));
+
+            BlockHitResult blockHit = level.clip(new ClipContext(eyePos, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.ANY, player));
+            double maxDist = range;
+            if (blockHit.getType() != HitResult.Type.MISS) {
+                maxDist = eyePos.distanceTo(blockHit.getLocation());
+            }
+
+            AABB searchBox = player.getBoundingBox().expandTowards(look.scale(range)).inflate(1.0D);
+            EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(
+                level,
+                player,
+                eyePos,
+                eyePos.add(look.scale(maxDist)),
+                searchBox,
+                entity -> !entity.isSpectator() && entity.isPickable() && !entity.equals(player.getVehicle())
+            );
+
+            if (entityHit != null && entityHit.getEntity() instanceof LivingEntity livingTarget) {
+                if (isPetting(stack)) {
+                    if (livingTarget instanceof EntityShipBase ship) {
+                        int hitHeight = CalcHelper.getEntityHitHeight(player, ship);
+                        int hitAngle = CalcHelper.getEntityHitSide(player, ship);
+                        ship.setHitHeight(hitHeight);
+                        ship.setHitAngle(hitAngle);
+                        ship.checkCaressed();
+                        ModNetwork.sendToServer(
+                            new C2SPetShipPayload(
+                                ship.getUUID(),
+                                hitHeight,
+                                hitAngle
+                            )
+                        );
+                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                    }
+                }
+
+                int mode = getMode(stack);
+                if (mode == MODE_FORMATION) {
+                    if (livingTarget instanceof EntityShipBase ship && ship.isOwnedBy(player)) {
+                        if (player.isShiftKeyDown()) {
+                            ModNetwork.sendToServer(
+                                new C2SPointerActionPayload(
+                                    3,
+                                    Optional.of(ship.getUUID()),
+                                    Optional.empty()
+                                )
+                            );
+                        } else {
+                            ModNetwork.sendToServer(
+                                new C2SPointerActionPayload(
+                                    5,
+                                    Optional.of(ship.getUUID()),
+                                    Optional.empty()
+                                )
+                            );
+                        }
+                    } else {
+                        ModNetwork.sendToServer(
+                            new C2SPointerActionPayload(
+                                1,
+                                Optional.of(livingTarget.getUUID()),
+                                Optional.empty()
+                            )
+                        );
+                    }
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                }
+            } else if (player.isShiftKeyDown()) {
+                int mode = getMode(stack);
+                if (mode == MODE_FORMATION) {
+                    ModNetwork.sendToServer(
+                        new C2SPointerActionPayload(
+                            4,
+                            Optional.empty(),
+                            Optional.empty()
+                        )
+                    );
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                }
+            } else if (blockHit.getType() != HitResult.Type.MISS) {
+                int mode = getMode(stack);
+                if (mode == MODE_FORMATION) {
+                    BlockPos blockPos = blockHit.getBlockPos();
+                    Vec3 pos = Vec3.atBottomCenterOf(blockPos).add(0, 1.0, 0);
+                    ModNetwork.sendToServer(
+                        new C2SPointerActionPayload(
+                            2,
+                            Optional.empty(),
+                            Optional.of(pos)
+                        )
+                    );
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                }
             }
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
@@ -259,25 +359,37 @@ public class PointerItem extends Item {
         net.minecraft.world.item.context.UseOnContext context
     ) {
         Player player = context.getPlayer();
-        if (player != null && player.isShiftKeyDown()) {
-            return net.minecraft.world.InteractionResult.sidedSuccess(context.getLevel().isClientSide);
+        if (player == null) {
+            return net.minecraft.world.InteractionResult.PASS;
         }
 
         Level level = context.getLevel();
-        if (level.isClientSide && player != null) {
-            int mode = getMode(context.getItemInHand());
-            if (mode == MODE_FORMATION) {
-                BlockPos blockPos = context.getClickedPos();
-                Vec3 pos = Vec3.atBottomCenterOf(blockPos).add(0, 1.0, 0);
-                org.trp.shincolle.network.ModNetwork.sendToServer(
+        int mode = getMode(context.getItemInHand());
+
+        if (player.isShiftKeyDown()) {
+            if (mode == MODE_FORMATION && level.isClientSide) {
+                ModNetwork.sendToServer(
                     new C2SPointerActionPayload(
-                        2,
+                        4,
                         Optional.empty(),
-                        Optional.of(pos)
+                        Optional.empty()
                     )
                 );
-                return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
             }
+            return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
+        }
+
+        if (level.isClientSide && mode == MODE_FORMATION) {
+            BlockPos blockPos = context.getClickedPos();
+            Vec3 pos = Vec3.atBottomCenterOf(blockPos).add(0, 1.0, 0);
+            ModNetwork.sendToServer(
+                new C2SPointerActionPayload(
+                    2,
+                    Optional.empty(),
+                    Optional.of(pos)
+                )
+            );
+            return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
         }
         return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
     }
@@ -286,57 +398,53 @@ public class PointerItem extends Item {
     public net.minecraft.world.InteractionResult interactLivingEntity(
         ItemStack stack,
         Player player,
-        net.minecraft.world.entity.LivingEntity target,
+        LivingEntity target,
         InteractionHand hand
     ) {
-        if (player.isShiftKeyDown()) {
-            return net.minecraft.world.InteractionResult.sidedSuccess(player.level().isClientSide);
-        }
-
         if (isPetting(stack)) {
-            if (
-                target instanceof
-                    org.trp.shincolle.entity.base.EntityShipBase ship
-            ) {
+            if (target instanceof EntityShipBase ship) {
                 if (player.level().isClientSide) {
-                    int hitHeight =
-                        org.trp.shincolle.utility.CalcHelper.getEntityHitHeight(
-                            player,
-                            ship
-                        );
-                    int hitAngle =
-                        org.trp.shincolle.utility.CalcHelper.getEntityHitSide(
-                            player,
-                            ship
-                        );
+                    int hitHeight = CalcHelper.getEntityHitHeight(player, ship);
+                    int hitAngle = CalcHelper.getEntityHitSide(player, ship);
                     ship.setHitHeight(hitHeight);
                     ship.setHitAngle(hitAngle);
                     ship.checkCaressed();
-                    org.trp.shincolle.network.ModNetwork.sendToServer(
-                        new org.trp.shincolle.network.C2SPetShipPayload(
+                    ModNetwork.sendToServer(
+                        new C2SPetShipPayload(
                             ship.getUUID(),
                             hitHeight,
                             hitAngle
                         )
                     );
                 }
-                return net.minecraft.world.InteractionResult.sidedSuccess(
-                    player.level().isClientSide
-                );
+                return net.minecraft.world.InteractionResult.sidedSuccess(player.level().isClientSide);
             }
         }
 
         if (player.level().isClientSide) {
             int mode = getMode(stack);
             if (mode == MODE_FORMATION) {
-                if (
-                    target instanceof
-                        org.trp.shincolle.entity.base.EntityShipBase ship &&
-                    ship.isOwnedBy(player)
-                ) {
+                if (target instanceof EntityShipBase ship && ship.isOwnedBy(player)) {
+                    if (player.isShiftKeyDown()) {
+                        ModNetwork.sendToServer(
+                            new C2SPointerActionPayload(
+                                3,
+                                Optional.of(ship.getUUID()),
+                                Optional.empty()
+                            )
+                        );
+                    } else {
+                        ModNetwork.sendToServer(
+                            new C2SPointerActionPayload(
+                                5,
+                                Optional.of(ship.getUUID()),
+                                Optional.empty()
+                            )
+                        );
+                    }
                     return net.minecraft.world.InteractionResult.sidedSuccess(player.level().isClientSide);
                 } else {
-                    org.trp.shincolle.network.ModNetwork.sendToServer(
+                    ModNetwork.sendToServer(
                         new C2SPointerActionPayload(
                             1,
                             Optional.of(target.getUUID()),

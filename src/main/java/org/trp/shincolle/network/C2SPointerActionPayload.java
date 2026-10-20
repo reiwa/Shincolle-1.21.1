@@ -194,6 +194,13 @@ public record C2SPointerActionPayload(int action, Optional<UUID> targetEntity, O
                     boolean next = !pi.isPetting(pointer);
                     pi.setPetting(pointer, next);
                 }
+            } else if (this.action() == 7 && this.targetEntity().isPresent()) {
+                if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                    net.minecraft.world.entity.Entity entity = serverLevel.getEntity(this.targetEntity().get());
+                    if (entity != null && player.distanceToSqr(entity) <= 100.0 * 100.0) {
+                        org.trp.shincolle.event.ModEventBusEvents.handlePointerLeftClickEntity(player, stack, entity);
+                    }
+                }
             }
         });
     }

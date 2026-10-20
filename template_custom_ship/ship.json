@@ -1,0 +1,23 @@
+{
+  "id": "template_ship",
+  "name": "Template Ship",
+  "ship_class": "DESTROYER",
+  "hitbox": {
+    "width": 0.6,
+    "height": 1.6,
+    "eye_height": 1.4
+  },
+  "stats": {
+    "max_hp": 80.0,
+    "attack_power": 12.0,
+    "armor": 8.0,
+    "movement_speed": 0.3,
+    "attack_range": 16.0
+  },
+  "shipyard": {
+    "enable_build": true,
+    "large_shipyard": false,
+    "target_total_mats": 100,
+    "preferred_material": "grudge"
+  }
+}

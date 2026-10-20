@@ -62,6 +62,15 @@ public class ModTabs {
                 output.accept(ModItems.BATTLESHIP_YAMATO_SPAWN_EGG.get());
                 output.accept(ModItems.SUBM_U511_SPAWN_EGG.get());
                 output.accept(ModItems.SUBM_RO500_SPAWN_EGG.get());
+
+                var allConfigs = org.trp.shincolle.custom.CustomShipRegistry.getAllConfigs();
+                if (allConfigs.isEmpty()) {
+                    output.accept(ModItems.CUSTOM_SHIP_SPAWN_EGG.get());
+                } else {
+                    for (org.trp.shincolle.custom.CustomShipConfig config : allConfigs) {
+                        output.accept(org.trp.shincolle.item.CustomShipSpawnEggItem.createForShip(ModItems.CUSTOM_SHIP_SPAWN_EGG.get(), config.id));
+                    }
+                }
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_AIRPLANE);
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_AMMO);
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_ARMOR);

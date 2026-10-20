@@ -40,6 +40,9 @@ public class ModItems {
         private static final int[] EQUIP_TORPEDO_TYPES = new int[]{4, 4, 4, 5, 5, 5, 5};
         private static final int[] EQUIP_TURBINE_TYPES = new int[]{16, 16, 17, 17, 17};
 
+    public static final DeferredItem<CustomShipSpawnEggItem> CUSTOM_SHIP_SPAWN_EGG = ITEMS.register("custom_ship_spawn_egg",
+            () -> new CustomShipSpawnEggItem(ModEntities.CUSTOM_SHIP, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
+
     public static final DeferredItem<Item> SHIPSPAWNEGGS = ITEMS.register("shipspawneggs",
             () -> new RandomShipSpawnEggItem(ModEntities.DESTROYER_I, ShipClass.DESTROYER, false,
                     0xFFFFFF, 0xFFFFFF, new Item.Properties()));

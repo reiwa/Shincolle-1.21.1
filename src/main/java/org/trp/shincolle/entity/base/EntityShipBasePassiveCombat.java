@@ -155,9 +155,13 @@ final class EntityShipBasePassiveCombat {
         boolean cannotSee = !onSight && distanceSqr > preferredRangeSqr * 0.5D;
         boolean hasAttackMeans = hasRangedAttack || combat.canUseMeleeAttack();
 
-        if (needsCloser || cannotSee) {
+        if (!this.ship.isPassenger() && this.ship.isOwnerTooFar()) {
+            clearTarget(true);
+            return;
+        }
+
+        if (!this.ship.isPassenger() && (needsCloser || cannotSee)) {
             if (
-                this.ship.isOwnerTooFar() ||
                 this.ship.hasPointerTarget() ||
                 !hasAttackMeans
             ) {
@@ -174,9 +178,18 @@ final class EntityShipBasePassiveCombat {
                 }
             }
             return;
+        } else if (this.ship.isPassenger()) {
+            if (needsCloser || cannotSee) {
+                double maxAircraftRange = Math.max(24.0D, this.ship.getLegacyShipStats().getAttackRange() * 1.5D);
+                boolean canReachWithAircraft = combat.hasAircraftAttackEnabled() && onSight && distanceSqr <= maxAircraftRange * maxAircraftRange;
+                if (!canReachWithAircraft) {
+                    clearTarget(true);
+                    return;
+                }
+            }
         }
 
-        if (!this.ship.shouldFollowOwner() && !this.ship.hasPointerTarget()) {
+        if (!this.ship.isPassenger() && !this.ship.shouldFollowOwner() && !this.ship.hasPointerTarget()) {
             this.ship.getNavigation().stop();
             this.ship
                 .getMoveControl()
@@ -202,23 +215,31 @@ final class EntityShipBasePassiveCombat {
             combat.tryPerformAircraftCycle(target);
         }
 
-        if (combat.canUseLightAmmo() && this.passiveLightCooldownTick <= 0) {
-            this.ship.performLightAttack(target);
-            this.passiveLightCooldownTick = Math.max(
-                1,
-                this.ship.getLegacyShipStats().getLightDelay()
-            );
-        }
+        boolean targetUnderwater = target.isInWaterOrBubble() || (target instanceof EntityShipBase shipTarget && shipTarget.isSubmarine());
 
-        if (combat.canUseHeavyAmmo() && this.passiveHeavyCooldownTick <= 0) {
-            this.ship.performHeavyAttack(target);
-            this.passiveHeavyCooldownTick = Math.max(
-                1,
-                this.ship.getLegacyShipStats().getHeavyDelay()
-            );
+        double cannonRange = Math.max(2.0D, this.ship.getLegacyShipStats().getAttackRange());
+        double cannonRangeSqr = cannonRange * cannonRange;
+
+        if ((!targetUnderwater || this.ship.isSubmarine()) && distanceSqr <= cannonRangeSqr) {
+            if (combat.canUseLightAmmo() && this.passiveLightCooldownTick <= 0) {
+                this.ship.performLightAttack(target);
+                this.passiveLightCooldownTick = Math.max(
+                    1,
+                    this.ship.getLegacyShipStats().getLightDelay()
+                );
+            }
+
+            if (combat.canUseHeavyAmmo() && this.passiveHeavyCooldownTick <= 0) {
+                this.ship.performHeavyAttack(target);
+                this.passiveHeavyCooldownTick = Math.max(
+                    1,
+                    this.ship.getLegacyShipStats().getHeavyDelay()
+                );
+            }
         }
 
         if (
+            (!targetUnderwater || this.ship.isSubmarine()) &&
             combat.canUseMeleeAttack() &&
             this.passiveMeleeCooldownTick <= 0 &&
             distanceSqr <= getPassiveAttackRangeSqr(target)
@@ -490,10 +511,6 @@ final class EntityShipBasePassiveCombat {
 
         boolean pvpEnabled = this.ship.getStateComponent().isStatePvp();
 
-        if (isPlayerOrShip(target) && !pvpEnabled) {
-            return false;
-        }
-
         if (commandContext) {
             return true;
         }
@@ -652,18 +669,18 @@ final class EntityShipBasePassiveCombat {
     private double getPassivePreferredRangeSqr(Entity target) {
         EntityShipBaseCombat combat = this.ship.getCombat();
 
-        if (combat.canUseLightAmmo() || combat.canUseHeavyAmmo()) {
-            double range = Math.max(
-                2.0D,
-                this.ship.getLegacyShipStats().getAttackRange()
-            );
-            return range * range;
-        }
-
         if (combat.hasAircraftAttackEnabled()) {
             double range = Math.max(
                 24.0D,
                 this.ship.getLegacyShipStats().getAttackRange() * 1.5D
+            );
+            return range * range;
+        }
+
+        if (combat.canUseLightAmmo() || combat.canUseHeavyAmmo()) {
+            double range = Math.max(
+                2.0D,
+                this.ship.getLegacyShipStats().getAttackRange()
             );
             return range * range;
         }
@@ -688,7 +705,7 @@ final class EntityShipBasePassiveCombat {
         
         if (
             this.ship.isPassenger() &&
-            !(this.ship.getVehicle() instanceof EntityMountBase)
+            !(this.ship.getVehicle() instanceof Player)
         ) {
             return false;
         }

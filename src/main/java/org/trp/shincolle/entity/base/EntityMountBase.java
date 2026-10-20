@@ -105,61 +105,97 @@ public abstract class EntityMountBase extends PathfinderMob {
 
     private static final class MountFollowHostGoal extends Goal {
 
-        private static final int TP_COOLDOWN = 100;
+        private static final int DEFAULT_TP_COOLDOWN = 200;
+        private static final double DEFAULT_TP_DIST_SQ = 256.0;
+        private static final int BASE_COOLDOWN = 64;
+        private static final int MIN_COOLDOWN = BASE_COOLDOWN / 4;
+        private static final double MIN_RANGE = 2.0 * 2.0;
+        private static final double MAX_RANGE = 32.0 * 32.0;
 
         private final EntityMountBase mount;
-        private int tpTimer = 0;
+        private int findCooldown = 0;
+        private int checkTP_T = 0;
+        private int checkTP_D = 0;
+        private double lastOwnerX;
+        private double lastOwnerY;
+        private double lastOwnerZ;
+        private boolean hasOwnerPos;
+        private boolean[] formationDir = new boolean[]{false, true};
 
         MountFollowHostGoal(EntityMountBase mount) {
             this.mount = mount;
             this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         }
 
+        private boolean canFollow(EntityShipBase h) {
+            return h != null
+                && h.isAlive()
+                && !h.isOrderedToSit()
+                && !h.isInSittingPose()
+                && !h.isInDeadPose()
+                && !mount.isPassenger()
+                && mount.getControllingPassenger() == null;
+        }
+
         @Override
         public boolean canUse() {
             EntityShipBase h = mount.getHost();
-            if (
-                h == null ||
-                !h.isAlive() ||
-                h.isOrderedToSit() ||
-                mount.isPassenger()
-            ) return false;
+            if (!canFollow(h)) return false;
 
             if (h.hasPointerTarget()) return true;
+            if (h.getGuardedPos(4) == 1 || h.hasPointerTargetEntity()) return false;
 
             LivingEntity owner = h.getOwner();
-            if (owner == null) return false;
+            if (owner == null || owner.level() != mount.level()) return false;
 
-            double distSq = mount.distanceToSqr(owner);
-            float fMax = h.getStateComponent().getFollowMax();
-            double maxDistSq = fMax * fMax + mount.getBbWidth() * 0.75f;
+            if (owner instanceof Player player && h.playerHasCombatRation(player)) {
+                return mount.distanceToSqr(owner) > 1.5 * 1.5;
+            }
+
+            Vec3 moveTarget = resolveMoveTarget(h, owner);
+            double distSq = mount.distanceToSqr(moveTarget.x, moveTarget.y, moveTarget.z);
+            if (hasActiveFormation(h, owner)) {
+                return distSq > 7.0D;
+            }
+
+            float minDist = resolveFollowMinDistance(h);
+            float maxDist = resolveFollowMaxDistance(h, minDist);
+            double maxDistSq = maxDist * maxDist + mount.getBbWidth() * 0.75F;
             return distSq > maxDistSq;
         }
 
         @Override
         public boolean canContinueToUse() {
             EntityShipBase h = mount.getHost();
-            if (
-                h == null ||
-                !h.isAlive() ||
-                h.isOrderedToSit() ||
-                mount.isPassenger()
-            ) return false;
+            if (!canFollow(h)) return false;
 
             if (h.hasPointerTarget()) return true;
+            if (h.getGuardedPos(4) == 1 || h.hasPointerTargetEntity()) return false;
 
             LivingEntity owner = h.getOwner();
-            if (owner == null) return false;
+            if (owner == null || owner.level() != mount.level()) return false;
 
-            double distSq = mount.distanceToSqr(owner);
-            float fMin = h.getStateComponent().getFollowMin();
-            double minDistSq = fMin * fMin + mount.getBbWidth() * 0.75f;
+            if (owner instanceof Player player && h.playerHasCombatRation(player)) {
+                return mount.distanceToSqr(owner) > 1.5 * 1.5;
+            }
+
+            Vec3 moveTarget = resolveMoveTarget(h, owner);
+            double distSq = mount.distanceToSqr(moveTarget.x, moveTarget.y, moveTarget.z);
+            if (hasActiveFormation(h, owner)) {
+                return distSq > 4.0D;
+            }
+
+            float minDist = resolveFollowMinDistance(h);
+            double minDistSq = minDist * minDist + mount.getBbWidth() * 0.75F;
             return distSq > minDistSq;
         }
 
         @Override
         public void start() {
-            tpTimer = 0;
+            this.findCooldown = 0;
+            this.checkTP_T = 0;
+            this.checkTP_D = 0;
+            this.hasOwnerPos = false;
         }
 
         @Override
@@ -170,40 +206,164 @@ public abstract class EntityMountBase extends PathfinderMob {
         @Override
         public void tick() {
             EntityShipBase h = mount.getHost();
-            if (h == null) return;
+            if (!canFollow(h)) {
+                this.stop();
+                return;
+            }
+
+            --this.findCooldown;
 
             if (h.hasPointerTarget()) {
                 Vec3 pt = h.getPointerTarget();
-                mount.getNavigation().moveTo(pt.x, pt.y, pt.z, 1.0);
+                if (this.findCooldown <= 0 || mount.getNavigation().isDone()) {
+                    this.findCooldown = MIN_COOLDOWN;
+                    mount.getNavigation().moveTo(pt.x, pt.y, pt.z, 1.0);
+                }
                 return;
             }
 
             LivingEntity owner = h.getOwner();
-            if (owner == null) return;
+            if (owner == null || owner.level() != mount.level()) {
+                this.stop();
+                return;
+            }
 
+            ++this.checkTP_T;
+            boolean hasRation = owner instanceof Player player && h.playerHasCombatRation(player);
             mount.getLookControl().setLookAt(owner, 30.0F, 30.0F);
-            mount.getNavigation().moveTo(owner, 1.0);
 
-            double distSq = mount.distanceToSqr(owner);
-            ++tpTimer;
-            if (distSq > 256.0) {
-                if (tpTimer > TP_COOLDOWN) {
-                    tpTimer = 0;
-                    if (mount.level() instanceof ServerLevel) {
-                        mount.getNavigation().stop();
-                        mount.teleportTo(
-                            owner.getX(),
-                            owner.getY() + 0.75,
-                            owner.getZ()
-                        );
-                    }
+            Vec3 moveTarget = hasRation ? owner.position() : resolveMoveTarget(h, owner);
+            double distSq = mount.distanceToSqr(moveTarget.x, moveTarget.y, moveTarget.z);
+            float minDist = resolveFollowMinDistance(h);
+            float maxDist = resolveFollowMaxDistance(h, minDist);
+            double minDistSq = hasRation
+                ? (1.5D * 1.5D)
+                : (hasActiveFormation(h, owner) ? 4.0D : (minDist * minDist + mount.getBbWidth() * 0.75F));
+            double maxDistSq = hasActiveFormation(h, owner) ? 7.0D : (maxDist * maxDist + mount.getBbWidth() * 0.75F);
+
+            if (distSq <= minDistSq) {
+                mount.getNavigation().stop();
+            } else if (this.findCooldown <= 0 || mount.getNavigation().isDone()) {
+                this.findCooldown = calcCooldown(maxDistSq);
+                mount.getNavigation().moveTo(moveTarget.x, moveTarget.y, moveTarget.z, 1.0);
+            }
+
+            if (!org.trp.shincolle.Config.canTeleport) {
+                return;
+            }
+
+            int tpCooldown = org.trp.shincolle.Config.shipTeleport.length > 0
+                ? org.trp.shincolle.Config.shipTeleport[0]
+                : DEFAULT_TP_COOLDOWN;
+            double configTpDistSq = org.trp.shincolle.Config.shipTeleport.length > 1
+                ? org.trp.shincolle.Config.shipTeleport[1]
+                : DEFAULT_TP_DIST_SQ;
+            double tpDistSq = Math.max(configTpDistSq, maxDistSq);
+
+            if (distSq > tpDistSq) {
+                ++this.checkTP_D;
+                if (this.checkTP_D > tpCooldown) {
+                    this.checkTP_D = 0;
+                    applyTeleport(owner);
+                    return;
                 }
             } else {
-                tpTimer = 0;
+                this.checkTP_D = 0;
+            }
+
+            if (this.checkTP_T > tpCooldown) {
+                this.checkTP_T = 0;
+                applyTeleport(owner);
+            }
+        }
+
+        private int calcCooldown(double maxDistSq) {
+            double clamped = Mth.clamp(maxDistSq, MIN_RANGE, MAX_RANGE);
+            double ratio = (clamped - MIN_RANGE) / (MAX_RANGE - MIN_RANGE);
+            return (int) (MIN_COOLDOWN + ratio * (BASE_COOLDOWN - MIN_COOLDOWN));
+        }
+
+        private float resolveFollowMinDistance(EntityShipBase h) {
+            int configured = h.getStateComponent().getFollowMin();
+            if (configured <= 0) {
+                return 6.0F;
+            }
+            return (float) Mth.clamp(configured, 1, 31);
+        }
+
+        private float resolveFollowMaxDistance(EntityShipBase h, float minDist) {
+            int configured = h.getStateComponent().getFollowMax();
+            if (configured <= 0) {
+                return Math.max(12.0F, minDist + 1.0F);
+            }
+            int minValue = Math.max(2, Mth.floor(minDist) + 1);
+            return (float) Mth.clamp(configured, minValue, 32);
+        }
+
+        private boolean hasActiveFormation(EntityShipBase h, LivingEntity owner) {
+            int teamId = h.getFormationTeam();
+            int slotId = h.getFormationSlot();
+            if (teamId >= 0 && slotId >= 0) {
+                org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+                return data.getFormationID(teamId) > 0;
+            }
+            return false;
+        }
+
+        private Vec3 resolveMoveTarget(EntityShipBase h, LivingEntity owner) {
+            int teamId = h.getFormationTeam();
+            int slotId = h.getFormationSlot();
+            if (teamId >= 0 && slotId >= 0) {
+                org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+                int formationId = data.getFormationID(teamId);
+                if (formationId > 0) {
+                    updateFormationDirection(owner);
+                    return org.trp.shincolle.utility.FormationHelper.getFormationPos(formationId, slotId, owner.position(), formationDir[0], formationDir[1]);
+                }
+            }
+            return owner.position();
+        }
+
+        private void updateFormationDirection(LivingEntity owner) {
+            double ox = owner.getX();
+            double oy = owner.getY();
+            double oz = owner.getZ();
+            if (!this.hasOwnerPos) {
+                this.lastOwnerX = ox;
+                this.lastOwnerY = oy;
+                this.lastOwnerZ = oz;
+                this.hasOwnerPos = true;
+                return;
+            }
+            double dx = this.lastOwnerX - ox;
+            double dy = this.lastOwnerY - oy;
+            double dz = this.lastOwnerZ - oz;
+            double dsq = dx * dx + dy * dy + dz * dz;
+            if (dsq > 7.0D) {
+                this.formationDir = org.trp.shincolle.utility.FormationHelper.getFormationDirection(ox, oz, this.lastOwnerX, this.lastOwnerZ);
+                this.lastOwnerX = ox;
+                this.lastOwnerY = oy;
+                this.lastOwnerZ = oz;
+            }
+        }
+
+        private void applyTeleport(LivingEntity owner) {
+            double tx = owner.getX();
+            double ty = owner.getY() + 0.75;
+            double tz = owner.getZ();
+            if (mount.level() instanceof ServerLevel serverLevel) {
+                int cx = Mth.floor(tx) >> 4;
+                int cz = Mth.floor(tz) >> 4;
+                if (!serverLevel.hasChunk(cx, cz)) {
+                    return;
+                }
+                mount.getNavigation().stop();
+                mount.teleportTo(tx, ty, tz);
+                this.checkTP_T = 0;
+                this.checkTP_D = 0;
             }
         }
     }
-
     private static final class MountRangeAttackGoal extends Goal {
 
         private final EntityMountBase mount;

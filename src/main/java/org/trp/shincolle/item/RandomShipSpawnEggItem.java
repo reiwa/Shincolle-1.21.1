@@ -49,7 +49,8 @@ public class RandomShipSpawnEggItem extends ShipSpawnEggItem {
             return;
         }
 
-        EntityType<? extends Mob> entityType = ShipyardRecipes.rollShipEntityType(this.largeShipyardEgg, stack);
+        ShipyardRecipes.ShipBuildResult buildResult = ShipyardRecipes.rollShipBuildResult(this.largeShipyardEgg, stack);
+        EntityType<? extends Mob> entityType = buildResult.entityType();
         ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(entityType);
         if (key == null) {
             return;
@@ -57,6 +58,9 @@ public class RandomShipSpawnEggItem extends ShipSpawnEggItem {
 
         stack.update(DataComponents.ENTITY_DATA, CustomData.EMPTY, existingData -> existingData.update(tag -> {
             tag.putString("id", key.toString());
+            if (buildResult.customShipId() != null && !buildResult.customShipId().isEmpty()) {
+                tag.putString(CustomShipSpawnEggItem.TAG_CUSTOM_SHIP_ID, buildResult.customShipId());
+            }
             if (player != null && !tag.hasUUID("Owner")) {
                 tag.putUUID("Owner", player.getUUID());
             }

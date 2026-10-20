@@ -56,7 +56,6 @@ public class ParticleLine extends Particle {
         this.setSize(0.0f, 0.0f);
         this.lifetime = 16;
 
-        // Compact sleek laser thickness matching 1.12.2_old
         this.scaleOut = 0.06f;
         this.scaleIn = 0.018f;
         this.alphaIn = 0.95f;
@@ -73,17 +72,14 @@ public class ParticleLine extends Particle {
         }
 
         if (lineType == 0) {
-            // Pale white-sky aura for ground coordinate / guard position target
             this.rCol = 0.85f;
             this.gCol = 0.92f;
             this.bCol = 1.0f;
         } else if (lineType == 1) {
-            // Magenta-purple aura for guarded entity
             this.rCol = 0.95f;
             this.gCol = 0.2f;
             this.bCol = 1.0f;
         } else {
-            // Red aura for enemy target
             this.rCol = 1.0f;
             this.gCol = 0.15f;
             this.bCol = 0.15f;
@@ -139,19 +135,16 @@ public class ParticleLine extends Particle {
         float curAlphaOut = Math.max(0.0f, Math.min(1.0f, fade)) * this.alphaOut;
         float curAlphaIn = Math.max(0.0f, Math.min(1.0f, fade)) * this.alphaIn;
 
-        // Outer glow tube offsets (rotated by shot yaw and pitch)
         float[] v1 = rotateXYZByYawPitch(1.0f, -1.0f, -1.0f, this.shotYaw, this.shotPitch, this.scaleOut);
         float[] v2 = rotateXYZByYawPitch(1.0f, 1.0f, -1.0f, this.shotYaw, this.shotPitch, this.scaleOut);
         float[] v3 = rotateXYZByYawPitch(-1.0f, 1.0f, -1.0f, this.shotYaw, this.shotPitch, this.scaleOut);
         float[] v4 = rotateXYZByYawPitch(-1.0f, -1.0f, -1.0f, this.shotYaw, this.shotPitch, this.scaleOut);
 
-        // Inner solid white core offsets
         float[] v5 = rotateXYZByYawPitch(1.0f, -1.0f, 0.0f, this.shotYaw, this.shotPitch, this.scaleIn);
         float[] v6 = rotateXYZByYawPitch(1.0f, 1.0f, 0.0f, this.shotYaw, this.shotPitch, this.scaleIn);
         float[] v7 = rotateXYZByYawPitch(-1.0f, 1.0f, 0.0f, this.shotYaw, this.shotPitch, this.scaleIn);
         float[] v8 = rotateXYZByYawPitch(-1.0f, -1.0f, 0.0f, this.shotYaw, this.shotPitch, this.scaleIn);
 
-        // 1. Render Inner Solid White Core (4 quads)
         drawQuad(buffer, sx + v5[0], sy + v5[1], sz + v5[2], sx + v6[0], sy + v6[1], sz + v6[2],
                          ex + v6[0], ey + v6[1], ez + v6[2], ex + v5[0], ey + v5[1], ez + v5[2],
                          1.0f, 1.0f, 1.0f, curAlphaIn);
@@ -165,7 +158,6 @@ public class ParticleLine extends Particle {
                          ex + v5[0], ey + v5[1], ez + v5[2], ex + v8[0], ey + v8[1], ez + v8[2],
                          1.0f, 1.0f, 1.0f, curAlphaIn);
 
-        // 2. Render Outer Colored Halo Tube (4 quads)
         drawQuad(buffer, sx + v1[0], sy + v1[1], sz + v1[2], sx + v2[0], sy + v2[1], sz + v2[2],
                          ex + v2[0], ey + v2[1], ez + v2[2], ex + v1[0], ey + v1[1], ez + v1[2],
                          this.rCol, this.gCol, this.bCol, curAlphaOut);

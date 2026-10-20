@@ -21,7 +21,7 @@ public class ShincolleRenderTypes extends RenderType {
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
 
                 .setCullState(NO_CULL)
-                .setWriteMaskState(COLOR_DEPTH_WRITE)
+                .setWriteMaskState(COLOR_WRITE)
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(OVERLAY)
                 .createCompositeState(false);

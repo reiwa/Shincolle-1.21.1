@@ -1,5 +1,7 @@
 package org.trp.shincolle.entity;
 
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -9,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.trp.shincolle.entity.base.EntityShipBase;
@@ -77,13 +80,40 @@ public class EntitySSNH extends EntityShipBase {
         return list;
     }
 
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (hand == InteractionHand.MAIN_HAND && !this.isDeadOrDying()) {
+            ItemStack stack = player.getItemInHand(hand);
+            if (
+                (this.getIsSitting() || this.isOrderedToSit()) &&
+                this.getEmotionSecondary() == EMOTION_BORED &&
+                !player.isShiftKeyDown() &&
+                !stack.is(ModItems.POINTER_ITEM.get())
+            ) {
+                if (this.isTame() && this.isOwnedBy(player)) {
+                    if (!this.level().isClientSide) {
+                        this.setOrderedToSit(false);
+                        this.setInSittingPose(false);
+                        this.startRiding(player, true);
+                        this.getNavigation().stop();
+                    }
+                    return InteractionResult.sidedSuccess(this.level().isClientSide);
+                }
+            }
+        }
+        return super.mobInteract(player, hand);
+    }
+
     private void updateServerRidingLogic() {
         if (this.goRiding) {
             updateGoRidingState();
         }
         if (this.isPassenger()) {
             Entity vehicle = this.getVehicle();
-            if (vehicle instanceof LivingEntity living && living.isCrouching()) {
+            if (
+                vehicle instanceof LivingEntity living &&
+                (living.isCrouching() || (living instanceof Player p && (p.isShiftKeyDown() || p.isCrouching())))
+            ) {
                 this.stopRiding();
             } else if ((this.tickCount % 40) == 0) {
                 this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 60, 0, false, false));

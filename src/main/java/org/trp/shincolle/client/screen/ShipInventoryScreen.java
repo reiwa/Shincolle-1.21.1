@@ -1153,7 +1153,9 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             nameOffsetY = shipNameIconData[0] == 6 ? -10 : 10;
         }
 
-        guiGraphics.blit(nameTexture, this.leftPos + 176, this.topPos + 63 + nameOffsetY, shipNameIconData[1], shipNameIconData[2], 11, 59, 256, 256);
+        if (!(ship instanceof org.trp.shincolle.entity.EntityCustomShip)) {
+            guiGraphics.blit(nameTexture, this.leftPos + 176, this.topPos + 63 + nameOffsetY, shipNameIconData[1], shipNameIconData[2], 11, 59, 256, 256);
+        }
     }
 
     private void drawShipEntityModel(GuiGraphics guiGraphics, int mouseX, int mouseY) {

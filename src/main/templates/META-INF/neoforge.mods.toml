@@ -15,7 +15,7 @@ license = "${mod_license}"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]]
 modId = "shincolle"
-version = "0.9.3"
+version = "0.9.5"
 displayName = "Shinkaiseikan Collection"
 # A URL to query for updates for this mod. See the JSON update specification https://docs.neoforge.net/docs/misc/updatechecker/
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
@@ -69,6 +69,14 @@ versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
+# GeckoLib is optional: only needed to render custom ships
+[[dependencies."${mod_id}"]]
+modId = "geckolib"
+type = "optional"
+versionRange = "[4.7,)"
+ordering = "AFTER"
+side = "BOTH"
+
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares
 # that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't
 # stop your mod loading on the server for example.
@@ -77,3 +85,4 @@ side = "BOTH"
 
 [[mixins]]
 config = "mixins.shincolle.json"
+

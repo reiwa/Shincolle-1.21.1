@@ -16,6 +16,7 @@ public class ModBusEvents {
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
+        event.put(ModEntities.CUSTOM_SHIP.get(), EntityCustomShip.createAttributes().build());
         event.put(ModEntities.NORTHERN_HIME.get(), EntityNorthernHime.createAttributes().build());
         event.put(ModEntities.DESTROYER_IKAZUCHI.get(), EntityDestroyerIkazuchi.createAttributes().build());
         event.put(ModEntities.AIRFIELD_HIME.get(), EntityAirfieldHime.createAttributes().build());

@@ -773,8 +773,41 @@ public final class ShipyardRecipes {
         }
     }
 
-    private static EntityType<? extends Mob> rollShipType(boolean largeShipyard, int[] mats) {
-        List<ShipCandidate> candidates = largeShipyard ? LARGE_SHIP_CANDIDATES : SMALL_SHIP_CANDIDATES;
+    private static List<ShipCandidate> getCandidatesWithCustom(boolean largeShipyard) {
+        List<ShipCandidate> baseList = largeShipyard ? LARGE_SHIP_CANDIDATES : SMALL_SHIP_CANDIDATES;
+        List<ShipCandidate> allCandidates = new ArrayList<>(baseList);
+
+        for (org.trp.shincolle.custom.CustomShipConfig config : org.trp.shincolle.custom.CustomShipRegistry.getAllConfigs()) {
+            if (config.shipyard != null && config.shipyard.enable_build && config.shipyard.large_shipyard == largeShipyard) {
+                int matIndex = getPreferredMatIndex(config.shipyard.preferred_material);
+                int targetMats = config.shipyard.target_total_mats > 0 ? config.shipyard.target_total_mats : (largeShipyard ? 2000 : 100);
+                allCandidates.add(new ShipCandidate(ModEntities.CUSTOM_SHIP.get(), targetMats, matIndex, config.id));
+            }
+        }
+        return allCandidates;
+    }
+
+    private static int getPreferredMatIndex(String matName) {
+        if (matName == null) return -1;
+        return switch (matName.toLowerCase()) {
+            case "grudge" -> 0;
+            case "abyss_metal", "metal" -> 1;
+            case "ammo", "ammo_light", "ammo_heavy" -> 2;
+            case "polymetal", "abyss_polymetal" -> 3;
+            default -> -1;
+        };
+    }
+
+    public static ShipBuildResult rollShipBuildResult(boolean largeShipyard, ItemStack stack) {
+        int[] mats = getShipyardMatsTag(stack);
+        if (mats == null) {
+            mats = new int[]{0, 0, 0, 0};
+        }
+        return rollShipResult(largeShipyard, mats);
+    }
+
+    private static ShipBuildResult rollShipResult(boolean largeShipyard, int[] mats) {
+        List<ShipCandidate> candidates = getCandidatesWithCustom(largeShipyard);
         int totalMats = sumMats(mats);
 
         float[] probs = new float[candidates.size()];
@@ -794,7 +827,8 @@ public final class ShipyardRecipes {
         }
 
         if (totalProb <= 0.0F) {
-            return candidates.getFirst().entityType;
+            ShipCandidate first = candidates.getFirst();
+            return new ShipBuildResult(first.entityType, first.customShipId);
         }
 
         float random = ThreadLocalRandom.current().nextFloat() * totalProb;
@@ -802,10 +836,16 @@ public final class ShipyardRecipes {
         for (int i = 0; i < probs.length; i++) {
             sum += probs[i];
             if (sum > random) {
-                return candidates.get(i).entityType;
+                ShipCandidate chosen = candidates.get(i);
+                return new ShipBuildResult(chosen.entityType, chosen.customShipId);
             }
         }
-        return candidates.getLast().entityType;
+        ShipCandidate last = candidates.getLast();
+        return new ShipBuildResult(last.entityType, last.customShipId);
+    }
+
+    private static EntityType<? extends Mob> rollShipType(boolean largeShipyard, int[] mats) {
+        return rollShipResult(largeShipyard, mats).entityType();
     }
 
     private static int rollEquipType(boolean largeShipyard, int[] mats) {
@@ -947,6 +987,12 @@ public final class ShipyardRecipes {
     private record Candidate(int id, int mean, int preferredMaterial) {
     }
 
-    private record ShipCandidate(EntityType<? extends Mob> entityType, int mean, int preferredMaterial) {
+    public record ShipBuildResult(EntityType<? extends Mob> entityType, String customShipId) {
+    }
+
+    private record ShipCandidate(EntityType<? extends Mob> entityType, int mean, int preferredMaterial, String customShipId) {
+        ShipCandidate(EntityType<? extends Mob> entityType, int mean, int preferredMaterial) {
+            this(entityType, mean, preferredMaterial, null);
+        }
     }
 }

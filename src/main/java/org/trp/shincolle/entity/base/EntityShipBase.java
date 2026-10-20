@@ -1439,7 +1439,7 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
         this.stateComponent.setEquipFlag(key, value);
     }
 
-    CompoundTag copyEquipFlagsTag() {
+    public CompoundTag copyEquipFlagsTag() {
         return this.stateComponent.copyEquipFlagsTag();
     }
 
@@ -1724,6 +1724,14 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
                     )
                 );
             }
+        }
+    }
+
+    @Override
+    public void rideTick() {
+        super.rideTick();
+        if (this.isAlive() && !this.level().isClientSide) {
+            this.tickAliveLogic();
         }
     }
 
@@ -2569,9 +2577,18 @@ public abstract class EntityShipBase extends TamableAnimal implements IShipRende
             box
         );
         LivingEntity owner = this.getOwner();
+        boolean isHostile = this.isHostileShipMob();
         for (EntityShipBase s : list) {
-            if (s.isAlive() && !s.equals(this) && (includeNonOwned || (owner != null && s.isOwnedBy(owner)))) {
-                s.applyEmotesReaction(type);
+            if (s.isAlive() && !s.equals(this)) {
+                if (isHostile) {
+                    if (s.isHostileShipMob()) {
+                        s.applyEmotesReaction(type);
+                    }
+                } else {
+                    if (!s.isHostileShipMob() && (includeNonOwned || (owner != null && s.isOwnedBy(owner)))) {
+                        s.applyEmotesReaction(type);
+                    }
+                }
             }
         }
     }

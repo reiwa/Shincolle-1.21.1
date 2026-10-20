@@ -3,6 +3,8 @@ package org.trp.shincolle.entity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -285,6 +287,30 @@ public class EntityNorthernHime extends EntityShipBase {
             .build();
     }
 
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (hand == InteractionHand.MAIN_HAND && !this.isDeadOrDying()) {
+            ItemStack stack = player.getItemInHand(hand);
+            if (
+                (this.getIsSitting() || this.isOrderedToSit()) &&
+                this.getEmotionSecondary() == EMOTION_BORED &&
+                !player.isShiftKeyDown() &&
+                !stack.is(ModItems.POINTER_ITEM.get())
+            ) {
+                if (this.isTame() && this.isOwnedBy(player)) {
+                    if (!this.level().isClientSide) {
+                        this.setOrderedToSit(false);
+                        this.setInSittingPose(false);
+                        this.startRiding(player, true);
+                        this.getNavigation().stop();
+                    }
+                    return InteractionResult.sidedSuccess(this.level().isClientSide);
+                }
+            }
+        }
+        return super.mobInteract(player, hand);
+    }
+
     private void updateServerRidingLogic() {
         if (this.goRiding) {
             updateGoRidingState();
@@ -292,7 +318,8 @@ public class EntityNorthernHime extends EntityShipBase {
         if (this.isPassenger()) {
             Entity vehicle = this.getVehicle();
             if (
-                vehicle instanceof LivingEntity living && living.isCrouching()
+                vehicle instanceof LivingEntity living &&
+                (living.isCrouching() || (living instanceof Player p && (p.isShiftKeyDown() || p.isCrouching())))
             ) {
                 this.stopRiding();
             }

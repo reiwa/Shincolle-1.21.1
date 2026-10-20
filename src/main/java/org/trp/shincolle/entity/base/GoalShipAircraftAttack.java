@@ -58,7 +58,13 @@ public class GoalShipAircraftAttack extends Goal {
     public void tick() {
         if (this.target == null) return;
 
-        this.distSq = this.host.distanceToSqr(this.target.getX(), this.target.getY() + 2.0D, this.target.getZ());
+        double dx = this.target.getX() - this.host.getX();
+        double dz = this.target.getZ() - this.host.getZ();
+        double dy = (this.target.getY() + 2.0D) - this.host.getY();
+        if (this.target.isInWaterOrBubble() && dy < 0.0D) {
+            dy = Math.max(-4.0D, dy);
+        }
+        this.distSq = dx * dx + dy * dy + dz * dz;
 
         if ((this.host.tickCount & 0xF) == 0 || this.randPos == null || this.host.getNavigation().isDone()) {
             updateRandomPos();
@@ -86,7 +92,7 @@ public class GoalShipAircraftAttack extends Goal {
         if (this.host.isMissionLightAircraft()) {
             minDist = 5.0D;
             randDist = 2.0D;
-            } else {
+        } else {
             minDist = 12.0D;
             randDist = 5.0D;
         }
@@ -103,14 +109,27 @@ public class GoalShipAircraftAttack extends Goal {
             double dist = minDist + this.host.getRandom().nextDouble() * randDist;
             double newX = ref.getX() + Math.cos(rad) * dist;
             double newZ = ref.getZ() + Math.sin(rad) * dist;
-            double newY = ref.getY() + ref.getBbHeight() + 2.0D + this.host.getRandom().nextDouble() * 2.0D;
+            double targetY = ref.getY() + ref.getBbHeight();
+
+            BlockPos surfaceCheck = BlockPos.containing(newX, targetY, newZ);
+            while (surfaceCheck.getY() < level.getMaxBuildHeight() && !level.getFluidState(surfaceCheck).isEmpty()) {
+                surfaceCheck = surfaceCheck.above();
+            }
+
+            double baseY = Math.max(targetY, (double) surfaceCheck.getY());
+            double newY = baseY + 2.0D + this.host.getRandom().nextDouble() * 2.0D;
 
             BlockPos targetPos = BlockPos.containing(newX, newY, newZ);
-            if (level.getBlockState(targetPos).getCollisionShape(level, targetPos).isEmpty()) {
+            if (level.getBlockState(targetPos).getCollisionShape(level, targetPos).isEmpty() && level.getFluidState(targetPos).isEmpty()) {
                 this.randPos = new Vec3(newX, newY, newZ);
                 return;
             }
         }
-        this.randPos = new Vec3(ref.getX(), ref.getY() + 5.0D, ref.getZ());
+
+        BlockPos fallbackCheck = BlockPos.containing(ref.getX(), ref.getY() + ref.getBbHeight(), ref.getZ());
+        while (fallbackCheck.getY() < level.getMaxBuildHeight() && !level.getFluidState(fallbackCheck).isEmpty()) {
+            fallbackCheck = fallbackCheck.above();
+        }
+        this.randPos = new Vec3(ref.getX(), Math.max(ref.getY() + 5.0D, fallbackCheck.getY() + 3.0D), ref.getZ());
     }
 }

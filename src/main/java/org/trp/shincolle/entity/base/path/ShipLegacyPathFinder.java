@@ -74,9 +74,9 @@ final class ShipLegacyPathFinder {
         }
 
         ShipLegacyPathPoint start = openPoint(
-                Mth.floor(host.getBoundingBox().minX),
+                Mth.floor(host.getX() + 0.5D),
                 startY,
-                Mth.floor(host.getBoundingBox().minZ));
+                Mth.floor(host.getZ() + 0.5D));
         ShipLegacyPathPoint end = openPoint(Mth.floor(tx), Mth.floor(ty), Mth.floor(tz));
 
         int sizeX = Mth.floor(host.getBbWidth() + 1.0F);

@@ -55,6 +55,24 @@ public class ClientModEventBusEvents {
                         registerLegacyVariantProperty(ModItems.SHIP_TANK.get());
                         registerLegacyVariantProperty(ModItems.COMBAT_RATION.get());
                         registerLegacyVariantProperty(ModItems.POINTER_ITEM.get());
+                        registerCustomShipEggProperty(ModItems.CUSTOM_SHIP_SPAWN_EGG.get());
+                });
+        }
+
+        private static void registerCustomShipEggProperty(net.minecraft.world.item.Item item) {
+                ResourceLocation prop = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "ship_class");
+                ItemProperties.register(item, prop, (stack, level, entity, seed) -> {
+                        String shipId = org.trp.shincolle.item.CustomShipSpawnEggItem.getCustomShipId(stack);
+                        if (!shipId.isEmpty()) {
+                                org.trp.shincolle.custom.CustomShipConfig config = org.trp.shincolle.custom.CustomShipRegistry.getConfig(shipId);
+                                if (config != null) {
+                                        org.trp.shincolle.item.ShipClass sc = config.getParsedShipClass();
+                                        if (sc != null) {
+                                                return (float) sc.ordinal();
+                                        }
+                                }
+                        }
+                        return 0.0F;
                 });
         }
 
@@ -124,6 +142,7 @@ public class ClientModEventBusEvents {
         event.registerEntityRenderer(ModEntities.BATTLESHIP_YAMATO.get(), RendererBattleshipYamato::new);
         event.registerEntityRenderer(ModEntities.SUBM_U511.get(), RendererSubmU511::new);
         event.registerEntityRenderer(ModEntities.SUBM_RO500.get(), RendererSubmRo500::new);
+        event.registerEntityRenderer(ModEntities.CUSTOM_SHIP.get(), org.trp.shincolle.client.renderer.CustomShipRendererFactory::create);
 
         event.registerEntityRenderer(ModEntities.AIRPLANE.get(), context -> new RendererSimpleMob<>(
                 context,

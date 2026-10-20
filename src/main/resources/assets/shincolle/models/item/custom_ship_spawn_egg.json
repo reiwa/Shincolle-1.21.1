@@ -1,0 +1,56 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "shincolle:item/shipspawnegg0"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "shincolle:ship_class": 1.0
+      },
+      "model": "shincolle:item/custom_ship_spawn_egg_1"
+    },
+    {
+      "predicate": {
+        "shincolle:ship_class": 2.0
+      },
+      "model": "shincolle:item/custom_ship_spawn_egg_2"
+    },
+    {
+      "predicate": {
+        "shincolle:ship_class": 3.0
+      },
+      "model": "shincolle:item/custom_ship_spawn_egg_3"
+    },
+    {
+      "predicate": {
+        "shincolle:ship_class": 4.0
+      },
+      "model": "shincolle:item/custom_ship_spawn_egg_4"
+    },
+    {
+      "predicate": {
+        "shincolle:ship_class": 5.0
+      },
+      "model": "shincolle:item/custom_ship_spawn_egg_5"
+    },
+    {
+      "predicate": {
+        "shincolle:ship_class": 6.0
+      },
+      "model": "shincolle:item/custom_ship_spawn_egg_6"
+    },
+    {
+      "predicate": {
+        "shincolle:ship_class": 7.0
+      },
+      "model": "shincolle:item/custom_ship_spawn_egg_7"
+    },
+    {
+      "predicate": {
+        "shincolle:ship_class": 8.0
+      },
+      "model": "shincolle:item/custom_ship_spawn_egg_8"
+    }
+  ]
+}

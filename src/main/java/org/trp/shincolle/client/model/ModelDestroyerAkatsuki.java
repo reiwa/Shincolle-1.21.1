@@ -539,6 +539,7 @@ public class ModelDestroyerAkatsuki<T extends EntityShipBase> extends ShipModelH
         this.isDeadPose = false;
         this.poseTranslateY = 0.0F;
         resetOffsets();
+        resetRotations();
         resetHairRotations();
 
         applyFaceAndMouth(entity);
@@ -578,6 +579,21 @@ public class ModelDestroyerAkatsuki<T extends EntityShipBase> extends ShipModelH
         ArmRight02.x = armRight02DefaultX;
         ArmRight02.y = armRight02DefaultY;
         ArmRight02.z = armRight02DefaultZ;
+    }
+
+    private void resetRotations() {
+        LegLeft02.xRot = 0.0F;
+        LegLeft02.yRot = 0.0F;
+        LegLeft02.zRot = 0.0F;
+        LegRight02.xRot = 0.0F;
+        LegRight02.yRot = 0.0F;
+        LegRight02.zRot = 0.0F;
+        ArmLeft02.xRot = 0.0F;
+        ArmLeft02.yRot = 0.0F;
+        ArmLeft02.zRot = 0.0F;
+        ArmRight02.xRot = 0.0F;
+        ArmRight02.yRot = 0.0F;
+        ArmRight02.zRot = 0.0F;
     }
 
     private void resetHairRotations() {
@@ -625,8 +641,10 @@ public class ModelDestroyerAkatsuki<T extends EntityShipBase> extends ShipModelH
         ArmRight01.yRot = 0.0F;
         ArmRight01.zRot = -0.3F;
         ArmLeft02.xRot = 0.0F;
+        ArmLeft02.yRot = 0.0F;
         ArmLeft02.zRot = 0.0F;
         ArmRight02.xRot = 0.0F;
+        ArmRight02.yRot = 0.0F;
         ArmRight02.zRot = 0.0F;
 
         LegLeft01.xRot = -0.2618F;
@@ -636,7 +654,11 @@ public class ModelDestroyerAkatsuki<T extends EntityShipBase> extends ShipModelH
         LegRight01.yRot = 0.0F;
         LegRight01.zRot = -0.03F;
         LegLeft02.xRot = 0.0F;
+        LegLeft02.yRot = 0.0F;
+        LegLeft02.zRot = 0.0F;
         LegRight02.xRot = 0.0F;
+        LegRight02.yRot = 0.0F;
+        LegRight02.zRot = 0.0F;
 
         EquipHead01.yRot = -1.4F;
         EquipHead01.zRot = 1.4F;

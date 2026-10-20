@@ -20,6 +20,8 @@ public class Shincolle {
     public Shincolle(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
+        org.trp.shincolle.custom.CustomShipRegistry.scanAndRegister();
+
         modEventBus.register(ModBusEvents.class);
         modEventBus.register(Config.class);
         modEventBus.register(ModNetwork.class);

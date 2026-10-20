@@ -158,13 +158,16 @@ class EntityShipBaseMovementHelper {
             return false;
         }
         LivingEntity owner = this.ship.getOwner();
-        if (owner == null) {
+        if (owner == null || owner.level() != this.ship.level()) {
             return false;
         }
         if (this.ship.getGuardedPos(4) == 1 || this.ship.hasPointerTarget()) {
             return false;
         }
-        if (this.ship.hasPointerTargetEntity() || this.ship.getTarget() != null) {
+        if (this.ship.hasPointerTargetEntity()) {
+            return false;
+        }
+        if (this.ship.getTarget() != null && !isOwnerTooFar()) {
             return false;
         }
 
@@ -172,26 +175,20 @@ class EntityShipBaseMovementHelper {
         float minDist =
             configuredMin <= 0 ? 6.0F : (float) Mth.clamp(configuredMin, 1, 31);
 
-        int configuredMax = this.ship.getStateComponent().getFollowMax();
-        float maxDist =
-            configuredMax <= 0
-                ? Math.max(12.0F, minDist + 1.0F)
-                : (float) Mth.clamp(
-                      configuredMax,
-                      Math.max(2, Mth.floor(minDist) + 1),
-                      32
-                  );
-
         double checkMinDist = minDist;
         if (owner instanceof Player player && playerHasCombatRation(player)) {
             checkMinDist = 1.5D;
+        } else if (this.ship.getFormationTeam() >= 0 && this.ship.getFormationSlot() >= 0) {
+            org.trp.shincolle.attachment.AdmiralData data = owner.getData(
+                org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA
+            );
+            if (data.getFormationID(this.ship.getFormationTeam()) > 0) {
+                return true;
+            }
         }
 
         double distanceSqr = this.ship.distanceToSqr(owner);
-        return (
-            distanceSqr > (checkMinDist * checkMinDist) &&
-            distanceSqr < (maxDist * maxDist) * 256.0D
-        );
+        return distanceSqr > (checkMinDist * checkMinDist);
     }
 
     public boolean isOwnerTooFar() {
@@ -204,7 +201,7 @@ class EntityShipBaseMovementHelper {
             return false;
         }
         LivingEntity owner = this.ship.getOwner();
-        if (owner == null) {
+        if (owner == null || owner.level() != this.ship.level()) {
             return false;
         }
         if (this.ship.getGuardedPos(4) == 1 || this.ship.hasPointerTarget()) {
@@ -229,10 +226,7 @@ class EntityShipBaseMovementHelper {
                   );
 
         double distanceSqr = this.ship.distanceToSqr(owner);
-        return (
-            distanceSqr > (maxDist * maxDist) &&
-            distanceSqr < (maxDist * maxDist) * 256.0D
-        );
+        return distanceSqr > (maxDist * maxDist);
     }
 
     private boolean playerHasCombatRation(Player player) {

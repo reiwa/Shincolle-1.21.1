@@ -227,7 +227,7 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void onPointerItemAttack(AttackEntityEvent event) {
         Player player = event.getEntity();
-        if (player == null) {
+        if (player == null || player.level().isClientSide) {
             return;
         }
 
@@ -236,7 +236,12 @@ public class ModEventBusEvents {
             return;
         }
 
-        if (player.level().isClientSide) {
+        event.setCanceled(true);
+        handlePointerLeftClickEntity(player, pointerStack, event.getTarget());
+    }
+
+    public static void handlePointerLeftClickEntity(Player player, ItemStack pointerStack, Entity target) {
+        if (player == null || target == null || pointerStack.isEmpty() || player.level().isClientSide) {
             return;
         }
 
@@ -245,14 +250,10 @@ public class ModEventBusEvents {
                 int next = pointerItem.cycleMode(pointerStack);
                 PointerItem.updateServerSideMode(player, pointerStack, next);
             }
-            event.setCanceled(true);
             return;
         }
 
-        event.setCanceled(true);
-
-        if (!(event.getTarget() instanceof EntityShipBase ship)) {
-            Entity target = event.getTarget();
+        if (!(target instanceof EntityShipBase ship)) {
             if (target instanceof net.minecraft.world.entity.LivingEntity && !(target instanceof Player)) {
                 String targetName = target.getClass().getSimpleName();
                 org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);

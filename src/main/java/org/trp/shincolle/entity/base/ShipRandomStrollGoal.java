@@ -2,9 +2,6 @@ package org.trp.shincolle.entity.base;
 
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 
-/**
- * Goal that makes the ship entity stroll randomly, suppressed while sitting, dead, riding, or being ridden.
- */
 class ShipRandomStrollGoal extends RandomStrollGoal {
 
     private final EntityShipBase ship;

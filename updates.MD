@@ -1,3 +1,10 @@
+## v0.9.5(2026/09/ JST)
+- Added a feature to create custom ship girl
+- Fixed behavior related to NorthernHime
+- Fixed entity movement logic
+- Fixed an issue with pointeritem
+- Miscellaneous fixes
+
 ## v0.9.4(2026/08/23 JST)
 - Fixed a range issue of the Pointeritem
 - Fixed enemy attribute and attack logics
